@@ -1,0 +1,31 @@
+---
+source: crates/simpl-syntax/src/test.rs
+expression: ast
+---
+Let(
+    LetExpr {
+        bindings: [
+            Binding {
+                var: "x",
+                val: Lit(
+                    Int(
+                        5,
+                    ),
+                ),
+            },
+            Binding {
+                var: "y",
+                val: Lit(
+                    Bool(
+                        false,
+                    ),
+                ),
+            },
+        ],
+        body: Var(
+            VarExpr(
+                "x",
+            ),
+        ),
+    },
+)

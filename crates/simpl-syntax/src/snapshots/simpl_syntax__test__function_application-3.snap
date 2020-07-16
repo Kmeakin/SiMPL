@@ -1,0 +1,41 @@
+---
+source: crates/simpl-syntax/src/test.rs
+expression: ast
+---
+Let(
+    LetExpr {
+        bindings: [
+            Binding {
+                var: "id",
+                val: Lambda(
+                    LambdaExpr {
+                        args: [
+                            "x",
+                        ],
+                        body: Var(
+                            VarExpr(
+                                "x",
+                            ),
+                        ),
+                    },
+                ),
+            },
+        ],
+        body: App(
+            AppExpr {
+                func: Var(
+                    VarExpr(
+                        "id",
+                    ),
+                ),
+                args: [
+                    Var(
+                        VarExpr(
+                            "id",
+                        ),
+                    ),
+                ],
+            },
+        ),
+    },
+)

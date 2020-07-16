@@ -1,0 +1,96 @@
+use std::str::FromStr;
+use crate::ast::{Symbol, Expr, LiteralExpr, VarExpr, LetExpr, Binding, LambdaExpr, AppExpr};
+
+grammar;
+
+// Literal expressions
+
+pub LitExpr: LiteralExpr = {
+    Bool => LiteralExpr::Bool(<>),
+    Int => LiteralExpr::Int(<>),
+    Float => LiteralExpr::Float(<>),
+}
+
+pub Bool: bool = {
+    "true" => true,
+    "false" => false,
+}
+
+pub Int: i64 = {
+    <s:r"[0-9]+"> => i64::from_str(s).unwrap(),
+}
+
+pub Float: f64 = {
+    <s:r"[0-9]+\.[0-9]+"> => f64::from_str(s).unwrap(),
+}
+
+// Variable references
+
+pub Ident: Symbol = {
+    <s:r"[a-zA-Z][a-zA-Z0-9_]*"> => <>.into(),
+}
+
+pub VarExpr: VarExpr = {
+    Ident => VarExpr(<>),
+}
+
+// Let bindings
+
+pub LetExpr: LetExpr = {
+    "let" <bindings:Comma1<Binding>> "in" <body:Expr> ";"
+        => LetExpr {bindings, body: box body},
+}
+
+pub Binding: Binding = {
+    <var:Ident> "=" <val:Expr> => Binding {var, val: box val},
+}
+
+// Lambda abstraction
+
+pub LambdaExpr: LambdaExpr = {
+   "\\" "(" <args:Comma<Ident>> ")" "->" <body:Expr> ";"
+        => LambdaExpr {args, body: box body},
+}
+
+// Function application
+
+pub AppExpr: AppExpr = {
+    <func:Expr> "(" <args:Comma<Expr>> ")" => AppExpr {func: box func, args},
+}
+
+// Expressions
+
+pub Expr: Expr = {
+    LitExpr => Expr::Lit(<>),
+    VarExpr => Expr::Var(<>),
+    LetExpr => Expr::Let(<>),
+    LambdaExpr => Expr::Lambda(<>),
+    AppExpr => Expr::App(<>),
+}
+
+#[inline]
+Delim<T, D>: Vec<T> = {
+    <v:(<T> <D>)*> <e:T?> => match e {
+        None => v.iter().map(|x| x.0.clone()).collect(),
+        Some(e) => {
+            let mut v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+            v.push(e);
+            v
+        }
+    }
+}
+
+#[inline]
+Delim1<T, D>: Vec<T> = {
+    <v:(<T> <D>)*> <e:T> => {
+        let mut v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+        v.push(e);
+        v
+    }
+}
+
+#[inline]
+Comma<T> = Delim<T, ",">;
+
+#[inline]
+Comma1<T> = Delim1<T, ",">;
