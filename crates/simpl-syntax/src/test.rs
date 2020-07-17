@@ -1,10 +1,9 @@
-use crate::grammar;
+use crate::{ast::Expr, grammar, parse};
 use insta::assert_debug_snapshot;
 
 #[track_caller]
 fn test_parse_ok(src: &str) {
-    let parser = grammar::ExprParser::new();
-    match parser.parse(src) {
+    match parse(src) {
         Ok(ast) => assert_debug_snapshot!(ast),
         Err(e) => {
             eprintln!("{}", e);
