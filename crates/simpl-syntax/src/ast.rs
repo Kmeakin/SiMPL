@@ -16,7 +16,7 @@ pub enum LiteralExpr {
     Float(f64),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VarExpr(pub Symbol);
 
 #[derive(Debug, Clone, PartialEq)]
