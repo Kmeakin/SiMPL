@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Symbol, Expr, LiteralExpr, VarExpr, LetExpr, Binding, LambdaExpr, AppExpr};
+use crate::ast::{Symbol, Expr, LiteralExpr, VarExpr, IfExpr, LetExpr, Binding, LambdaExpr, AppExpr};
 
 grammar;
 
@@ -34,6 +34,16 @@ pub VarExpr: VarExpr = {
     Ident => VarExpr(<>),
 }
 
+// If expressions
+
+pub IfExpr: IfExpr = {
+    "if" <test:Expr> "then" <then_branch:Expr> "else" <else_branch:Expr> ";"
+         => IfExpr{ test: box test,
+                    then_branch: box then_branch,
+                    else_branch: box else_branch
+                   },
+}
+
 // Let bindings
 
 pub LetExpr: LetExpr = {
@@ -61,11 +71,12 @@ pub AppExpr: AppExpr = {
 // Expressions
 
 pub Expr: Expr = {
-    LitExpr => Expr::Lit(<>),
-    VarExpr => Expr::Var(<>),
-    LetExpr => Expr::Let(<>),
+    LitExpr    => Expr::Lit(<>),
+    VarExpr    => Expr::Var(<>),
+    IfExpr     => Expr::If(<>),
+    LetExpr    => Expr::Let(<>),
     LambdaExpr => Expr::Lambda(<>),
-    AppExpr => Expr::App(<>),
+    AppExpr    => Expr::App(<>),
 }
 
 #[inline]

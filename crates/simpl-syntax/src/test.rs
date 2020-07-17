@@ -27,6 +27,11 @@ fn var() {
 }
 
 #[test]
+fn if_then_else() {
+    test_parse_ok("if true then 1 else 0;");
+}
+
+#[test]
 fn let_binding() {
     test_parse_ok("let x = 5 in x;");
     test_parse_ok("let x = 5, y = false in x;");

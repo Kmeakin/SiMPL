@@ -1,0 +1,23 @@
+---
+source: crates/simpl-syntax/src/test.rs
+expression: ast
+---
+If(
+    IfExpr {
+        test: Lit(
+            Bool(
+                true,
+            ),
+        ),
+        then_branch: Lit(
+            Int(
+                1,
+            ),
+        ),
+        else_branch: Lit(
+            Int(
+                0,
+            ),
+        ),
+    },
+)

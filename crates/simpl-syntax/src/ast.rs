@@ -4,6 +4,7 @@ pub type Symbol = String;
 pub enum Expr {
     Lit(LiteralExpr),
     Var(VarExpr),
+    If(IfExpr),
     Let(LetExpr),
     Lambda(LambdaExpr),
     App(AppExpr),
@@ -18,6 +19,13 @@ pub enum LiteralExpr {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VarExpr(pub Symbol);
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct IfExpr {
+    pub test: Box<Expr>,
+    pub then_branch: Box<Expr>,
+    pub else_branch: Box<Expr>,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LetExpr {
