@@ -7,6 +7,24 @@ use simpl_syntax::grammar::ExprParser;
 fn default_env() -> TypeEnv {
     let mut env = TypeEnv::new();
 
+    // not: Bool -> Bool
+    env.insert(
+        "not".into(),
+        Polytype {
+            vars: vec![],
+            ty: Type::Fn(vec![Type::Bool], box Type::Bool),
+        },
+    );
+
+    // is_zero: Int -> Bool
+    env.insert(
+        "is_zero".into(),
+        Polytype {
+            vars: vec![],
+            ty: Type::Fn(vec![Type::Int], box Type::Bool),
+        },
+    );
+
     // add: Int, Int -> Int
     env.insert(
         "add".into(),
@@ -34,7 +52,7 @@ fn default_env() -> TypeEnv {
         },
     );
 
-    // if_then_else: Bool, 't1, 't1 -> 't1
+    // if_then_else: Bool, 't0, 't0 -> 't0
     env.insert(
         "if_then_else".into(),
         Polytype {
@@ -104,11 +122,31 @@ fn app() {
     test_infer_ok(r"if_then_else(true, 1, 0)", Type::Int);
 }
 
-// #[test]
-fn bottom() {
+#[test]
+fn letrec() {
     // loop: () -> 't1
     test_infer_ok(
         r"let loop = \() -> loop(); in loop;",
-        Type::Fn(vec![], box Type::Var(TypeVar(0))),
+        Type::Fn(vec![], box Type::Var(TypeVar(1))),
     );
+
+    // // fact: Int -> Int
+    test_infer_ok(
+        r"let fact = \(x) -> if_then_else(is_zero(x), 0, mul(x, fact(sub(x,
+    1)))); in fact;",
+        Type::Fn(vec![Type::Int], box Type::Int),
+    );
+
+    // is_even: Int -> bool
+    test_infer_ok(
+        r"
+let is_even = \(x) -> if_then_else(is_zero(x), true, is_odd(sub(x, 1)));,
+    is_odd = \(x) -> if_then_else(is_zero(x), false, is_even(sub(x, 1)));
+in
+    is_even;
+",
+        Type::Fn(vec![Type::Int], box Type::Bool),
+    );
+
+    test_infer_ok("let a = b, b = a in a;", Type::Var(TypeVar(1)));
 }

@@ -124,13 +124,22 @@ impl TypeEnv {
                 let mut env = self.clone();
 
                 let mut s1 = Subst::new();
-                for binding in bindings {
-                    let Binding { var, val } = binding;
-
+                for Binding { var, .. } in bindings {
                     // Remove any existing type with the same name as the binding variable to
                     // prevent name clashes
                     env.remove(var);
 
+                    // letrec
+                    env.insert(
+                        var.clone(),
+                        Polytype {
+                            ty: Type::Var(gen.next()),
+                            vars: vec![],
+                        },
+                    );
+                }
+
+                for Binding { var, val } in bindings {
                     // Infer the type of the binding
                     let (s, t) = env.infer_inner(val, gen)?;
                     s1 = s1.compose(&s);
