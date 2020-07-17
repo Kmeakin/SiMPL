@@ -130,7 +130,18 @@ fn letrec() {
         Type::Fn(vec![], box Type::Var(TypeVar(1))),
     );
 
-    // // fact: Int -> Int
+    // loop: () -> 't1
+    // loop() is the "bottom type": it can be used anywhere any type is expected
+    // in this instance, loop() is instantiated as a Bool and an Int
+    test_infer_ok(
+        r"
+let loop = \() -> loop();
+in
+    if_then_else(loop(), add(loop(), 1), loop());",
+        Type::Int,
+    );
+
+    // fact: Int -> Int
     test_infer_ok(
         r"let fact = \(x) -> if_then_else(is_zero(x), 0, mul(x, fact(sub(x,
     1)))); in fact;",
