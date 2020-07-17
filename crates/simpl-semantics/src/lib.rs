@@ -1,3 +1,5 @@
+/*
+
 #![feature(box_syntax)]
 #![feature(box_patterns)]
 
@@ -28,3 +30,5 @@ where
         res
     }
 }
+
+*/
