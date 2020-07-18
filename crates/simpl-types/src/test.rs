@@ -33,8 +33,7 @@ fn print_cons(cons: Constraints) {
 }
 
 #[test]
-fn arena_test() {
-    // type of this expr is (Int -> Bool) -> Int
+fn annotate_test0() {
     let src = r"
 \(is_zero) ->
     if is_zero(1)
@@ -44,19 +43,21 @@ fn arena_test() {
 ;";
 
     let ast = parse(src).unwrap();
-    let (arena, _) = store(ast);
-    print_arena(arena);
+    let (arena, id) = store(ast);
+
+    print_arena(arena.clone());
+
+    let (anns, cons) = annotate(arena, id);
+
+    print_anns(anns);
+    print_cons(cons);
 }
 
 #[test]
-fn annotate_test() {
+fn annotate_test1() {
     let src = r"
-\(is_zero) ->
-    if is_zero(1)
-        then 2
-        else 3
-    ;
-;";
+let id = \(x, y) -> x; in id(1, false);
+";
 
     let ast = parse(src).unwrap();
     let (arena, id) = store(ast);
