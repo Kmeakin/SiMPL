@@ -50,7 +50,7 @@ Args       := (Expr),+
 - Note also that function application is written with the more "mainstream" `f(1, 2, 3)` style from C, Java etc, not the `f 1 2 3` style from Haskell, ML etc. This is because it's my language dammit.
 
 ## Type system
-- Implemented in `crates/simpl-syntax`
+- Implemented in `crates/simpl-types`
 - Hindley-Milner type system, add type-classes later if I get around to it.
 - Functions are **not** automatically curried. I prefer explicit currying vs spewing type errors because you forgot the last argument in a call lines up.
   - TODO: syntactic sugar for automatic currying: `f(1, ...)` => `\(x, y) -> f(1, x, y)`
