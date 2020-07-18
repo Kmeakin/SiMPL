@@ -39,7 +39,7 @@ fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr
             ty,
             bindings: bindings
                 .into_iter()
-                .map(|(var, val)| ann(val, tenv, gen).map(|val| (var, val)))
+                .map(|(var, val)| ann(val, tenv, gen).map(|val| (var, gen.fresh(), val)))
                 .collect::<Result<Vec<_>, _>>()?,
             body: box ann(body, tenv, gen)?,
         },

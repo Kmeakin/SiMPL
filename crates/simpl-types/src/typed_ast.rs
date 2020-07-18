@@ -1,8 +1,5 @@
 use crate::ty::Type;
-use simpl_syntax::{
-    ast,
-    ast::{Lit, Symbol},
-};
+pub use simpl_syntax::ast::{Lit, Symbol};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
@@ -22,7 +19,7 @@ pub enum Expr {
     },
     Let {
         ty: Type,
-        bindings: Vec<(Symbol, Expr)>,
+        bindings: Vec<(Symbol, Type, Expr)>,
         body: Box<Expr>,
     },
     Lambda {
@@ -35,4 +32,17 @@ pub enum Expr {
         func: Box<Expr>,
         args: Vec<Expr>,
     },
+}
+
+impl Expr {
+    pub fn ty(&self) -> Type {
+        match self {
+            Self::Lit { ty, .. }
+            | Self::Var { ty, .. }
+            | Self::If { ty, .. }
+            | Self::Let { ty, .. }
+            | Self::Lambda { ty, .. }
+            | Self::App { ty, .. } => ty.clone(),
+        }
+    }
 }
