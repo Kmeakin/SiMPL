@@ -16,11 +16,44 @@
   
 ## Syntax
 - Implemented in `crates/simpl-syntax`
-- TODO: give a grammar definition.
+Grammar:
+```
+Program := Expr
+
+Expr := LitExpr
+      | VarExpr
+      | IfExpr
+      | LetExpr
+      | LambdaExpr
+      | AppExpr
+
+LitExpr := Int | Float | Bool
+Int     := [0-9]+
+Float   := [0-9]+ "." [0-9]+
+Bool    := "true" | "false"
+
+VarExpr := Ident
+Ident   := [a-zA-Z][a-zA-Z0-9_]*
+
+IfExpr := "if" Expr "then" Expr "else" Expr ";"
+
+LetExpr    := "let" Bindings "in" Expr ";"
+Bindings   := (Ident "=" Expr),+
+
+LambdaExpr := "\" "(" Params ")" "->" Expr ";"
+Params     := (Ident),+
+
+AppExpr    := Expr "(" Args ")"
+Args       := (Expr),+
+```
+- Note that `IfExpr`, `LetExpr` and `LambdaExpr` and all terminated by semi-colons. This is temporary and will be fixed once I can be bothered to understand what shift-reduce conflicts are.
+- Note also that function application is written with the more "mainstream" `f(1, 2, 3)` style from C, Java etc, not the `f 1 2 3` style from Haskell, Ml etc. This is because it's my language dammit.
 
 ## Type system
 - Implemented in `crates/simpl-syntax`
 - Hindley-Milner type system, add type-classes later if I get around to it.
+- Functions are **not** automatically curried. I prefer explicit currying vs spewing type errors because you forgot the last argument in a call lines up.
+  - TODO: syntactic sugar for automatic currying: `f(1, ...)` => `\(x, y) -> f(1, x, y)`
 - Features
   - [x] Infer principal types for every expression
   - [x] Letrec (recursive and mutually-recursive functions)
