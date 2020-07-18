@@ -4,7 +4,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct Subst(HashMap<TypeVar, Type>);
 
 impl Constraint {
@@ -25,7 +25,7 @@ impl Type {
 
 impl Subst {
     pub fn new() -> Self {
-        Self(HashMap::new())
+        Self::default()
     }
 
     pub fn insert(&mut self, tvar: TypeVar, ty: Type) {
@@ -54,7 +54,7 @@ impl Subst {
                 args.iter()
                     .map(|arg| self.replace(arg.clone(), tvar, replacement.clone()))
                     .collect(),
-                box self.replace(ret.clone(), tvar, replacement),
+                box self.replace(ret, tvar, replacement),
             ),
         }
     }
@@ -79,6 +79,7 @@ impl Subst {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 
@@ -117,7 +118,7 @@ mod test {
         subst.insert(2, Type::Bool);
         subst.insert(3, Type::Fn(vec![Type::Int], box Type::Bool));
 
-        let mut cons = vec![
+        let cons = vec![
             Constraint(Type::Var(1), Type::Var(2)),
             Constraint(Type::Var(2), Type::Var(3)),
         ];

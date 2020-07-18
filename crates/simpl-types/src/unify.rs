@@ -25,7 +25,7 @@ fn unify1(con: &Constraint) -> Subst {
         (Type::Var(tvar), ty) | (ty, Type::Var(tvar)) => unify_var(&tvar, &ty),
         (Type::Fn(args1, box ret1), Type::Fn(args2, box ret2)) => unify(
             args1
-                .into_iter()
+                .iter()
                 .zip(args2)
                 .map(|(arg1, arg2)| Constraint(arg1.clone(), arg2.clone()))
                 .chain(vec![Constraint(ret1.clone(), ret2.clone())])
@@ -53,6 +53,7 @@ fn occurs(tvar: &TypeVar, ty: &Type) -> bool {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

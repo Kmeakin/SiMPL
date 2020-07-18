@@ -19,7 +19,7 @@ pub fn collect(expr: Expr) -> Constraints {
     match expr {
         Expr::Lit { ty, val } => vec![Constraint(ty, lit_type(val))],
 
-        Expr::Var { ty, name } => vec![],
+        Expr::Var { .. } => vec![],
 
         Expr::If {
             ty,
@@ -33,16 +33,16 @@ pub fn collect(expr: Expr) -> Constraints {
                 Constraint(else_branch.ty(), ty),
             ];
 
-            cons.extend(collect(*test.clone()));
-            cons.extend(collect(*then_branch.clone()));
-            cons.extend(collect(*else_branch.clone()));
+            cons.extend(collect(*test));
+            cons.extend(collect(*then_branch));
+            cons.extend(collect(*else_branch));
 
             cons
         }
 
         Expr::Lambda { ty, args, body } => {
             let mut cons = vec![Constraint(
-                ty.clone(),
+                ty,
                 Type::Fn(
                     args.iter().map(|(_, t)| t).cloned().collect(),
                     box body.ty(),

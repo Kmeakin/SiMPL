@@ -1,7 +1,6 @@
 //! Takes an `ast::Expr` and annotates each Expr with a fresh `Type`
 
 use crate::{
-    parse_and_annotate,
     ty::{TypeEnv, TypeVarGen},
     typed_ast::Expr,
 };
@@ -89,22 +88,13 @@ fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::ty::Type;
-    use insta::assert_debug_snapshot;
-    use simpl_syntax::{ast::Lit, parse};
+    use crate::{parse_and_annotate, ty::Type, typed_ast::Lit};
 
     macro_rules! vec_clone {
 	[$($e:expr),*] => {
 		vec![$($e.clone()),*]
 	};
 }
-
-    #[track_caller]
-    fn test_annotate(src: &str) {
-        let ast = parse(src).unwrap();
-        let typed_ast = annotate(ast);
-        assert_debug_snapshot!(typed_ast);
-    }
 
     #[test]
     fn annotate_identity() {
@@ -123,6 +113,7 @@ mod test {
                 assert_eq!(args.len(), 1);
                 let (arg_name, t2) = &args[0];
                 assert_eq!(arg_name, "x");
+                assert_eq!(var_name, "x");
 
                 assert_ne!(t1, t2.clone());
                 assert_ne!(t1, t3.clone());

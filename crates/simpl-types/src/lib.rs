@@ -19,10 +19,13 @@ pub fn type_of(expr: Expr) -> Type {
 }
 
 pub fn parse_and_annotate(src: &str) -> Expr {
+    // TODO: Return a Result instead of unwraping
+
     let ast = simpl_syntax::parse(src).unwrap();
     annotate::annotate(ast).unwrap()
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

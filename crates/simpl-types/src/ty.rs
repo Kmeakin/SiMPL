@@ -24,7 +24,7 @@ impl TypeEnv {
         Self(HashMap::new())
     }
 
-    pub fn get(&self, var: &Symbol) -> Option<&Type> {
+    pub fn get(&self, var: &str) -> Option<&Type> {
         self.0.get(var)
     }
 
