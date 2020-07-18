@@ -1,14 +1,14 @@
 use std::str::FromStr;
-use crate::ast::{Symbol, Expr, LiteralExpr, VarExpr, IfExpr, LetExpr, Binding, LambdaExpr, AppExpr};
+use crate::ast::{Symbol, Expr, Lit};
 
 grammar;
 
 // Literal expressions
 
-pub LitExpr: LiteralExpr = {
-    Bool => LiteralExpr::Bool(<>),
-    Int => LiteralExpr::Int(<>),
-    Float => LiteralExpr::Float(<>),
+pub LitExpr: Lit = {
+    Bool => Lit::Bool(<>),
+    Int => Lit::Int(<>),
+    Float => Lit::Float(<>),
 }
 
 pub Bool: bool = {
@@ -30,15 +30,15 @@ pub Ident: Symbol = {
     <s:r"[a-zA-Z][a-zA-Z0-9_]*"> => <>.into(),
 }
 
-pub VarExpr: VarExpr = {
-    Ident => VarExpr(<>),
+pub VarExpr: Expr = {
+    Ident => Expr::Var {name: <>},
 }
 
 // If expressions
 
-pub IfExpr: IfExpr = {
+pub IfExpr: Expr = {
     "if" <test:Expr> "then" <then_branch:Expr> "else" <else_branch:Expr> ";"
-         => IfExpr{ test: box test,
+         => Expr::If{ test: box test,
                     then_branch: box then_branch,
                     else_branch: box else_branch
                    },
@@ -46,37 +46,37 @@ pub IfExpr: IfExpr = {
 
 // Let bindings
 
-pub LetExpr: LetExpr = {
+pub LetExpr: Expr = {
     "let" <bindings:Comma1<Binding>> "in" <body:Expr> ";"
-        => LetExpr {bindings, body: box body},
+        => Expr::Let {bindings, body: box body},
 }
 
-pub Binding: Binding = {
-    <var:Ident> "=" <val:Expr> => Binding {var, val: box val},
+pub Binding: (Symbol, Expr) = {
+    <var:Ident> "=" <val:Expr> => (var, val),
 }
 
 // Lambda abstraction
 
-pub LambdaExpr: LambdaExpr = {
+pub LambdaExpr: Expr = {
    "\\" "(" <args:Comma<Ident>> ")" "->" <body:Expr> ";"
-        => LambdaExpr {args, body: box body},
+        => Expr::Lambda {args, body: box body},
 }
 
 // Function application
 
-pub AppExpr: AppExpr = {
-    <func:Expr> "(" <args:Comma<Expr>> ")" => AppExpr {func: box func, args},
+pub AppExpr: Expr = {
+    <func:Expr> "(" <args:Comma<Expr>> ")" => Expr::App {func: box func, args},
 }
 
 // Expressions
 
 pub Expr: Expr = {
-    LitExpr    => Expr::Lit(<>),
-    VarExpr    => Expr::Var(<>),
-    IfExpr     => Expr::If(<>),
-    LetExpr    => Expr::Let(<>),
-    LambdaExpr => Expr::Lambda(<>),
-    AppExpr    => Expr::App(<>),
+    LitExpr    => Expr::Lit {val: <>},
+    VarExpr    => <>,
+    IfExpr     => <>,
+    LetExpr    => <>,
+    LambdaExpr => <>,
+    AppExpr    => <>,
 }
 
 #[inline]

@@ -2,51 +2,34 @@ pub type Symbol = String;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
-    Lit(LiteralExpr),
-    Var(VarExpr),
-    If(IfExpr),
-    Let(LetExpr),
-    Lambda(LambdaExpr),
-    App(AppExpr),
+    Lit {
+        val: Lit,
+    },
+    Var {
+        name: String,
+    },
+    If {
+        test: Box<Expr>,
+        then_branch: Box<Expr>,
+        else_branch: Box<Expr>,
+    },
+    Let {
+        bindings: Vec<(Symbol, Expr)>,
+        body: Box<Expr>,
+    },
+    Lambda {
+        args: Vec<Symbol>,
+        body: Box<Expr>,
+    },
+    App {
+        func: Box<Expr>,
+        args: Vec<Expr>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum LiteralExpr {
+pub enum Lit {
     Bool(bool),
     Int(i64),
     Float(f64),
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct VarExpr(pub Symbol);
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IfExpr {
-    pub test: Box<Expr>,
-    pub then_branch: Box<Expr>,
-    pub else_branch: Box<Expr>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct LetExpr {
-    pub bindings: Vec<Binding>,
-    pub body: Box<Expr>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct Binding {
-    pub var: Symbol,
-    pub val: Box<Expr>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct LambdaExpr {
-    pub args: Vec<Symbol>,
-    pub body: Box<Expr>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct AppExpr {
-    pub func: Box<Expr>,
-    pub args: Vec<Expr>,
 }

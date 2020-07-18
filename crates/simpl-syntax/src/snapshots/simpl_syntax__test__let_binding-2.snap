@@ -2,30 +2,26 @@
 source: crates/simpl-syntax/src/test.rs
 expression: ast
 ---
-Let(
-    LetExpr {
-        bindings: [
-            Binding {
-                var: "x",
-                val: Lit(
-                    Int(
-                        5,
-                    ),
+Let {
+    bindings: [
+        (
+            "x",
+            Lit {
+                val: Int(
+                    5,
                 ),
             },
-            Binding {
-                var: "y",
-                val: Lit(
-                    Bool(
-                        false,
-                    ),
-                ),
-            },
-        ],
-        body: Var(
-            VarExpr(
-                "x",
-            ),
         ),
+        (
+            "y",
+            Lit {
+                val: Bool(
+                    false,
+                ),
+            },
+        ),
+    ],
+    body: Var {
+        name: "x",
     },
-)
+}

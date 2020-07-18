@@ -2,13 +2,11 @@
 source: crates/simpl-syntax/src/test.rs
 expression: ast
 ---
-Lambda(
-    LambdaExpr {
-        args: [],
-        body: Lit(
-            Int(
-                1,
-            ),
+Lambda {
+    args: [],
+    body: Lit {
+        val: Int(
+            1,
         ),
     },
-)
+}

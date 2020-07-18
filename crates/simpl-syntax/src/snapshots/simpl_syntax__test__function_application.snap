@@ -1,14 +1,10 @@
 ---
 source: crates/simpl-syntax/src/test.rs
-expression: parser.parse(src).unwrap()
+expression: ast
 ---
-App(
-    AppExpr {
-        func: Var(
-            VarExpr(
-                "f",
-            ),
-        ),
-        args: [],
+App {
+    func: Var {
+        name: "f",
     },
-)
+    args: [],
+}
