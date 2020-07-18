@@ -34,7 +34,7 @@ pub type Constraints = Vec<Constraint>;
 
 #[derive(Debug, Clone, Display)]
 #[display(fmt = "{} = {}", _0, _1)]
-pub struct Constraint(TypeVar, Type);
+pub struct Constraint(Type, Type);
 
 #[derive(Debug, Clone, Display)]
 enum Type {
@@ -101,9 +101,15 @@ impl Annotator {
                 self.annotations.insert(expr_id, tvar);
 
                 match lit {
-                    LitExpr::Int(_) => self.constraints.push(Constraint(tvar, Type::Int)),
-                    LitExpr::Bool(_) => self.constraints.push(Constraint(tvar, Type::Bool)),
-                    LitExpr::Float(_) => self.constraints.push(Constraint(tvar, Type::Float)),
+                    LitExpr::Int(_) => self
+                        .constraints
+                        .push(Constraint(Type::Var(tvar), Type::Int)),
+                    LitExpr::Bool(_) => self
+                        .constraints
+                        .push(Constraint(Type::Var(tvar), Type::Bool)),
+                    LitExpr::Float(_) => self
+                        .constraints
+                        .push(Constraint(Type::Var(tvar), Type::Float)),
                 }
 
                 tvar
@@ -130,11 +136,12 @@ impl Annotator {
                 let then_tvar = self.annotate_inner(*then_branch, env.clone());
                 let else_tvar = self.annotate_inner(*else_branch, env);
 
-                self.constraints.push(Constraint(test_tvar, Type::Bool));
                 self.constraints
-                    .push(Constraint(then_tvar, Type::Var(tvar)));
+                    .push(Constraint(Type::Var(test_tvar), Type::Bool));
                 self.constraints
-                    .push(Constraint(else_tvar, Type::Var(tvar)));
+                    .push(Constraint(Type::Var(then_tvar), Type::Var(tvar)));
+                self.constraints
+                    .push(Constraint(Type::Var(else_tvar), Type::Var(tvar)));
 
                 tvar
             }
@@ -154,7 +161,7 @@ impl Annotator {
                 let body_tvar = self.annotate_inner(*body, env);
 
                 self.constraints.push(Constraint(
-                    tvar,
+                    Type::Var(tvar),
                     Type::Fn(arg_tvars, box Type::Var(body_tvar)),
                 ));
 
@@ -177,7 +184,7 @@ impl Annotator {
                     .collect();
 
                 self.constraints.push(Constraint(
-                    func_tvar,
+                    Type::Var(func_tvar),
                     Type::Fn(arg_tvars, box Type::Var(tvar)),
                 ));
 
@@ -196,13 +203,13 @@ impl Annotator {
                     let val_tvar = self.annotate_inner(*val, extended_env.clone());
 
                     self.constraints
-                        .push(Constraint(var_tvar, Type::Var(val_tvar)));
+                        .push(Constraint(Type::Var(var_tvar), Type::Var(val_tvar)));
                 }
 
                 let body_tvar = self.annotate_inner(*body, extended_env);
 
                 self.constraints
-                    .push(Constraint(tvar, Type::Var(body_tvar)));
+                    .push(Constraint(Type::Var(tvar), Type::Var(body_tvar)));
                 tvar
             }
         }
