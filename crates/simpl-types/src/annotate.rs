@@ -1,5 +1,6 @@
 use crate::arena::{
-    AppExpr, Expr, ExprArena, ExprId, IfExpr, LambdaExpr, LetExpr, LitExpr, Symbol, VarExpr,
+    AppExpr, Binding, Expr, ExprArena, ExprId, IfExpr, LambdaExpr, LetExpr, LitExpr, Symbol,
+    VarExpr,
 };
 use derive_more::Display;
 use std::collections::HashMap;
@@ -183,7 +184,26 @@ impl Annotator {
                 tvar
             }
 
-            Expr::Let(LetExpr { bindings, body }) => todo!(),
+            Expr::Let(LetExpr { bindings, body }) => {
+                let tvar = self.gen.fresh();
+
+                let mut extended_env = env.clone();
+                for Binding { var, val } in bindings {
+                    let var_tvar = self.gen.fresh();
+                    extended_env.insert(var.into(), var_tvar);
+
+                    let val_tvar = self.annotate_inner(*val, extended_env.clone());
+
+                    self.constraints
+                        .push(Constraint(var_tvar, Type::Var(val_tvar)));
+                }
+
+                let body_tvar = self.annotate_inner(*body, extended_env);
+
+                self.constraints
+                    .push(Constraint(tvar, Type::Var(body_tvar)));
+                tvar
+            }
         }
     }
 }
