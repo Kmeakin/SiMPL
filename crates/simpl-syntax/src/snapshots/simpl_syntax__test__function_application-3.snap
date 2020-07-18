@@ -7,7 +7,7 @@ Let {
         (
             "id",
             Lambda {
-                args: [
+                params: [
                     "x",
                 ],
                 body: Var {

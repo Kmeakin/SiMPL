@@ -18,7 +18,7 @@ pub enum Expr {
         body: Box<Expr>,
     },
     Lambda {
-        args: Vec<Symbol>,
+        params: Vec<Symbol>,
         body: Box<Expr>,
     },
     App {

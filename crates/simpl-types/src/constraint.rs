@@ -40,11 +40,11 @@ pub fn collect(expr: Expr) -> Constraints {
             cons
         }
 
-        Expr::Lambda { ty, args, body } => {
+        Expr::Lambda { ty, params, body } => {
             let mut cons = vec![Constraint(
                 ty,
                 Type::Fn(
-                    args.iter().map(|(_, t)| t).cloned().collect(),
+                    params.iter().map(|(_, t)| t).cloned().collect(),
                     box body.ty(),
                 ),
             )];
@@ -141,7 +141,7 @@ mod test {
 
         let expr = Expr::Lambda {
             ty: t1.clone(),
-            args: vec![("param".into(), t2.clone())],
+            params: vec![("param".into(), t2.clone())],
             body: box Expr::Var {
                 ty: t3.clone(),
                 name: "param".into(),
@@ -231,7 +231,7 @@ mod test {
 
         let expr = Expr::Lambda {
             ty: t1.clone(),
-            args: vec![("a".into(), t2.clone())],
+            params: vec![("a".into(), t2.clone())],
             body: box Expr::Var {
                 ty: t3.clone(),
                 name: "a".into(),
@@ -255,10 +255,10 @@ mod test {
 
         let expr = Expr::Lambda {
             ty: t1.clone(),
-            args: vec![("a".into(), t2.clone())],
+            params: vec![("a".into(), t2.clone())],
             body: box Expr::Lambda {
                 ty: t3.clone(),
-                args: vec![("b".into(), t4.clone())],
+                params: vec![("b".into(), t4.clone())],
                 body: box Expr::Var {
                     ty: t5.clone(),
                     name: "a".into(),
@@ -292,13 +292,13 @@ mod test {
 
         let expr = Expr::Lambda {
             ty: t1.clone(),
-            args: vec![("f".into(), t2.clone())],
+            params: vec![("f".into(), t2.clone())],
             body: box Expr::Lambda {
                 ty: t3.clone(),
-                args: vec![("g".into(), t4.clone())],
+                params: vec![("g".into(), t4.clone())],
                 body: box Expr::Lambda {
                     ty: t5.clone(),
-                    args: vec![("x".into(), t6.clone())],
+                    params: vec![("x".into(), t6.clone())],
                     body: box Expr::App {
                         ty: t7.clone(),
                         func: box Expr::Var {

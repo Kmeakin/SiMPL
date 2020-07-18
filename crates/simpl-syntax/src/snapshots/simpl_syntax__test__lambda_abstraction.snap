@@ -3,7 +3,7 @@ source: crates/simpl-syntax/src/test.rs
 expression: ast
 ---
 Lambda {
-    args: [],
+    params: [],
     body: Lit {
         val: Int(
             1,

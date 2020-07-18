@@ -57,18 +57,18 @@ fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr
             }
         }
 
-        ast::Expr::Lambda { args, box body } => {
+        ast::Expr::Lambda { params, box body } => {
             let mut extended_tenv = tenv.clone();
-            let mut new_args = vec![];
-            for arg in args {
-                let arg_ty = gen.fresh();
-                extended_tenv.insert(arg.clone(), arg_ty.clone());
-                new_args.push((arg, arg_ty));
+            let mut new_params = vec![];
+            for param in params {
+                let param_ty = gen.fresh();
+                extended_tenv.insert(param.clone(), param_ty.clone());
+                new_params.push((param, param_ty));
             }
 
             Expr::Lambda {
                 ty,
-                args: new_args,
+                params: new_params,
                 body: box ann(body, &mut extended_tenv, gen)?,
             }
         }
@@ -103,16 +103,16 @@ mod test {
         match ast {
             Expr::Lambda {
                 ty: t1,
-                args,
+                params,
                 body:
                     box Expr::Var {
                         ty: t3,
                         name: var_name,
                     },
             } => {
-                assert_eq!(args.len(), 1);
-                let (arg_name, t2) = &args[0];
-                assert_eq!(arg_name, "x");
+                assert_eq!(params.len(), 1);
+                let (param_name, t2) = &params[0];
+                assert_eq!(param_name, "x");
                 assert_eq!(var_name, "x");
 
                 assert_ne!(t1, t2.clone());
@@ -130,20 +130,20 @@ mod test {
         match ast {
             Expr::Lambda {
                 ty: t1,
-                args: args1,
+                params: params1,
                 body:
                     box Expr::Lambda {
                         ty: t3,
-                        args: args2,
+                        params: params2,
                         body: box Expr::Var { ty: t5, name },
                     },
             } => {
-                assert_eq!(args1.len(), 1);
-                assert_eq!(args2.len(), 1);
-                let (arg1, t2) = &args1[0];
-                let (arg2, t4) = &args2[0];
-                assert_eq!(arg1, "a");
-                assert_eq!(arg2, "b");
+                assert_eq!(params1.len(), 1);
+                assert_eq!(params2.len(), 1);
+                let (param1, t2) = &params1[0];
+                let (param2, t4) = &params2[0];
+                assert_eq!(param1, "a");
+                assert_eq!(param2, "b");
                 assert_eq!(name, "a");
 
                 let t1: Type = t1.clone();
@@ -199,40 +199,40 @@ mod test {
         match ast {
             Expr::Lambda {
                 ty: t1,
-                args: args1,
+                params: params1,
                 body:
                     box Expr::Lambda {
                         ty: t3,
-                        args: args2,
+                        params: params2,
                         body:
                             box Expr::Lambda {
                                 ty: t5,
-                                args: args3,
+                                params: params3,
                                 body:
                                     box Expr::App {
                                         ty: t7,
                                         func: box Expr::Var { ty: t8, name: var1 },
-                                        args: args4,
+                                        args: args1,
                                     },
                             },
                     },
             } => {
-                assert_eq!(args1.len(), 1);
-                let (name1, t2) = &args1[0];
+                assert_eq!(params1.len(), 1);
+                let (name1, t2) = &params1[0];
                 assert_eq!(name1, "f");
 
-                assert_eq!(args2.len(), 1);
-                let (name2, t4) = &args2[0];
+                assert_eq!(params2.len(), 1);
+                let (name2, t4) = &params2[0];
                 assert_eq!(name2, "g");
 
-                assert_eq!(args3.len(), 1);
-                let (name3, t6) = &args3[0];
+                assert_eq!(params3.len(), 1);
+                let (name3, t6) = &params3[0];
                 assert_eq!(name3, "x");
 
                 assert_eq!(var1, "f");
 
-                assert_eq!(args4.len(), 1);
-                let arg = &args4[0];
+                assert_eq!(args1.len(), 1);
+                let arg = &args1[0];
                 match arg {
                     Expr::App {
                         ty: t9,
@@ -241,12 +241,12 @@ mod test {
                                 ty: t10,
                                 name: var2,
                             },
-                        args: args5,
+                        args: args2,
                     } => {
                         assert_eq!(var2, "g");
 
-                        assert_eq!(args5.len(), 1);
-                        let arg = &args5[0];
+                        assert_eq!(args2.len(), 1);
+                        let arg = &args2[0];
 
                         match arg {
                             Expr::Var {
@@ -298,7 +298,7 @@ mod test {
         match ast {
             Expr::Lambda {
                 ty: t1,
-                args: args1,
+                params: params1,
                 body:
                     box Expr::If {
                         ty: t3,
@@ -306,7 +306,7 @@ mod test {
                             box Expr::App {
                                 ty: t4,
                                 func: box Expr::Var { ty: t5, name: var1 },
-                                args: args2,
+                                args: args1,
                             },
                         then_branch:
                             box Expr::Lit {
@@ -320,14 +320,14 @@ mod test {
                             },
                     },
             } => {
-                assert_eq!(args1.len(), 1);
-                let (name1, t2) = &args1[0];
+                assert_eq!(params1.len(), 1);
+                let (name1, t2) = &params1[0];
                 assert_eq!(name1, "pred");
 
                 assert_eq!(var1, "pred");
 
-                assert_eq!(args2.len(), 1);
-                let arg = &args2[0];
+                assert_eq!(args1.len(), 1);
+                let arg = &args1[0];
 
                 match arg {
                     Expr::Lit {

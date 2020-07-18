@@ -58,8 +58,8 @@ pub Binding: (Symbol, Expr) = {
 // Lambda abstraction
 
 pub LambdaExpr: Expr = {
-   "\\" "(" <args:Comma<Ident>> ")" "->" <body:Expr> ";"
-        => Expr::Lambda {args, body: box body},
+   "\\" "(" <params:Comma<Ident>> ")" "->" <body:Expr> ";"
+        => Expr::Lambda {params, body: box body},
 }
 
 // Function application

@@ -24,7 +24,7 @@ pub enum Expr {
     },
     Lambda {
         ty: Type,
-        args: Vec<(Symbol, Type)>,
+        params: Vec<(Symbol, Type)>,
         body: Box<Expr>,
     },
     App {

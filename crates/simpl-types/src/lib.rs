@@ -5,7 +5,7 @@ mod annotate;
 mod constraint;
 mod subst;
 mod ty;
-mod typed_ast;
+pub mod typed_ast;
 mod unify;
 
 use crate::{ty::Type, typed_ast::Expr};
