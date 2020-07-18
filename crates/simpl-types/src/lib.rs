@@ -12,9 +12,7 @@ use crate::{ty::Type, typed_ast::Expr};
 
 pub fn type_of(expr: Expr) -> Type {
     let cons = constraint::collect(expr.clone());
-    dbg!(&cons);
     let subst = unify::unify(cons);
-    dbg!(&subst);
     subst.apply_ty(&expr.ty())
 }
 
@@ -136,5 +134,24 @@ in is_even(4);
         );
         let ty = type_of(expr);
         assert_eq!(ty, Type::Bool)
+    }
+
+    #[test]
+    fn let_polymorphism() {
+        let expr = parse_and_annotate(
+            r"
+let first = \(x, y) -> x;,
+    id    = \(x) -> x;
+in first(id(0), id(false));
+",
+        );
+
+        let ty = type_of(expr);
+        assert_eq!(ty, Type::Int);
+
+        // TODO: does Rust support let-polymorphism? The following doesnt
+        // compile let id = |x| x;
+        // let pair = (id(0), id(false));
+        // dbg!(pair);
     }
 }
