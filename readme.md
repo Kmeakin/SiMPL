@@ -47,7 +47,7 @@ AppExpr    := Expr "(" Args ")"
 Args       := (Expr),+
 ```
 - Note that `IfExpr`, `LetExpr` and `LambdaExpr` and all terminated by semi-colons. This is temporary and will be fixed once I can be bothered to understand what shift-reduce conflicts are.
-- Note also that function application is written with the more "mainstream" `f(1, 2, 3)` style from C, Java etc, not the `f 1 2 3` style from Haskell, Ml etc. This is because it's my language dammit.
+- Note also that function application is written with the more "mainstream" `f(1, 2, 3)` style from C, Java etc, not the `f 1 2 3` style from Haskell, ML etc. This is because it's my language dammit.
 
 ## Type system
 - Implemented in `crates/simpl-syntax`
