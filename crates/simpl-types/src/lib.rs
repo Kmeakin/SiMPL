@@ -137,6 +137,7 @@ in is_even(4);
     }
 
     #[test]
+    #[should_panic(expected = "Cannot unify Int with Bool")]
     fn let_polymorphism() {
         let expr = parse_and_annotate(
             r"
