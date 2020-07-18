@@ -42,12 +42,12 @@ fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr
             let mut new_bindings = vec![];
             for (name, val) in bindings {
                 let tvar = gen.fresh();
+                extended_tenv.insert(name.clone(), tvar.clone());
                 new_bindings.push((
                     name.clone(),
                     tvar.clone(),
                     ann(val, &mut extended_tenv, gen)?,
                 ));
-                extended_tenv.insert(name, tvar);
             }
 
             Expr::Let {

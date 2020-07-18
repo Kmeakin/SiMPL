@@ -94,4 +94,25 @@ in inc(inc(42));
         let ty = type_of(expr);
         assert_eq!(ty, Type::Int)
     }
+
+    #[test]
+    fn infer_bottom_type() {
+        let expr = parse_and_annotate(
+            r"
+let bot = \() -> bot();
+in bot;
+",
+        );
+        let ty = type_of(expr);
+        assert_eq!(ty, Type::Fn(vec![], box Type::Var(4)));
+
+        let expr = parse_and_annotate(
+            r"
+let bot = \() -> bot();
+in if true then 1 else bot();;
+",
+        );
+        let ty = type_of(expr);
+        assert_eq!(ty, Type::Int)
+    }
 }
