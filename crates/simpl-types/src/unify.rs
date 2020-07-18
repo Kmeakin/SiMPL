@@ -4,7 +4,7 @@ use crate::{
     ty::{Type, TypeVar},
 };
 
-fn unify(cons: Constraints) -> Subst {
+pub fn unify(cons: Constraints) -> Subst {
     match &cons[..] {
         [] => Subst::new(),
         [head, tail @ ..] => {

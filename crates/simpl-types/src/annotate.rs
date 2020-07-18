@@ -1,6 +1,7 @@
 //! Takes an `ast::Expr` and annotates each Expr with a fresh `Type`
 
 use crate::{
+    parse_and_annotate,
     ty::{TypeEnv, TypeVarGen},
     typed_ast::Expr,
 };
@@ -11,7 +12,7 @@ pub fn annotate(expr: ast::Expr) -> Result<Expr, String> {
 }
 
 pub fn annotate_with_gen(expr: ast::Expr, gen: &mut TypeVarGen) -> Result<Expr, String> {
-    ann(expr, &mut TypeEnv::new(), gen)
+    ann(expr, &mut TypeEnv::default(), gen)
 }
 
 fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr, String> {
@@ -35,14 +36,28 @@ fn ann(expr: ast::Expr, tenv: &mut TypeEnv, gen: &mut TypeVarGen) -> Result<Expr
             then_branch: box ann(then_branch, tenv, gen)?,
             else_branch: box ann(else_branch, tenv, gen)?,
         },
-        ast::Expr::Let { bindings, box body } => Expr::Let {
-            ty,
-            bindings: bindings
-                .into_iter()
-                .map(|(var, val)| ann(val, tenv, gen).map(|val| (var, gen.fresh(), val)))
-                .collect::<Result<Vec<_>, _>>()?,
-            body: box ann(body, tenv, gen)?,
-        },
+
+        ast::Expr::Let { bindings, box body } => {
+            let mut extended_tenv = tenv.clone();
+
+            let mut new_bindings = vec![];
+            for (name, val) in bindings {
+                let tvar = gen.fresh();
+                new_bindings.push((
+                    name.clone(),
+                    tvar.clone(),
+                    ann(val, &mut extended_tenv, gen)?,
+                ));
+                extended_tenv.insert(name, tvar);
+            }
+
+            Expr::Let {
+                ty,
+                bindings: new_bindings,
+                body: box ann(body, &mut extended_tenv, gen)?,
+            }
+        }
+
         ast::Expr::Lambda { args, box body } => {
             let mut extended_tenv = tenv.clone();
             let mut new_args = vec![];
@@ -83,11 +98,6 @@ mod test {
 		vec![$($e.clone()),*]
 	};
 }
-
-    fn parse_and_annotate(src: &str) -> Expr {
-        let ast = parse(src).unwrap();
-        annotate(ast).unwrap()
-    }
 
     #[track_caller]
     fn test_annotate(src: &str) {

@@ -1,8 +1,37 @@
+use crate::typed_ast::Symbol;
 use derive_more::Display;
 use std::collections::HashMap;
 
 pub type TypeVar = u32;
-pub type TypeEnv = HashMap<String, Type>;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypeEnv(HashMap<Symbol, Type>);
+
+impl Default for TypeEnv {
+    fn default() -> Self {
+        let mut hm = HashMap::new();
+        hm.insert(
+            "add".into(),
+            Type::Fn(vec![Type::Int, Type::Int], box Type::Int),
+        );
+
+        Self(hm)
+    }
+}
+
+impl TypeEnv {
+    pub fn empty() -> Self {
+        Self(HashMap::new())
+    }
+
+    pub fn get(&self, var: &Symbol) -> Option<&Type> {
+        self.0.get(var)
+    }
+
+    pub fn insert(&mut self, var: Symbol, val: Type) {
+        self.0.insert(var, val);
+    }
+}
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct TypeVarGen {

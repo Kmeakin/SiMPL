@@ -15,7 +15,7 @@ fn lit_type(lit: Lit) -> Type {
     }
 }
 
-fn collect(expr: Expr) -> Constraints {
+pub fn collect(expr: Expr) -> Constraints {
     match expr {
         Expr::Lit { ty, val } => vec![Constraint(ty, lit_type(val))],
 
