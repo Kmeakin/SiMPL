@@ -115,4 +115,26 @@ in if true then 1 else bot();;
         let ty = type_of(expr);
         assert_eq!(ty, Type::Int)
     }
+
+    #[test]
+    fn letrec() {
+        let expr = parse_and_annotate(
+            r"
+let fact = \(x) -> if is_zero(x) then 1 else mul(x, fact(sub(x, 1)));;
+in fact(5);
+",
+        );
+        let ty = type_of(expr);
+        assert_eq!(ty, Type::Int);
+
+        let expr = parse_and_annotate(
+            r"
+let is_odd  = \(x) -> if is_zero(x) then true else is_odd(sub(x, 1));;,
+    is_even = \(x) -> if is_zero(x) then false else is_even(sub(x, 1));;
+in is_even(4);
+",
+        );
+        let ty = type_of(expr);
+        assert_eq!(ty, Type::Bool)
+    }
 }

@@ -14,6 +14,16 @@ impl Default for TypeEnv {
             "add".into(),
             Type::Fn(vec![Type::Int, Type::Int], box Type::Int),
         );
+        hm.insert(
+            "sub".into(),
+            Type::Fn(vec![Type::Int, Type::Int], box Type::Int),
+        );
+        hm.insert(
+            "mul".into(),
+            Type::Fn(vec![Type::Int, Type::Int], box Type::Int),
+        );
+
+        hm.insert("is_zero".into(), Type::Fn(vec![Type::Int], box Type::Bool));
 
         Self(hm)
     }
