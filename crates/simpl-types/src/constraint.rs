@@ -4,7 +4,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Constraint(Type, Type);
+pub struct Constraint(pub(crate) Type, pub(crate) Type);
 pub type Constraints = Vec<Constraint>;
 
 fn lit_type(lit: Lit) -> Type {

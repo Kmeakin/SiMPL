@@ -3,5 +3,6 @@
 
 mod annotate;
 mod constraint;
+mod subst;
 mod ty;
 mod typed_ast;

@@ -1,7 +1,7 @@
 use derive_more::Display;
 use std::collections::HashMap;
 
-type TypeVar = u32;
+pub type TypeVar = u32;
 pub type TypeEnv = HashMap<String, Type>;
 
 #[derive(Debug, Copy, Clone, Default)]
