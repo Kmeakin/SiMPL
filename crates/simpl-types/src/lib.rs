@@ -1,10 +1,7 @@
-#![feature(box_syntax)]
-#![feature(box_patterns)]
-#![allow(dead_code)]
-#![allow(unused_variables)]
-#![allow(unused_imports)]
-
-mod annotate;
-mod arena;
-
-mod test;
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
