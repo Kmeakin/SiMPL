@@ -16,7 +16,7 @@
   
 ## Syntax
 - Implemented in `crates/simpl-syntax`
-Grammar:
+- Grammar:
 ```
 Program := Expr
 
