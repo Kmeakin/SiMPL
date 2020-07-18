@@ -10,3 +10,6 @@ edition = "2018"
 simpl-syntax = {path = "../simpl-syntax"}
 id-arena = "2.1.1"
 derive_more = "0.99.9"
+
+[dev-dependencies]
+insta = "0.16.1"
