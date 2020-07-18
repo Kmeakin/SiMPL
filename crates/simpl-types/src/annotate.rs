@@ -186,6 +186,7 @@ impl Annotator {
 
             Expr::Let(LetExpr { bindings, body }) => {
                 let tvar = self.gen.fresh();
+                self.annotations.insert(expr_id, tvar);
 
                 let mut extended_env = env.clone();
                 for Binding { var, val } in bindings {
