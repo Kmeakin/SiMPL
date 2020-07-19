@@ -41,6 +41,12 @@ fn let_binding() {
 }
 
 #[test]
+fn letrec_binding() {
+    test_parse_ok(r"letrec f = \x -> f x in f");
+    test_parse_ok(r"letrec f = \x -> f x, g = \y -> y in f");
+}
+
+#[test]
 fn lambda_abstraction() {
     test_parse_ok(r"\x -> x");
     test_parse_ok(r"\x, y -> y");

@@ -1,0 +1,38 @@
+---
+source: crates/simpl-syntax2/src/test.rs
+expression: parse(src).unwrap()
+---
+Let {
+    bindings: [
+        (
+            "f",
+            Lambda {
+                params: [
+                    "x",
+                ],
+                body: App {
+                    func: Var {
+                        name: "f",
+                    },
+                    arg: Var {
+                        name: "x",
+                    },
+                },
+            },
+        ),
+        (
+            "g",
+            Lambda {
+                params: [
+                    "y",
+                ],
+                body: Var {
+                    name: "y",
+                },
+            },
+        ),
+    ],
+    body: Var {
+        name: "f",
+    },
+}

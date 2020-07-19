@@ -10,6 +10,7 @@ pub Expr: Expr = {
     LambdaExpr => <>,
     IfExpr => <>,
     LetExpr => <>,
+    LetrecExpr => <>,
 }
 
 pub AppExpr: Expr = {
@@ -38,6 +39,17 @@ pub LetExpr: Expr = {
 Binding: (Ident, Expr) = {
     <var:Ident> "=" <val:Expr> => (var, val),
 }
+
+
+pub LetrecExpr: Expr = {
+    "letrec" <bindings:Comma1<LetrecBinding>> "in" <body:Expr>
+          => Expr::Let {bindings, body: box body},
+}
+
+LetrecBinding: (Ident, Expr) = {
+    <var:Ident> "=" <val:LambdaExpr> => (var, val),
+}
+
 
 MatchExpr: Expr = {
     SimpleExpr => <>,
