@@ -1,0 +1,21 @@
+---
+source: crates/simpl-syntax2/src/test.rs
+expression: parse(src).unwrap()
+---
+If {
+    test: Lit {
+        val: Bool(
+            true,
+        ),
+    },
+    then_branch: Lit {
+        val: Int(
+            1,
+        ),
+    },
+    else_branch: Lit {
+        val: Int(
+            0,
+        ),
+    },
+}

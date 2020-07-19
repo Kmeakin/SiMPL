@@ -1,0 +1,12 @@
+---
+source: crates/simpl-syntax2/src/test.rs
+expression: parse(src).unwrap()
+---
+Lambda {
+    params: [
+        "x",
+    ],
+    body: Var {
+        name: "x",
+    },
+}

@@ -1,0 +1,113 @@
+use std::str::FromStr;
+use crate::ast::{Ident, Expr, Lit};
+
+grammar;
+
+// Exprs
+
+pub Expr: Expr = {
+    AppExpr => <>,
+    LambdaExpr => <>,
+    IfExpr => <>,
+    LetExpr => <>,
+}
+
+pub AppExpr: Expr = {
+    MatchExpr => <>,
+    App => <>,
+}
+
+App: Expr = {
+    <func:AppExpr> <arg:MatchExpr> => Expr::App {func: box func, arg: box arg},
+}
+
+pub LambdaExpr: Expr = {
+    "\\" <params:Comma1<Ident>> "->" <body:Expr> => Expr::Lambda {params: params, body: box body},
+}
+
+pub IfExpr: Expr = {
+    "if" <test:Expr> "then" <then_branch:Expr> "else" <else_branch:Expr>
+         => Expr::If {test: box test, then_branch: box then_branch, else_branch: box else_branch},
+}
+
+pub LetExpr: Expr = {
+    "let" <bindings:Comma1<Binding>> "in" <body:Expr>
+          => Expr::Let {bindings, body: box body},
+}
+
+Binding: (Ident, Expr) = {
+    <var:Ident> "=" <val:Expr> => (var, val),
+}
+
+MatchExpr: Expr = {
+    SimpleExpr => <>,
+    // TODO: pattern matching
+}
+
+pub SimpleExpr: Expr = {
+    VarExpr => <>,
+    LitExpr => <>,
+    "(" <Expr> ")" => <>,
+}
+
+pub VarExpr: Expr = {
+    <Ident> => Expr::Var {name: <>.into()},
+}
+
+pub LitExpr: Expr = {
+    Lit => Expr::Lit {val: <>},
+}
+
+pub Lit: Lit = {
+    Bool => Lit::Bool(<>),
+    Int => Lit::Int(<>),
+    Float => Lit::Float(<>),
+}
+
+// Terminals
+
+pub Ident: Ident = {
+    <s:r"[a-zA-Z][a-zA-Z0-9_]*"> => <>.into(),
+}
+
+pub Bool: bool = {
+    "true" => true,
+    "false" => false,
+}
+
+pub Int: i64 = {
+    <s:r"[0-9]+"> => i64::from_str(s).unwrap(),
+}
+
+pub Float: f64 = {
+    <s:r"[0-9]+\.[0-9]+"> => f64::from_str(s).unwrap(),
+}
+
+// Helpers
+
+#[inline]
+Delim<T, D>: Vec<T> = {
+    <v:(<T> <D>)*> <e:T?> => match e {
+        None => v.iter().map(|x| x.0.clone()).collect(),
+        Some(e) => {
+            let mut v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+            v.push(e);
+            v
+        }
+    }
+}
+
+#[inline]
+Delim1<T, D>: Vec<T> = {
+    <v:(<T> <D>)*> <e:T> => {
+        let mut v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+        v.push(e);
+        v
+    }
+}
+
+#[inline]
+Comma<T> = Delim<T, ",">;
+
+#[inline]
+Comma1<T> = Delim1<T, ",">;

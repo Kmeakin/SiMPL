@@ -1,0 +1,9 @@
+---
+source: crates/simpl-syntax2/src/test.rs
+expression: parse(src).unwrap()
+---
+Lit {
+    val: Bool(
+        true,
+    ),
+}
