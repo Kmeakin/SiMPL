@@ -39,7 +39,7 @@ mod test {
     fn infer_identity_fn() {
         let expr = parse_and_annotate(r"\(a) -> a;");
         let ty = type_of(expr);
-        assert_eq!(ty, Type::Fn(vec![Type::Var(2)], box Type::Var(2)))
+        assert_eq!(ty, Type::Fn(vec![Type::Var(1)], box Type::Var(1)))
     }
 
     #[test]
@@ -49,8 +49,8 @@ mod test {
         assert_eq!(
             ty,
             Type::Fn(
-                vec![Type::Var(2)],
-                box Type::Fn(vec![Type::Var(4)], box Type::Var(2))
+                vec![Type::Var(1)],
+                box Type::Fn(vec![Type::Var(3)], box Type::Var(1))
             )
         )
     }
@@ -60,9 +60,9 @@ mod test {
         let expr = parse_and_annotate(r"\(f) -> \(g) -> \(x) -> f(g(x));;;");
         let ty = type_of(expr);
 
-        let t_1 = Type::Var(9);
-        let t_2 = Type::Var(7);
-        let t_3 = Type::Var(6);
+        let t_1 = Type::Var(8);
+        let t_2 = Type::Var(6);
+        let t_3 = Type::Var(5);
 
         assert_eq!(
             ty,
@@ -110,7 +110,7 @@ in bot;
 ",
         );
         let ty = type_of(expr);
-        assert_eq!(ty, Type::Fn(vec![], box Type::Var(4)));
+        assert_eq!(ty, Type::Fn(vec![], box Type::Var(3)));
 
         let expr = parse_and_annotate(
             r"

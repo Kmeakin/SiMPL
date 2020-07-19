@@ -54,8 +54,9 @@ impl TypeVarGen {
     }
 
     pub fn fresh(&mut self) -> Type {
+        let ret = self.counter;
         self.counter += 1;
-        Type::Var(self.counter)
+        Type::Var(ret)
     }
 }
 
