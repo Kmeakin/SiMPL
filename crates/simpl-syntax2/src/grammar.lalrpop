@@ -43,7 +43,7 @@ Binding: (Ident, Expr) = {
 
 pub LetrecExpr: Expr = {
     "letrec" <bindings:Comma1<LetrecBinding>> "in" <body:Expr>
-          => Expr::Let {bindings, body: box body},
+          => Expr::Letrec {bindings, body: box body},
 }
 
 LetrecBinding: (Ident, Expr) = {

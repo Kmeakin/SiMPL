@@ -17,6 +17,10 @@ pub enum Expr {
         bindings: Vec<(Ident, Expr)>,
         body: Box<Expr>,
     },
+    Letrec {
+        bindings: Vec<(Ident, Expr)>,
+        body: Box<Expr>,
+    },
     Lambda {
         params: Vec<Ident>,
         body: Box<Expr>,

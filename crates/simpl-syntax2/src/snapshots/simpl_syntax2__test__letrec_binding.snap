@@ -2,7 +2,7 @@
 source: crates/simpl-syntax2/src/test.rs
 expression: parse(src).unwrap()
 ---
-Let {
+Letrec {
     bindings: [
         (
             "f",
