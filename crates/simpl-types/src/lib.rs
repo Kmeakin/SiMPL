@@ -4,7 +4,7 @@
 mod annotate;
 mod constraint;
 mod subst;
-mod ty;
+pub mod ty;
 pub mod typed_ast;
 mod unify;
 
@@ -21,6 +21,14 @@ pub fn parse_and_annotate(src: &str) -> Expr {
 
     let ast = simpl_syntax::parse(src).unwrap();
     annotate::annotate(ast).unwrap()
+}
+
+pub fn add_types(expr: simpl_syntax::ast::Expr) -> Expr {
+    let annotated = annotate::annotate(expr).unwrap();
+    let cons = constraint::collect(annotated.clone());
+    let subst = unify::unify(cons);
+    let typed = subst.apply_expr(annotated);
+    typed
 }
 
 #[cfg(test)]

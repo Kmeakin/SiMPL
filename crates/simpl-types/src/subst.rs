@@ -1,6 +1,7 @@
 use crate::{
     constraint::{Constraint, Constraints},
     ty::{Type, TypeVar},
+    typed_ast::Expr,
 };
 use std::collections::HashMap;
 
@@ -42,6 +43,10 @@ impl Subst {
 
     pub fn apply_cons(&self, cons: Constraints) -> Constraints {
         cons.iter().map(|con| self.apply_con(con)).collect()
+    }
+
+    pub fn apply_expr(&self, expr: Expr) -> Expr {
+        expr.apply(self)
     }
 
     // Replace all occurances of `tvar` in `ty` with `ty`
