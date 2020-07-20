@@ -64,6 +64,12 @@ impl FromId for Type {
 }
 
 impl TypedExpr {
+    pub fn from_str(src: &str) -> Result<Self, String> {
+        // TODO: return a trait object instead of unwrapping
+        let ast = simpl_syntax2::parse(src).unwrap();
+        Self::from_ast(ast)
+    }
+
     pub fn from_ast(ast: Expr) -> Result<Self, String> {
         let mut gen = TypeVarGen::new();
         let tenv = TypeEnv::default();

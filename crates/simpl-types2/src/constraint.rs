@@ -7,7 +7,7 @@ use crate::{
 pub struct Constraint(pub(crate) Type, pub(crate) Type);
 pub type Constraints = Vec<Constraint>;
 
-fn collect(expr: TypedExpr) -> Constraints {
+pub fn collect(expr: TypedExpr) -> Constraints {
     match expr {
         TypedExpr::Lit { ty, val } => vec![Constraint(ty, val.ty())],
         TypedExpr::Var { .. } => vec![],

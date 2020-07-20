@@ -3,6 +3,7 @@
 #![feature(box_patterns)]
 #![feature(never_type)]
 
+use crate::{ast::TypedExpr, ty::Type};
 use std::marker::PhantomData;
 
 pub mod ast;
@@ -10,6 +11,8 @@ mod constraint;
 mod subst;
 pub mod ty;
 mod unify;
+
+mod test;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct IdGen<T>
@@ -55,4 +58,10 @@ impl FromId for u32 {
     fn from_id(id: u32) -> Self {
         id
     }
+}
+
+pub fn type_of(expr: TypedExpr) -> Type {
+    let cons = constraint::collect(expr.clone());
+    let subst = unify::unify(cons);
+    subst.apply_ty(&expr.ty())
 }
