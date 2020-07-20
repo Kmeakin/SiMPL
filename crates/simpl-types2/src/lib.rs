@@ -9,6 +9,7 @@ pub mod ast;
 mod constraint;
 mod subst;
 pub mod ty;
+mod unify;
 
 #[derive(Debug, Copy, Clone, Default)]
 pub struct IdGen<T>
