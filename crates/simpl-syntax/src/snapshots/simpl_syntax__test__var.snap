@@ -1,7 +1,0 @@
----
-source: crates/simpl-syntax/src/test.rs
-expression: ast
----
-Var {
-    name: "abc",
-}

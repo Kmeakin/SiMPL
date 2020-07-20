@@ -1,9 +1,0 @@
----
-source: crates/simpl-syntax/src/test.rs
-expression: ast
----
-Lit {
-    val: Bool(
-        true,
-    ),
-}
