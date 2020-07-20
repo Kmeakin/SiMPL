@@ -23,12 +23,12 @@ pub enum TypedExpr {
     },
     Let {
         ty: Type,
-        bindings: Vec<(Ident, Self)>,
+        bindings: Vec<(Type, Ident, Self)>,
         body: Box<Self>,
     },
     Letrec {
         ty: Type,
-        bindings: Vec<(Ident, Self)>,
+        bindings: Vec<(Type, Ident, Self)>,
         body: Box<Self>,
     },
     Lambda {
@@ -80,47 +80,8 @@ impl TypedExpr {
                 then_branch: box Self::from_ast_inner(*then_branch, tenv, gen)?,
                 else_branch: box Self::from_ast_inner(*else_branch, tenv, gen)?,
             },
-            Expr::Let { bindings, body } => {
-                let ty = gen.next();
-                let mut extended_tenv = tenv.clone();
-                let mut new_bindings = Vec::new();
-
-                for (name, expr) in bindings {
-                    // Make sure you extend the tenv *after* annotating the value, so that circular
-                    // references raise an "unbound variable" error
-
-                    let tvar = gen.next();
-                    let typed_expr = Self::from_ast_inner(expr, &extended_tenv, gen)?;
-                    new_bindings.push((name.clone(), typed_expr));
-                    extended_tenv.insert(name, tvar.clone());
-                }
-
-                Self::Let {
-                    ty,
-                    bindings: new_bindings,
-                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
-                }
-            }
-            Expr::Letrec { bindings, body } => {
-                let ty = gen.next();
-                let mut extended_tenv = tenv.clone();
-                for (name, _) in &bindings {
-                    extended_tenv.insert(name.clone(), gen.next());
-                }
-
-                let mut new_bindings = Vec::new();
-
-                for (name, expr) in bindings {
-                    let typed_expr = Self::from_ast_inner(expr, &extended_tenv, gen)?;
-                    new_bindings.push((name, typed_expr));
-                }
-
-                Self::Letrec {
-                    ty,
-                    bindings: new_bindings,
-                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
-                }
-            }
+            Expr::Let { bindings, body } => todo!(),
+            Expr::Letrec { bindings, body } => todo!(),
             Expr::Lambda { params, body } => {
                 let ty = gen.next();
                 let mut extended_tenv = tenv.clone();
@@ -142,5 +103,17 @@ impl TypedExpr {
             },
         };
         Ok(expr)
+    }
+
+    pub fn ty(&self) -> Type {
+        match self {
+            Self::Lit { ty, .. }
+            | Self::Var { ty, .. }
+            | Self::If { ty, .. }
+            | Self::Let { ty, .. }
+            | Self::Letrec { ty, .. }
+            | Self::Lambda { ty, .. }
+            | Self::App { ty, .. } => ty.clone(),
+        }
     }
 }
