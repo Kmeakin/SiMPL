@@ -9,25 +9,25 @@ pub enum Expr {
         name: String,
     },
     If {
-        test: Box<Expr>,
-        then_branch: Box<Expr>,
-        else_branch: Box<Expr>,
+        test: Box<Self>,
+        then_branch: Box<Self>,
+        else_branch: Box<Self>,
     },
     Let {
-        bindings: Vec<(Ident, Expr)>,
-        body: Box<Expr>,
+        bindings: Vec<(Ident, Self)>,
+        body: Box<Self>,
     },
     Letrec {
-        bindings: Vec<(Ident, Expr)>,
-        body: Box<Expr>,
+        bindings: Vec<(Ident, Self)>,
+        body: Box<Self>,
     },
     Lambda {
         params: Vec<Ident>,
-        body: Box<Expr>,
+        body: Box<Self>,
     },
     App {
-        func: Box<Expr>,
-        arg: Box<Expr>,
+        func: Box<Self>,
+        arg: Box<Self>,
     },
 }
 
