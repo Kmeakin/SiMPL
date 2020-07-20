@@ -34,3 +34,38 @@ fn infer_inc_fn() {
     let ty = type_of(expr);
     assert_eq!(ty, ty![Int])
 }
+
+#[test]
+fn letrec() {
+    let expr = TypedExpr::from_str(
+        r"
+letrec
+    countdown = \x -> if is_zero x
+                      then 0
+                      else countdown (sub x 1)
+in
+    countdown",
+    )
+    .unwrap();
+    let ty = type_of(expr);
+    assert_eq!(ty, ty![Int => Int])
+}
+
+#[test]
+fn letrec_mutually_recursive() {
+    let expr = TypedExpr::from_str(
+        r"
+letrec
+    is_even = \x -> if is_zero x
+                      then true
+                      else is_odd (sub x 1),
+    is_odd  = \x -> if is_zero x
+                      then false
+                      else is_even (sub x 1)
+in
+    is_even",
+    )
+    .unwrap();
+    let ty = type_of(expr);
+    assert_eq!(ty, ty![Int => Bool])
+}

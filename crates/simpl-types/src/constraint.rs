@@ -33,10 +33,23 @@ pub fn collect(expr: TypedExpr) -> Constraints {
                 Constraint(ty, body.ty()),
                 Constraint(binding.ty, binding.val.ty()),
             ];
+            cons.extend(collect(*binding.val));
             cons.extend(collect(*body));
             cons
         }
-        TypedExpr::Letrec { ty, bindings, body } => todo!(),
+        TypedExpr::Letrec { ty, bindings, body } => {
+            assert!(bindings.len() >= 1);
+            let binding = &bindings[0];
+
+            let mut cons = vec![
+                Constraint(ty, body.ty()),
+                Constraint(binding.ty.clone(), binding.val.ty()),
+            ];
+
+            cons.extend(collect(*binding.val.clone()));
+            cons.extend(collect(*body));
+            cons
+        }
         TypedExpr::Lambda { ty, param, body } => {
             let mut cons = vec![Constraint(ty, Type::Fn(box param.ty, box body.ty()))];
             cons.extend(collect(*body));

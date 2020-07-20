@@ -54,7 +54,17 @@ impl TypedExpr {
                 },
                 body: box body.apply(subst),
             },
-            Self::Letrec { ty, bindings, body } => todo!(),
+            Self::Letrec { ty, bindings, body } => Self::Letrec {
+                ty: ty.apply(subst),
+                bindings: bindings
+                    .iter()
+                    .map(|binding| LetBinding {
+                        ty: binding.ty.apply(subst),
+                        ..binding.clone()
+                    })
+                    .collect(),
+                body: box body.apply(subst),
+            },
             Self::Lambda { ty, param, body } => Self::Lambda {
                 ty: ty.apply(subst),
                 param: Param {

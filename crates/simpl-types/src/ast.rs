@@ -120,7 +120,33 @@ impl TypedExpr {
                     body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
                 }
             }
-            Expr::Letrec { bindings, body } => todo!(),
+            Expr::Letrec { bindings, body } => {
+                let ty = gen.next();
+                let mut extended_tenv = tenv.clone();
+
+                let mut tvars = vec![];
+                for (name, _) in &bindings {
+                    let tvar = gen.next();
+                    extended_tenv.insert(name.clone(), tvar.clone());
+                    tvars.push(tvar);
+                }
+
+                let mut new_bindings = vec![];
+
+                for ((name, val), tvar) in bindings.into_iter().zip(tvars) {
+                    new_bindings.push(LetBinding {
+                        name: name.clone(),
+                        ty: tvar,
+                        val: box Self::from_ast_inner(val.clone(), &extended_tenv, gen)?,
+                    });
+                }
+
+                Self::Letrec {
+                    ty,
+                    bindings: new_bindings,
+                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
+                }
+            }
             Expr::Lambda { params, body } => {
                 assert!(params.len() >= 1);
                 let ty = gen.next();
