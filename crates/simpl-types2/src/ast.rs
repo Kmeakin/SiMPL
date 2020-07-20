@@ -80,9 +80,44 @@ impl TypedExpr {
                 then_branch: box Self::from_ast_inner(*then_branch, tenv, gen)?,
                 else_branch: box Self::from_ast_inner(*else_branch, tenv, gen)?,
             },
-            Expr::Let { bindings, body } => todo!(),
+            Expr::Let { bindings, body } => {
+                assert!(bindings.len() >= 1);
+                let ty = gen.next();
+
+                // TODO: desugar `let v1 = e1, v2 = e2 in b` into
+                // `let v1 = e1 in let v2 = e2 in b`
+                let (binding_name, binding_val) = &bindings[0];
+                let binding_ty = gen.next();
+                let mut extended_tenv = tenv.clone();
+                extended_tenv.insert(binding_name.into(), binding_ty.clone());
+
+                Self::Let {
+                    ty,
+                    binding: (
+                        binding_ty,
+                        binding_name.clone(),
+                        box Self::from_ast_inner(binding_val.clone(), tenv, gen)?,
+                    ),
+                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
+                }
+            }
             Expr::Letrec { bindings, body } => todo!(),
-            Expr::Lambda { params, body } => todo!(),
+            Expr::Lambda { params, body } => {
+                assert!(params.len() >= 1);
+                let ty = gen.next();
+
+                // TODO: desugar `\x, y -> e` into `\x -> \y -> e`
+                let param_name = &params[0];
+                let param_ty = gen.next();
+                let param_binding = (param_ty.clone(), param_name.clone());
+                let mut extended_tenv = tenv.clone();
+                extended_tenv.insert(param_name.clone(), param_ty);
+                Self::Lambda {
+                    ty,
+                    param: param_binding,
+                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
+                }
+            }
             Expr::App { func, arg } => Self::App {
                 ty: gen.next(),
                 func: box Self::from_ast_inner(*func, tenv, gen)?,

@@ -22,18 +22,40 @@ fn collect(expr: TypedExpr) -> Constraints {
                 Constraint(then_branch.ty(), ty.clone()),
                 Constraint(else_branch.ty(), ty),
             ];
-
             cons.extend(collect(*test));
             cons.extend(collect(*then_branch));
             cons.extend(collect(*else_branch));
-
             cons
         }
 
-        TypedExpr::Let { ty, binding, body } => todo!(),
+        TypedExpr::Let {
+            ty,
+            binding: (binding_ty, binding_name, binding_value),
+            body,
+        } => {
+            let mut cons = vec![
+                Constraint(ty, body.ty()),
+                Constraint(binding_ty, binding_value.ty()),
+            ];
+            cons.extend(collect(*body));
+            cons
+        }
         TypedExpr::Letrec { ty, bindings, body } => todo!(),
-        TypedExpr::Lambda { ty, param, body } => todo!(),
-        TypedExpr::App { ty, func, arg } => todo!(),
+        TypedExpr::Lambda {
+            ty,
+            param: (param_ty, _name),
+            body,
+        } => {
+            let mut cons = vec![Constraint(ty, Type::Fn(box param_ty, box body.ty()))];
+            cons.extend(collect(*body));
+            cons
+        }
+        TypedExpr::App { ty, func, arg } => {
+            let mut cons = vec![Constraint(func.ty(), Type::Fn(box arg.ty(), box ty))];
+            cons.extend(collect(*func));
+            cons.extend(collect(*arg));
+            cons
+        }
     }
 }
 
