@@ -69,3 +69,33 @@ in
     let ty = type_of(expr);
     assert_eq!(ty, ty![Int => Bool])
 }
+
+#[test]
+fn let_many() {
+    let expr = TypedExpr::from_str(
+        r"
+let
+    x = 1,
+    y = add x 1,
+    z = \a -> add a y
+in
+    z",
+    )
+    .unwrap();
+    let ty = type_of(expr);
+    assert_eq!(ty, ty![Int => Int])
+}
+
+#[test]
+fn lambda_many() {
+    let expr = TypedExpr::from_str(
+        r"
+let
+    f = \a, b -> a b
+in
+    f",
+    )
+    .unwrap();
+    let ty = type_of(expr);
+    assert_eq!(ty, ty![({5} => {6}) => {5} => {6}])
+}

@@ -100,11 +100,11 @@ impl TypedExpr {
                 else_branch: box Self::from_ast_inner(*else_branch, tenv, gen)?,
             },
             Expr::Let { bindings, body } => {
-                assert!(bindings.len() >= 1);
+                let (bindings, body) = expand_let(&bindings, *body);
+
+                assert!(bindings.len() == 1);
                 let ty = gen.next();
 
-                // TODO: desugar `let v1 = e1, v2 = e2 in b` into
-                // `let v1 = e1 in let v2 = e2 in b`
                 let (binding_name, binding_val) = &bindings[0];
                 let binding_ty = gen.next();
                 let mut extended_tenv = tenv.clone();
@@ -117,7 +117,7 @@ impl TypedExpr {
                         name: binding_name.clone(),
                         val: box Self::from_ast_inner(binding_val.clone(), tenv, gen)?,
                     },
-                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
+                    body: box Self::from_ast_inner(body, &extended_tenv, gen)?,
                 }
             }
             Expr::Letrec { bindings, body } => {
@@ -148,10 +148,11 @@ impl TypedExpr {
                 }
             }
             Expr::Lambda { params, body } => {
-                assert!(params.len() >= 1);
+                let (params, body) = expand_lambda(&params, *body);
+
+                assert!(params.len() == 1);
                 let ty = gen.next();
 
-                // TODO: desugar `\x, y -> e` into `\x -> \y -> e`
                 let param_name = &params[0];
                 let param_ty = gen.next();
                 let mut extended_tenv = tenv.clone();
@@ -162,7 +163,7 @@ impl TypedExpr {
                         ty: param_ty,
                         name: param_name.clone(),
                     },
-                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
+                    body: box Self::from_ast_inner(body, &extended_tenv, gen)?,
                 }
             }
             Expr::App { func, arg } => Self::App {
@@ -185,4 +186,84 @@ impl TypedExpr {
             | Self::App { ty, .. } => ty.clone(),
         }
     }
+}
+
+/// Expand an `ast::Expr::Let` with many bound variables into a nested
+/// sequences of lets each binding a single variable
+/// eg `let x = 1, y = 2 in add x y` expands to
+///    `let x = 1 in let y = 2 in add x y`
+fn expand_let(bindings: &[(Ident, Expr)], body: Expr) -> (Vec<(Ident, Expr)>, Expr) {
+    assert!(bindings.len() >= 1);
+    if bindings.len() == 1 {
+        (bindings.to_vec(), body)
+    } else {
+        let binding = &bindings[0];
+
+        let (rest_bindings, rest_body) = expand_let(&bindings[1..], body);
+
+        (
+            vec![binding.clone()],
+            Expr::Let {
+                bindings: rest_bindings,
+                body: box rest_body,
+            },
+        )
+    }
+}
+
+fn expand_lambda(params: &[Ident], body: Expr) -> (Vec<Ident>, Expr) {
+    assert!(params.len() >= 1);
+    if params.len() == 1 {
+        (params.to_vec(), body)
+    } else {
+        let param = &params[0];
+
+        let (rest_params, rest_body) = expand_lambda(&params[1..], body);
+
+        (
+            vec![param.clone()],
+            Expr::Lambda {
+                params: rest_params,
+                body: box rest_body,
+            },
+        )
+    }
+}
+
+#[test]
+fn test_expand_let() {
+    let bindings = vec![
+        ("x".into(), Expr::Lit { val: Lit::Int(1) }),
+        ("y".into(), Expr::Lit { val: Lit::Int(2) }),
+    ];
+
+    let body = Expr::Lit { val: Lit::Int(0) };
+
+    assert_eq!(
+        expand_let(&bindings, body),
+        (
+            vec![("x".into(), Expr::Lit { val: Lit::Int(1) }),],
+            Expr::Let {
+                bindings: vec![("y".into(), Expr::Lit { val: Lit::Int(2) })],
+                body: box Expr::Lit { val: Lit::Int(0) }
+            }
+        ),
+    )
+}
+
+#[test]
+fn test_expand_lambda() {
+    let params = vec!["x".into(), "y".into()];
+    let body = Expr::Lit { val: Lit::Int(0) };
+
+    assert_eq!(
+        expand_lambda(&params, body),
+        (
+            vec!["x".into()],
+            Expr::Lambda {
+                params: vec!["y".into()],
+                body: box Expr::Lit { val: Lit::Int(0) }
+            }
+        ),
+    )
 }

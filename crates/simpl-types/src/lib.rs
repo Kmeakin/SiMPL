@@ -12,6 +12,7 @@ mod subst;
 pub mod ty;
 mod unify;
 
+#[cfg(test)]
 mod test;
 
 #[derive(Debug, Copy, Clone, Default)]
