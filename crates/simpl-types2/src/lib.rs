@@ -1,10 +1,11 @@
 #![allow(dead_code)]
 #![feature(box_syntax)]
 #![feature(box_patterns)]
+#![feature(never_type)]
 
 use std::marker::PhantomData;
 
-mod hir;
+pub mod ast;
 pub mod ty;
 
 #[derive(Debug, Copy, Clone, Default)]

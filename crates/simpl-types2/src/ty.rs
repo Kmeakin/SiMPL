@@ -1,7 +1,7 @@
-use crate::hir::Expr;
+use crate::ast::{Ident, Lit};
 use derive_more::Display;
 use extend::ext;
-use simpl_syntax2::ast::Lit;
+use std::collections::HashMap;
 
 pub type TypeVar = u32;
 
@@ -70,6 +70,37 @@ pub fn fold_tys(tys: &[Type]) -> Type {
     tail.iter().fold(head, |acc, x| {
         Type::Fn(box x.clone().clone(), box acc.clone())
     })
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+/// A mapping from `Ident`s (that is, variables) to `Type`s.
+/// Used when looking up type of a VariableExpr
+pub struct TypeEnv(HashMap<Ident, Type>);
+
+impl Default for TypeEnv {
+    fn default() -> Self {
+        let mut hm = HashMap::new();
+        hm.insert("add".into(), ty![Int => Int => Int]);
+        hm.insert("sub".into(), ty![Int => Int => Int]);
+        hm.insert("mul".into(), ty![Int => Int => Int]);
+        hm.insert("is_zero".into(), ty![Int => Bool]);
+
+        Self(hm)
+    }
+}
+
+impl TypeEnv {
+    pub fn empty() -> Self {
+        Self(HashMap::new())
+    }
+
+    pub fn get(&self, var: &str) -> Option<&Type> {
+        self.0.get(var)
+    }
+
+    pub fn insert(&mut self, var: Ident, val: Type) {
+        self.0.insert(var, val);
+    }
 }
 
 #[cfg(test)]
