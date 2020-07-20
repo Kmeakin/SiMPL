@@ -1,24 +1,9 @@
+use crate::IdGen;
 pub use simpl_syntax2::ast::{Ident, Lit};
 use simpl_syntax2::{ast, parse, ParseError};
 
 pub type ExprId = u32;
-
-#[derive(Debug, Copy, Clone, Default)]
-struct IdGen {
-    counter: u32,
-}
-
-impl IdGen {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn next(&mut self) -> u32 {
-        let x = self.counter;
-        self.counter += 1;
-        x
-    }
-}
+type ExprIdGen = IdGen<ExprId>;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
@@ -70,7 +55,7 @@ impl Expr {
         Ok(Expr::from_ast(ast))
     }
 
-    fn from_ast_inner(ast: ast::Expr, gen: &mut IdGen) -> Expr {
+    fn from_ast_inner(ast: ast::Expr, gen: &mut ExprIdGen) -> Expr {
         let id = gen.next();
 
         match ast {
