@@ -23,7 +23,7 @@ pub enum TypedExpr {
     },
     Let {
         ty: Type,
-        bindings: Vec<(Type, Ident, Self)>,
+        binding: (Type, Ident, Box<Self>),
         body: Box<Self>,
     },
     Letrec {
@@ -33,7 +33,7 @@ pub enum TypedExpr {
     },
     Lambda {
         ty: Type,
-        params: Vec<Ident>,
+        param: (Type, Ident),
         body: Box<Self>,
     },
     App {
@@ -43,7 +43,7 @@ pub enum TypedExpr {
     },
 }
 
-type TypeVarGen = IdGen<Type>;
+pub type TypeVarGen = IdGen<Type>;
 impl FromId for Type {
     fn from_id(id: u32) -> Type {
         Type::Var(id)
@@ -82,20 +82,7 @@ impl TypedExpr {
             },
             Expr::Let { bindings, body } => todo!(),
             Expr::Letrec { bindings, body } => todo!(),
-            Expr::Lambda { params, body } => {
-                let ty = gen.next();
-                let mut extended_tenv = tenv.clone();
-
-                for name in &params {
-                    extended_tenv.insert(name.clone(), gen.next());
-                }
-
-                Self::Lambda {
-                    ty,
-                    params,
-                    body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
-                }
-            }
+            Expr::Lambda { params, body } => todo!(),
             Expr::App { func, arg } => Self::App {
                 ty: gen.next(),
                 func: box Self::from_ast_inner(*func, tenv, gen)?,
