@@ -1,3 +1,4 @@
+use crate::hir::Expr;
 use derive_more::Display;
 use extend::ext;
 use simpl_syntax2::ast::Lit;
@@ -50,18 +51,18 @@ macro_rules! ty {
 
     [($($tts:tt)=>+)] => {{
         let tys = vec!($( ty!($tts)),*);
-        fold_tys(&tys)
+        crate::ty::fold_tys(&tys)
     }};
 
     [$($tts:tt)=>+] => {{
         let tys = vec!($( ty!($tts)),*);
-        fold_tys(&tys)
+        crate::ty::fold_tys(&tys)
     }};
 
 
 }
 
-fn fold_tys(tys: &[Type]) -> Type {
+pub fn fold_tys(tys: &[Type]) -> Type {
     assert!(tys.len() >= 2);
     let rev: Vec<_> = tys.into_iter().rev().collect();
     let head = rev[0].clone();
