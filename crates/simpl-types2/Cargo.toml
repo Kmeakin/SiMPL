@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 simpl-syntax2 = {path = "../simpl-syntax2"}
 derive_more = "0.99.9"
+extend = "0.1.2"
 
 [dev-dependencies]
 insta = "0.16.1"

@@ -1,4 +1,6 @@
 use derive_more::Display;
+use extend::ext;
+use simpl_syntax2::ast::Lit;
 
 pub type TypeVar = u32;
 
@@ -21,6 +23,17 @@ fn display_fn_type(t1: &Type, t2: &Type) -> String {
         format!("({}) -> {}", t1, t2)
     } else {
         format!("{} -> {}", t1, t2)
+    }
+}
+
+#[ext(pub)]
+impl Lit {
+    fn ty(&self) -> Type {
+        match self {
+            Lit::Int(_) => Type::Int,
+            Lit::Bool(_) => Type::Bool,
+            Lit::Float(_) => Type::Float,
+        }
     }
 }
 
@@ -58,6 +71,7 @@ fn fold_tys(tys: &[Type]) -> Type {
     })
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use Type::*;
