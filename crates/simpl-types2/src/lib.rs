@@ -7,6 +7,7 @@ use std::marker::PhantomData;
 
 pub mod ast;
 mod constraint;
+mod subst;
 pub mod ty;
 
 #[derive(Debug, Copy, Clone, Default)]
