@@ -28,25 +28,17 @@ fn collect(expr: TypedExpr) -> Constraints {
             cons
         }
 
-        TypedExpr::Let {
-            ty,
-            binding: (binding_ty, binding_name, binding_value),
-            body,
-        } => {
+        TypedExpr::Let { ty, binding, body } => {
             let mut cons = vec![
                 Constraint(ty, body.ty()),
-                Constraint(binding_ty, binding_value.ty()),
+                Constraint(binding.ty, binding.val.ty()),
             ];
             cons.extend(collect(*body));
             cons
         }
         TypedExpr::Letrec { ty, bindings, body } => todo!(),
-        TypedExpr::Lambda {
-            ty,
-            param: (param_ty, _name),
-            body,
-        } => {
-            let mut cons = vec![Constraint(ty, Type::Fn(box param_ty, box body.ty()))];
+        TypedExpr::Lambda { ty, param, body } => {
+            let mut cons = vec![Constraint(ty, Type::Fn(box param.ty, box body.ty()))];
             cons.extend(collect(*body));
             cons
         }
@@ -59,9 +51,10 @@ fn collect(expr: TypedExpr) -> Constraints {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
-    use crate::ast::TypeVarGen;
+    use crate::ast::{LetBinding, Param, TypeVarGen};
 
     #[test]
     fn constrain_int() {
@@ -109,7 +102,10 @@ mod test {
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
-            param: (t2.clone(), "param".into()),
+            param: Param {
+                ty: t2.clone(),
+                name: "param".into(),
+            },
             body: box TypedExpr::Var {
                 ty: t3.clone(),
                 name: "param".into(),
@@ -172,14 +168,14 @@ mod test {
 
         let expr = TypedExpr::Let {
             ty: t1.clone(),
-            binding: (
-                t2.clone(),
-                "name".into(),
-                box TypedExpr::Var {
+            binding: LetBinding {
+                ty: t2.clone(),
+                name: "name".into(),
+                val: box TypedExpr::Var {
                     ty: t3.clone(),
                     name: "value".into(),
                 },
-            ),
+            },
             body: box TypedExpr::Var {
                 ty: t4.clone(),
                 name: "body".into(),
@@ -199,7 +195,10 @@ mod test {
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
-            param: (t2.clone(), "a".into()),
+            param: Param {
+                ty: t2.clone(),
+                name: "a".into(),
+            },
             body: box TypedExpr::Var {
                 ty: t3.clone(),
                 name: "a".into(),
@@ -223,10 +222,16 @@ mod test {
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
-            param: (t2.clone(), "a".into()),
+            param: Param {
+                ty: t2.clone(),
+                name: "a".into(),
+            },
             body: box TypedExpr::Lambda {
                 ty: t3.clone(),
-                param: (t4.clone(), "b".into()),
+                param: Param {
+                    ty: t4.clone(),
+                    name: "b".into(),
+                },
                 body: box TypedExpr::Var {
                     ty: t5.clone(),
                     name: "a".into(),
@@ -260,13 +265,22 @@ mod test {
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
-            param: (t2.clone(), "f".into()),
+            param: Param {
+                ty: t2.clone(),
+                name: "f".into(),
+            },
             body: box TypedExpr::Lambda {
                 ty: t3.clone(),
-                param: (t4.clone(), "g".into()),
+                param: Param {
+                    ty: t4.clone(),
+                    name: "g".into(),
+                },
                 body: box TypedExpr::Lambda {
                     ty: t5.clone(),
-                    param: (t6.clone(), "x".into()),
+                    param: Param {
+                        ty: t6.clone(),
+                        name: "x".into(),
+                    },
                     body: box TypedExpr::App {
                         ty: t7.clone(),
                         func: box TypedExpr::Var {

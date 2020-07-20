@@ -23,17 +23,17 @@ pub enum TypedExpr {
     },
     Let {
         ty: Type,
-        binding: (Type, Ident, Box<Self>),
+        binding: LetBinding,
         body: Box<Self>,
     },
     Letrec {
         ty: Type,
-        bindings: Vec<(Type, Ident, Self)>,
+        bindings: Vec<LetBinding>,
         body: Box<Self>,
     },
     Lambda {
         ty: Type,
-        param: (Type, Ident),
+        param: Param,
         body: Box<Self>,
     },
     App {
@@ -41,6 +41,19 @@ pub enum TypedExpr {
         func: Box<Self>,
         arg: Box<Self>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Param {
+    pub ty: Type,
+    pub name: Ident,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LetBinding {
+    pub ty: Type,
+    pub name: Ident,
+    pub val: Box<TypedExpr>,
 }
 
 pub type TypeVarGen = IdGen<Type>;
@@ -93,11 +106,11 @@ impl TypedExpr {
 
                 Self::Let {
                     ty,
-                    binding: (
-                        binding_ty,
-                        binding_name.clone(),
-                        box Self::from_ast_inner(binding_val.clone(), tenv, gen)?,
-                    ),
+                    binding: LetBinding {
+                        ty: binding_ty,
+                        name: binding_name.clone(),
+                        val: box Self::from_ast_inner(binding_val.clone(), tenv, gen)?,
+                    },
                     body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
                 }
             }
@@ -109,12 +122,14 @@ impl TypedExpr {
                 // TODO: desugar `\x, y -> e` into `\x -> \y -> e`
                 let param_name = &params[0];
                 let param_ty = gen.next();
-                let param_binding = (param_ty.clone(), param_name.clone());
                 let mut extended_tenv = tenv.clone();
-                extended_tenv.insert(param_name.clone(), param_ty);
+                extended_tenv.insert(param_name.clone(), param_ty.clone());
                 Self::Lambda {
                     ty,
-                    param: param_binding,
+                    param: Param {
+                        ty: param_ty,
+                        name: param_name.clone(),
+                    },
                     body: box Self::from_ast_inner(*body, &extended_tenv, gen)?,
                 }
             }
