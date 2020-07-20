@@ -1,5 +1,5 @@
 [package]
-name = "simpl-syntax2"
+name = "simpl-syntax"
 version = "0.1.0"
 authors = ["Karl Meakin <karlwfmeakin@gmail.com>"]
 edition = "2018"

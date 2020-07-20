@@ -2,8 +2,8 @@ use crate::{
     ty::{Type, TypeEnv},
     FromId, IdGen,
 };
-use simpl_syntax2::ast::Expr;
-pub use simpl_syntax2::ast::{Ident, Lit};
+use simpl_syntax::ast::Expr;
+pub use simpl_syntax::ast::{Ident, Lit};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypedExpr {
@@ -66,7 +66,7 @@ impl FromId for Type {
 impl TypedExpr {
     pub fn from_str(src: &str) -> Result<Self, String> {
         // TODO: return a trait object instead of unwrapping
-        let ast = simpl_syntax2::parse(src).unwrap();
+        let ast = simpl_syntax::parse(src).unwrap();
         Self::from_ast(ast)
     }
 
