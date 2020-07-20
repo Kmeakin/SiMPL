@@ -1,5 +1,5 @@
 ---
-source: crates/simpl-syntax2/src/test.rs
+source: crates/simpl-syntax/src/test.rs
 expression: parse(src).unwrap()
 ---
 If {
@@ -8,7 +8,12 @@ If {
             true,
         ),
     },
-    then_branch: If {
+    then_branch: Lit {
+        val: Int(
+            0,
+        ),
+    },
+    else_branch: If {
         test: Lit {
             val: Bool(
                 false,
@@ -24,10 +29,5 @@ If {
                 1.5,
             ),
         },
-    },
-    else_branch: Lit {
-        val: Int(
-            0,
-        ),
     },
 }

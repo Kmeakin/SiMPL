@@ -1,5 +1,5 @@
 ---
-source: crates/simpl-syntax2/src/test.rs
+source: crates/simpl-syntax/src/test.rs
 expression: parse(src).unwrap()
 ---
 App {
