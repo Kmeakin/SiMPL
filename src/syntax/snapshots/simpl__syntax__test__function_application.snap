@@ -1,0 +1,14 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+App {
+    func: Var {
+        name: "f",
+    },
+    arg: Lit {
+        val: Int(
+            1,
+        ),
+    },
+}

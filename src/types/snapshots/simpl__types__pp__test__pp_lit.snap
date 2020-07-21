@@ -1,0 +1,5 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+123

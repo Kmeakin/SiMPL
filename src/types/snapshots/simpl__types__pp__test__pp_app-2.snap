@@ -1,0 +1,7 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+if (not (is_zero ((add 1) 1)))
+    then 50
+    else 100

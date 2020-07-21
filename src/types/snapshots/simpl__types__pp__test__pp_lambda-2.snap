@@ -1,0 +1,7 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+if (not false)
+    then \a -> \b -> a
+    else \x -> \y -> y

@@ -1,5 +1,0 @@
----
-source: crates/simpl-codegen/src/anf.rs
-expression: norm.pretty()
----
-\x -> 1

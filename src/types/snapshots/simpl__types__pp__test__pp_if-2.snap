@@ -1,0 +1,7 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+if if false then true else true
+    then if false then 1 else 0
+    else if false then 420 else 69

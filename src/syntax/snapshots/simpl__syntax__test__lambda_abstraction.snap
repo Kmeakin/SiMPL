@@ -1,0 +1,12 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Lambda {
+    params: [
+        "x",
+    ],
+    body: Var {
+        name: "x",
+    },
+}

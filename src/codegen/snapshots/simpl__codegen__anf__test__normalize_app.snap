@@ -1,0 +1,10 @@
+---
+source: src/codegen/anf.rs
+expression: norm.pretty()
+---
+let gensym = (mul 2) in
+    let gensym = (gensym 4) in
+        let gensym = (add gensym) in
+            let gensym = (mul 2) in
+                let gensym = (gensym 8) in
+                    (gensym gensym)

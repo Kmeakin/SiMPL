@@ -1,0 +1,17 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+App {
+    func: App {
+        func: Var {
+            name: "f",
+        },
+        arg: Var {
+            name: "g",
+        },
+    },
+    arg: Var {
+        name: "x",
+    },
+}

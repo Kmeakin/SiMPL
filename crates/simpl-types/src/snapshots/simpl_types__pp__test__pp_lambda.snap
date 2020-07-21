@@ -1,7 +1,0 @@
----
-source: crates/simpl-types/src/pp.rs
-expression: expr.pretty()
----
-if (not false)
-    then \x -> x
-    else \x -> (not x)

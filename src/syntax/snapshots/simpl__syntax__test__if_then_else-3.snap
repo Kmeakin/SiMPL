@@ -1,0 +1,33 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+If {
+    test: Lit {
+        val: Bool(
+            true,
+        ),
+    },
+    then_branch: Lit {
+        val: Int(
+            0,
+        ),
+    },
+    else_branch: If {
+        test: Lit {
+            val: Bool(
+                false,
+            ),
+        },
+        then_branch: Lit {
+            val: Float(
+                0.5,
+            ),
+        },
+        else_branch: Lit {
+            val: Float(
+                1.5,
+            ),
+        },
+    },
+}

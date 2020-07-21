@@ -1,0 +1,7 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Var {
+    name: "abc",
+}

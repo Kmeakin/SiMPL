@@ -1,4 +1,18 @@
-[workspace]
-members = [
-    "crates/*",
-]
+[package]
+name = "simpl"
+version = "0.1.0"
+authors = ["Karl Meakin <karlwfmeakin@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lalrpop-util = "0.19.0"
+regex = "1"
+derive_more = "0.99.9"
+extend = "0.1.2"
+pretty = "0.10.0"
+
+[build-dependencies]
+lalrpop = { version = "0.19.0", features = ["lexer"] }
+
+[dev-dependencies]
+insta = "0.16.1"

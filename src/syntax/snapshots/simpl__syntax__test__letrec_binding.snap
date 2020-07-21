@@ -1,0 +1,27 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Letrec {
+    bindings: [
+        (
+            "f",
+            Lambda {
+                params: [
+                    "x",
+                ],
+                body: App {
+                    func: Var {
+                        name: "f",
+                    },
+                    arg: Var {
+                        name: "x",
+                    },
+                },
+            },
+        ),
+    ],
+    body: Var {
+        name: "f",
+    },
+}

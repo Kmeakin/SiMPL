@@ -1,0 +1,7 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+if (not false)
+    then \x -> x
+    else \x -> (not x)

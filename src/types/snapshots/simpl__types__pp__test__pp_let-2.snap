@@ -1,0 +1,7 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+let id = \x -> x in
+    let first = \a -> \b -> a in
+        ((id not) ((first true) 1))

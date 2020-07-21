@@ -1,0 +1,9 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Lit {
+    val: Bool(
+        false,
+    ),
+}
