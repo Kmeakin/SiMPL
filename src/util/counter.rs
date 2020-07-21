@@ -34,6 +34,10 @@ impl<T: FromId> Counter<T> {
     pub fn next(&mut self) -> T {
         T::from_id(self.next_id())
     }
+
+    pub fn reset(&mut self) {
+        self.counter = 0;
+    }
 }
 
 pub trait FromId {

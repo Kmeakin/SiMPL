@@ -26,8 +26,15 @@
 //!     | x
 //!     | n
 
+use super::gensym::Gensym;
 use crate::types::ast::TypedExpr;
 pub use crate::types::ast::{Ident, LetBinding, Lit};
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
+}
 
 type Expr = TypedExpr;
 
@@ -61,6 +68,11 @@ impl Expr {
 }
 
 pub fn normalize_expr(expr: Expr) -> Expr {
+    GENSYM.lock().unwrap().reset();
+    normalize_expr_inner(expr)
+}
+
+fn normalize_expr_inner(expr: Expr) -> Expr {
     normalize(expr, box |x| x)
 }
 
@@ -75,8 +87,8 @@ fn normalize(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
             k(Expr::If {
                 ty,
                 test: box t,
-                then_branch: box normalize_expr(*then_branch),
-                else_branch: box normalize_expr(*else_branch),
+                then_branch: box normalize_expr_inner(*then_branch),
+                else_branch: box normalize_expr_inner(*else_branch),
             })
         }),
 
@@ -94,7 +106,7 @@ fn normalize(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
         Expr::Lambda { ty, param, body } => k(Expr::Lambda {
             ty,
             param,
-            body: box normalize_expr(*body),
+            body: box normalize_expr_inner(*body),
         }),
 
         Expr::App { ty, func, arg } => normalize_name(*func, box |t| {
@@ -115,16 +127,17 @@ fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
     normalize(expr, box |n| match n {
         Expr::Lit { .. } | Expr::Var { .. } => k(n),
         _ => {
+            let name = GENSYM.lock().unwrap().next();
             let ty = n.ty();
             let t = Expr::Var {
                 ty: ty.clone(),
-                name: "gensym".into(),
+                name: name.clone(),
             };
             Expr::Let {
                 ty: ty.clone(),
                 binding: LetBinding {
                     ty,
-                    name: "gensym".into(),
+                    name,
                     val: box n,
                 },
                 body: box k(t),

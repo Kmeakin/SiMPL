@@ -15,11 +15,15 @@ impl Gensym {
     }
 
     pub fn current(&self) -> String {
-        format!("{}{}", self.prefix, self.current())
+        format!("{}{}", self.prefix, self.counter.current())
     }
 
     pub fn next(&mut self) -> String {
-        let x = self.next();
+        let x = self.counter.next();
         format!("{}{}", self.prefix, x)
+    }
+
+    pub fn reset(&mut self) {
+        self.counter.reset()
     }
 }

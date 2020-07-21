@@ -2,9 +2,9 @@
 source: src/codegen/anf.rs
 expression: norm.pretty()
 ---
-let gensym = (mul 2) in
-    let gensym = (gensym 4) in
-        let gensym = (add gensym) in
-            let gensym = (mul 2) in
-                let gensym = (gensym 8) in
-                    (gensym gensym)
+let $0 = (mul 2) in
+    let $1 = ($0 4) in
+        let $2 = (add $1) in
+            let $3 = (mul 2) in
+                let $4 = ($3 8) in
+                    ($2 $4)

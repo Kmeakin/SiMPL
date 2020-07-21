@@ -2,7 +2,7 @@
 source: src/codegen/anf.rs
 expression: norm.pretty()
 ---
-let gensym = if false
+let $0 = if false
         then true
         else false in
-    if gensym then 1 else 0
+    if $0 then 1 else 0
