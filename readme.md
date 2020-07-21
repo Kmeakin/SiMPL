@@ -25,6 +25,7 @@ Expr := LitExpr
       | VarExpr
       | IfExpr
       | LetExpr
+      | LetrecExpr
       | LambdaExpr
       | AppExpr
 
@@ -38,8 +39,11 @@ Ident   := [a-zA-Z][a-zA-Z0-9_]*
 
 IfExpr := "if" Expr "then" Expr "else" Expr
 
-LetExpr    := "let" Bindings "in" Expr
-Bindings   := (Ident "=" Expr),+
+LetExpr  := "let" Bindings "in" Expr
+Bindings := (Ident "=" Expr),+
+
+LetrecExpr     := "letrec" LetrecBindings "in" Expr
+letrecBindings := (Ident "=" LambdaExpr),+
 
 LambdaExpr := "\" Params "->" Expr
 Params     := (Ident),+
@@ -53,7 +57,7 @@ Args       := Expr+
 - Hindley-Milner type system, add type-classes later if I get around to it.
 - Features
   - [x] Infer principal types for every expression
-  - [ ] Letrec (recursive and mutually-recursive functions)
+  - [x] Letrec (recursive and mutually-recursive functions)
     - eg `let fact = \x -> if x == 0 then 1 else x * fact (x - 1) in fact 5`
   - [ ] Let-polymorphism:
     - eg allow `let id = \x -> x in (id 1 , id false)` to be typed. 
@@ -61,7 +65,8 @@ Args       := Expr+
     - I think let-polymorphism is also called "rank-1 types"?
   - [ ] Explicit type-annotations
     - eg `let x: Int = 5`
-    - A strictly HM (ie no rank-2 or higher types) can infer types of all expressions without any annotations required (though inference with rank-2 or higher is undecidiable). So annotations are purely to aid with readability
+    - A strictly HM (ie no rank-2 or higher types) can infer types of all expressions without any annotations required (though inference with rank-2 or higher is undecidiable). 
+    So annotations are purely to aid with readability
   - [ ] Type-classes
   
 ## Code generation
