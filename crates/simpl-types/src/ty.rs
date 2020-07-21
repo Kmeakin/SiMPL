@@ -84,6 +84,7 @@ impl Default for TypeEnv {
         hm.insert("sub".into(), ty![Int => Int => Int]);
         hm.insert("mul".into(), ty![Int => Int => Int]);
         hm.insert("is_zero".into(), ty![Int => Bool]);
+        hm.insert("not".into(), ty![Bool => Bool]);
 
         Self(hm)
     }
