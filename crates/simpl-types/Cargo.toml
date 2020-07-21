@@ -10,6 +10,8 @@ edition = "2018"
 simpl-syntax = {path = "../simpl-syntax"}
 derive_more = "0.99.9"
 extend = "0.1.2"
+pretty = "0.10.0"
+insta = "0.16.1"
 
 [dev-dependencies]
 insta = "0.16.1"

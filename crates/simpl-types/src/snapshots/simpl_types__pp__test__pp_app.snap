@@ -1,0 +1,5 @@
+---
+source: crates/simpl-types/src/pp.rs
+expression: expr.pretty()
+---
+if (not false) then 1 else 0
