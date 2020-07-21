@@ -1,5 +1,5 @@
 //! `TypedExpr` -> `TypedExpr` pass
-//! Assumes the alphatize pass has already run
+//! Assumes the rename pass has already run
 //!
 //! Input language:
 //! e := x

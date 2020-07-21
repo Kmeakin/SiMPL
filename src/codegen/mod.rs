@@ -1,3 +1,3 @@
-mod alphatize;
 mod anf;
 mod gensym;
+mod rename;
