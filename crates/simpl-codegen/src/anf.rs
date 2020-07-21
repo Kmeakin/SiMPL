@@ -1,11 +1,68 @@
+//! TypedExpr -> TypedExpr pass
+//! Assumes the alphatize pass has already run
+//!
+//! Input language:
+//! e := x
+//!    | n
+//!    | if e then e else e
+//!    | let x = e in e
+//!    | letrec (x = e)+ in e
+//!    | \x -> e
+//!    | e e
+//!
+//! x := identifer
+//!
+//! n := int
+//!    | float
+//!    | bool
+//!
+//! Output language:
+//! e := ae
+//!    | ae ae
+//!    | if ae e e
+//!    | let x = e in e
+//!
+//! ae := \x -> e
+//!     | x
+//!     | n
+
 use extend::ext;
+use simpl_types::ast::TypedExpr;
 pub use simpl_types::ast::{Ident, LetBinding, Lit};
-use simpl_types::{
-    ast::TypedExpr,
-    ty::{LitExt, Type},
-};
 
 type Expr = TypedExpr;
+
+#[ext(pub)]
+impl Expr {
+    fn is_anf(&self) -> bool {
+        self.is_e()
+    }
+
+    fn is_e(&self) -> bool {
+        match self {
+            Self::If {
+                test,
+                then_branch,
+                else_branch,
+                ..
+            } => test.is_ae() && then_branch.is_ae() && else_branch.is_ae(),
+            Self::Let { binding, body, .. } => binding.val.is_e() && body.is_e(),
+            Self::Letrec { .. } => todo!(),
+            Self::App { func, arg, .. } => func.is_ae() && arg.is_ae(),
+            _ => self.is_ae(),
+        }
+    }
+
+    fn is_ae(&self) -> bool {
+        match self {
+            Self::Lambda { body, .. } => body.is_e(),
+            Self::Lit { .. } | Self::Var { .. } => true,
+            _ => false,
+        }
+    }
+}
+
+/*
 
 #[ext(pub)]
 impl Expr {
@@ -15,7 +72,7 @@ impl Expr {
                 binding: LetBinding { val, .. },
                 body,
                 ..
-            } => val.is_cexpr() || val.is_imm() && body.is_anf(),
+            } => val.is_anf() && body.is_anf(),
             _ => self.is_cexpr() || self.is_aexpr(),
         }
     }
@@ -47,6 +104,7 @@ impl Expr {
         }
     }
 }
+*/
 
 fn normalize_expr(expr: Expr) -> Expr {
     normalize(expr, box |x| x)
@@ -95,21 +153,16 @@ fn normalize(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
             })
         }),
 
-        _ if expr.is_imm() => k(expr),
+        Expr::Lit { .. } | Expr::Var { .. } => k(expr),
 
         _ => unreachable!(),
     }
 }
 
 fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
-    fn is_imm(expr: &Expr) -> bool {
-        expr.is_imm()
-    }
-
-    normalize(expr, box |n| {
-        if is_imm(&n) {
-            k(n)
-        } else {
+    normalize(expr.clone(), box |n| match n {
+        Expr::Lit { .. } | Expr::Var { .. } => k(n),
+        _ => {
             let ty = n.ty();
             let t = Expr::Var {
                 ty: ty.clone(),
