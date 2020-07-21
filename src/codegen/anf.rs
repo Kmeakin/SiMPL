@@ -28,11 +28,9 @@
 
 use crate::types::ast::TypedExpr;
 pub use crate::types::ast::{Ident, LetBinding, Lit};
-use extend::ext;
 
 type Expr = TypedExpr;
 
-#[ext(pub)]
 impl Expr {
     fn is_anf(&self) -> bool {
         self.is_e()

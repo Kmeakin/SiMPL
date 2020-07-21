@@ -1,7 +1,4 @@
-use crate::types::{
-    ast::TypedExpr,
-    ty::{LitExt, Type},
-};
+use crate::types::{ast::TypedExpr, ty::Type};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Constraint(pub(crate) Type, pub(crate) Type);

@@ -1,6 +1,5 @@
 use crate::types::ast::{Ident, Lit};
 use derive_more::Display;
-use extend::ext;
 use std::collections::HashMap;
 
 pub type TypeVar = u32;
@@ -27,9 +26,8 @@ fn display_fn_type(t1: &Type, t2: &Type) -> String {
     }
 }
 
-#[ext(pub)]
 impl Lit {
-    fn ty(&self) -> Type {
+    pub fn ty(&self) -> Type {
         match self {
             Lit::Int(_) => Type::Int,
             Lit::Bool(_) => Type::Bool,
