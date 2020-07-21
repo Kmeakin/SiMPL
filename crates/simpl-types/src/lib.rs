@@ -1,10 +1,9 @@
-#![allow(dead_code)]
-#![feature(box_syntax)]
-#![feature(box_patterns)]
-#![feature(never_type)]
+#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![allow(clippy::must_use_candidate)]
+#![feature(box_syntax, box_patterns)]
 
 use crate::{ast::TypedExpr, ty::Type};
-use std::marker::PhantomData;
+use std::{marker::PhantomData, str::FromStr};
 
 pub mod ast;
 mod constraint;
@@ -48,8 +47,17 @@ impl<T: FromId> IdGen<T> {
         T::from_id(self.current_id())
     }
 
-    pub fn next(&mut self) -> T {
-        T::from_id(self.next_id())
+    pub fn fresh(&mut self) -> T {
+        self.next().unwrap()
+    }
+}
+
+impl<T: FromId> Iterator for IdGen<T> {
+    type Item = T;
+
+    /// Always returns `Some`
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(T::from_id(self.next_id()))
     }
 }
 
@@ -64,17 +72,17 @@ impl FromId for u32 {
 }
 
 /// Infer the type of the expr
-pub fn type_of(expr: TypedExpr) -> Type {
+pub fn type_of(expr: &TypedExpr) -> Type {
     let cons = constraint::collect(expr.clone());
-    let subst = unify::unify(cons);
+    let subst = unify::unify(&cons);
     subst.apply_ty(&expr.ty())
 }
 
 /// Infer the type of the expr, and apply the resulting substitution to the
 /// expression (so every expr has its inferred type attatched)
-pub fn infer_and_apply(expr: TypedExpr) -> TypedExpr {
+pub fn infer_and_apply(expr: &TypedExpr) -> TypedExpr {
     let cons = constraint::collect(expr.clone());
-    let subst = unify::unify(cons);
+    let subst = unify::unify(&cons);
     expr.apply(&subst)
 }
 
@@ -83,5 +91,5 @@ pub fn infer_and_apply(expr: TypedExpr) -> TypedExpr {
 pub fn parse_and_type(src: &str) -> TypedExpr {
     // TODO: return a &dyn impl Error instead of unwrapping
     let expr = TypedExpr::from_str(src).unwrap();
-    infer_and_apply(expr)
+    infer_and_apply(&expr)
 }

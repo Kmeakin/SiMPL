@@ -1,4 +1,4 @@
-//! TypedExpr -> TypedExpr pass
+//! `TypedExpr` -> `TypedExpr` pass
 //! Assumes the alphatize pass has already run
 //!
 //! Input language:
@@ -62,51 +62,7 @@ impl Expr {
     }
 }
 
-/*
-
-#[ext(pub)]
-impl Expr {
-    fn is_anf(&self) -> bool {
-        match self {
-            Expr::Let {
-                binding: LetBinding { val, .. },
-                body,
-                ..
-            } => val.is_anf() && body.is_anf(),
-            _ => self.is_cexpr() || self.is_aexpr(),
-        }
-    }
-
-    fn is_cexpr(&self) -> bool {
-        match self {
-            Expr::App { func, arg, .. } => func.is_aexpr() && arg.is_aexpr(),
-            Expr::If {
-                test,
-                then_branch,
-                else_branch,
-                ..
-            } => test.is_aexpr() && then_branch.is_anf() && else_branch.is_anf(),
-            _ => false,
-        }
-    }
-
-    fn is_aexpr(&self) -> bool {
-        match self {
-            Expr::Lambda { body, .. } => body.is_anf(),
-            _ => self.is_imm(),
-        }
-    }
-
-    fn is_imm(&self) -> bool {
-        match self {
-            Self::Lit { .. } | Self::Var { .. } => true,
-            _ => false,
-        }
-    }
-}
-*/
-
-fn normalize_expr(expr: Expr) -> Expr {
+pub fn normalize_expr(expr: Expr) -> Expr {
     normalize(expr, box |x| x)
 }
 
@@ -154,13 +110,11 @@ fn normalize(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
         }),
 
         Expr::Lit { .. } | Expr::Var { .. } => k(expr),
-
-        _ => unreachable!(),
     }
 }
 
 fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
-    normalize(expr.clone(), box |n| match n {
+    normalize(expr, box |n| match n {
         Expr::Lit { .. } | Expr::Var { .. } => k(n),
         _ => {
             let ty = n.ty();
@@ -171,7 +125,7 @@ fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
             Expr::Let {
                 ty: ty.clone(),
                 binding: LetBinding {
-                    ty: ty.clone(),
+                    ty,
                     name: "gensym".into(),
                     val: box n,
                 },
@@ -181,6 +135,7 @@ fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
     })
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use insta::assert_snapshot;

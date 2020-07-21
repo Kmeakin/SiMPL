@@ -10,8 +10,8 @@ pub struct Subst(HashMap<TypeVar, Type>);
 
 impl Constraint {
     pub fn apply(&self, subst: &Subst) -> Self {
-        let Constraint(ty1, ty2) = self;
-        Constraint(ty1.apply(subst), ty2.apply(subst))
+        let Self(ty1, ty2) = self;
+        Self(ty1.apply(subst), ty2.apply(subst))
     }
 }
 
@@ -99,11 +99,11 @@ impl Subst {
         con.apply(self)
     }
 
-    pub fn apply_cons(&self, cons: Constraints) -> Constraints {
+    pub fn apply_cons(&self, cons: &[Constraint]) -> Constraints {
         cons.iter().map(|con| self.apply_con(con)).collect()
     }
 
-    pub fn apply_expr(&self, expr: TypedExpr) -> TypedExpr {
+    pub fn apply_expr(&self, expr: &TypedExpr) -> TypedExpr {
         expr.apply(self)
     }
 
@@ -120,7 +120,7 @@ impl Subst {
         }
     }
 
-    pub fn compose(&self, other: &Subst) -> Self {
+    pub fn compose(&self, other: &Self) -> Self {
         let substituted_this: HashMap<TypeVar, Type> = self
             .0
             .iter()
@@ -185,7 +185,7 @@ mod test {
         ];
 
         assert_eq!(
-            subst.apply_cons(cons),
+            subst.apply_cons(&cons),
             vec![
                 Constraint(Type::Int, Type::Bool),
                 Constraint(Type::Bool, Type::Fn(box Type::Int, box Type::Bool))

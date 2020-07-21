@@ -1,5 +1,5 @@
 use crate::{
-    ast::{Lit, TypedExpr},
+    ast::TypedExpr,
     ty::{LitExt, Type},
 };
 
@@ -38,7 +38,7 @@ pub fn collect(expr: TypedExpr) -> Constraints {
             cons
         }
         TypedExpr::Letrec { ty, bindings, body } => {
-            assert!(bindings.len() >= 1);
+            assert!(!bindings.is_empty());
             let binding = &bindings[0];
 
             let mut cons = vec![
@@ -67,13 +67,13 @@ pub fn collect(expr: TypedExpr) -> Constraints {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::ast::{LetBinding, Param, TypeVarGen};
+    use crate::ast::{LetBinding, Lit, Param, TypeVarGen};
 
     #[test]
     fn constrain_int() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
+        let t1 = gen.fresh();
         let expr = TypedExpr::Lit {
             ty: t1.clone(),
             val: Lit::Int(1),
@@ -85,7 +85,7 @@ mod test {
     fn constrain_bool() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
+        let t1 = gen.fresh();
         let expr = TypedExpr::Lit {
             ty: t1.clone(),
             val: Lit::Bool(true),
@@ -97,7 +97,7 @@ mod test {
     fn constrain_float() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
+        let t1 = gen.fresh();
         let expr = TypedExpr::Lit {
             ty: t1.clone(),
             val: Lit::Float(1.23),
@@ -109,9 +109,9 @@ mod test {
     fn constrain_lambda() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
@@ -134,7 +134,7 @@ mod test {
     fn constrain_var() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
+        let t1 = gen.fresh();
 
         let expr = TypedExpr::Var {
             ty: t1.clone(),
@@ -148,9 +148,9 @@ mod test {
     fn constrain_app() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
 
         let expr = TypedExpr::App {
             ty: t1.clone(),
@@ -174,10 +174,10 @@ mod test {
     fn constrain_let() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
-        let t4 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
+        let t4 = gen.fresh();
 
         let expr = TypedExpr::Let {
             ty: t1.clone(),
@@ -202,9 +202,9 @@ mod test {
     fn constrain_identity() {
         let mut gen = TypeVarGen::new();
 
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
@@ -227,11 +227,11 @@ mod test {
     #[test]
     fn constrain_const() {
         let mut gen = TypeVarGen::new();
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
-        let t4 = gen.next();
-        let t5 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
+        let t4 = gen.fresh();
+        let t5 = gen.fresh();
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),
@@ -264,17 +264,17 @@ mod test {
     #[test]
     fn constrain_compose() {
         let mut gen = TypeVarGen::new();
-        let t1 = gen.next();
-        let t2 = gen.next();
-        let t3 = gen.next();
-        let t4 = gen.next();
-        let t5 = gen.next();
-        let t6 = gen.next();
-        let t7 = gen.next();
-        let t8 = gen.next();
-        let t9 = gen.next();
-        let t10 = gen.next();
-        let t11 = gen.next();
+        let t1 = gen.fresh();
+        let t2 = gen.fresh();
+        let t3 = gen.fresh();
+        let t4 = gen.fresh();
+        let t5 = gen.fresh();
+        let t6 = gen.fresh();
+        let t7 = gen.fresh();
+        let t8 = gen.fresh();
+        let t9 = gen.fresh();
+        let t10 = gen.fresh();
+        let t11 = gen.fresh();
 
         let expr = TypedExpr::Lambda {
             ty: t1.clone(),

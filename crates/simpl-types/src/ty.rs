@@ -50,31 +50,30 @@ macro_rules! ty {
 
 
     [($($tts:tt)=>+)] => {{
-        let tys = vec!($( ty!($tts)),*);
-        crate::ty::fold_tys(&tys)
+        let mut tys = vec!($( ty!($tts)),*);
+        $crate::ty::fold_tys(&mut tys)
     }};
 
     [$($tts:tt)=>+] => {{
-        let tys = vec!($( ty!($tts)),*);
-        crate::ty::fold_tys(&tys)
+        let mut tys = vec!($( ty!($tts)),*);
+        $crate::ty::fold_tys(&mut tys)
     }};
 
 
 }
 
-pub fn fold_tys(tys: &[Type]) -> Type {
+pub fn fold_tys(tys: &mut [Type]) -> Type {
     assert!(tys.len() >= 2);
-    let rev: Vec<_> = tys.into_iter().rev().collect();
-    let head = rev[0].clone();
-    let tail = &rev[1..];
-    tail.iter().fold(head, |acc, x| {
-        Type::Fn(box x.clone().clone(), box acc.clone())
-    })
+    tys.reverse();
+    let head = tys[0].clone();
+    let tail = &tys[1..];
+    tail.iter()
+        .fold(head, |acc, ty| Type::Fn(box ty.clone(), box acc.clone()))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// A mapping from `Ident`s (that is, variables) to `Type`s.
-/// Used when looking up type of a VariableExpr
+/// Used when looking up type of an `Expr::Var`
 pub struct TypeEnv(HashMap<Ident, Type>);
 
 impl Default for TypeEnv {
@@ -99,8 +98,8 @@ impl TypeEnv {
         self.0.get(var)
     }
 
-    pub fn insert(&mut self, var: Ident, val: Type) {
-        self.0.insert(var, val);
+    pub fn insert(&mut self, name: Ident, ty: Type) {
+        self.0.insert(name, ty);
     }
 }
 

@@ -1,5 +1,5 @@
 use crate::ast::TypedExpr as Expr;
-use pretty::{Doc, RcDoc};
+use pretty::RcDoc;
 
 const INDENT: isize = 4;
 const WIDTH: usize = 40;
@@ -7,13 +7,13 @@ const WIDTH: usize = 40;
 impl Expr {
     pub fn to_doc(&self) -> RcDoc<()> {
         match self {
-            Self::Lit { ty, val } => RcDoc::as_string(val),
-            Self::Var { ty, name } => RcDoc::as_string(name),
+            Self::Lit { val, .. } => RcDoc::as_string(val),
+            Self::Var { name, .. } => RcDoc::as_string(name),
             Self::If {
-                ty,
                 test,
                 then_branch,
                 else_branch,
+                ..
             } => RcDoc::text("if")
                 .append(RcDoc::space())
                 .append(test.to_doc())
@@ -27,20 +27,20 @@ impl Expr {
                 .append(else_branch.to_doc())
                 .nest(INDENT)
                 .group(),
-            Self::App { ty, func, arg } => RcDoc::text("(")
+            Self::App { func, arg, .. } => RcDoc::text("(")
                 .append(func.to_doc())
                 .append(RcDoc::space())
                 .append(arg.to_doc())
                 .append(RcDoc::text(")"))
                 .group(),
-            Self::Lambda { ty, param, body } => RcDoc::text(r"\")
+            Self::Lambda { param, body, .. } => RcDoc::text(r"\")
                 .append(param.name.clone())
                 .append(RcDoc::space())
                 .append(RcDoc::text("->"))
                 .append(RcDoc::space())
                 .append(body.to_doc())
                 .group(),
-            Self::Let { ty, binding, body } => RcDoc::text("let")
+            Self::Let { binding, body, .. } => RcDoc::text("let")
                 .append(RcDoc::space())
                 .append(binding.name.clone())
                 .append(RcDoc::space())
@@ -53,7 +53,7 @@ impl Expr {
                 .append(body.to_doc())
                 .nest(INDENT)
                 .group(),
-            Self::Letrec { ty, bindings, body } => todo!(),
+            Self::Letrec { .. } => todo!(),
         }
     }
 
@@ -64,9 +64,8 @@ impl Expr {
     }
 }
 
+#[cfg(test)]
 mod test {
-    use super::*;
-    use crate::parse_and_type;
     use insta::assert_snapshot;
 
     #[track_caller]

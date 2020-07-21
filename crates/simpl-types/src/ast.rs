@@ -4,6 +4,7 @@ use crate::{
 };
 use simpl_syntax::ast::Expr;
 pub use simpl_syntax::ast::{Ident, Lit};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypedExpr {
@@ -58,18 +59,21 @@ pub struct LetBinding {
 
 pub type TypeVarGen = IdGen<Type>;
 impl FromId for Type {
-    fn from_id(id: u32) -> Type {
-        Type::Var(id)
+    fn from_id(id: u32) -> Self {
+        Self::Var(id)
     }
 }
 
-impl TypedExpr {
-    pub fn from_str(src: &str) -> Result<Self, String> {
+impl FromStr for TypedExpr {
+    type Err = String;
+    fn from_str(src: &str) -> Result<Self, Self::Err> {
         // TODO: return a trait object instead of unwrapping
         let ast = simpl_syntax::parse(src).unwrap();
         Self::from_ast(ast)
     }
+}
 
+impl TypedExpr {
     pub fn from_ast(ast: Expr) -> Result<Self, String> {
         let mut gen = TypeVarGen::new();
         let tenv = TypeEnv::default();
@@ -80,7 +84,7 @@ impl TypedExpr {
         let expr = match ast {
             Expr::Lit { val } => Self::Lit {
                 val,
-                ty: gen.next(),
+                ty: gen.fresh(),
             },
             Expr::Var { name } => match tenv.get(&name) {
                 None => return Err(format!("Unbound variable: {}", name)),
@@ -94,7 +98,7 @@ impl TypedExpr {
                 then_branch,
                 else_branch,
             } => Self::If {
-                ty: gen.next(),
+                ty: gen.fresh(),
                 test: box Self::from_ast_inner(*test, tenv, gen)?,
                 then_branch: box Self::from_ast_inner(*then_branch, tenv, gen)?,
                 else_branch: box Self::from_ast_inner(*else_branch, tenv, gen)?,
@@ -103,10 +107,10 @@ impl TypedExpr {
                 let (bindings, body) = expand_let(&bindings, *body);
 
                 assert!(bindings.len() == 1);
-                let ty = gen.next();
+                let ty = gen.fresh();
 
                 let (binding_name, binding_val) = &bindings[0];
-                let binding_ty = gen.next();
+                let binding_ty = gen.fresh();
                 let mut extended_tenv = tenv.clone();
                 extended_tenv.insert(binding_name.into(), binding_ty.clone());
 
@@ -121,12 +125,12 @@ impl TypedExpr {
                 }
             }
             Expr::Letrec { bindings, body } => {
-                let ty = gen.next();
+                let ty = gen.fresh();
                 let mut extended_tenv = tenv.clone();
 
                 let mut tvars = vec![];
                 for (name, _) in &bindings {
-                    let tvar = gen.next();
+                    let tvar = gen.fresh();
                     extended_tenv.insert(name.clone(), tvar.clone());
                     tvars.push(tvar);
                 }
@@ -151,10 +155,10 @@ impl TypedExpr {
                 let (params, body) = expand_lambda(&params, *body);
 
                 assert!(params.len() == 1);
-                let ty = gen.next();
+                let ty = gen.fresh();
 
                 let param_name = &params[0];
-                let param_ty = gen.next();
+                let param_ty = gen.fresh();
                 let mut extended_tenv = tenv.clone();
                 extended_tenv.insert(param_name.clone(), param_ty.clone());
                 Self::Lambda {
@@ -167,7 +171,7 @@ impl TypedExpr {
                 }
             }
             Expr::App { func, arg } => Self::App {
-                ty: gen.next(),
+                ty: gen.fresh(),
                 func: box Self::from_ast_inner(*func, tenv, gen)?,
                 arg: box Self::from_ast_inner(*arg, tenv, gen)?,
             },
@@ -193,7 +197,7 @@ impl TypedExpr {
 /// eg `let x = 1, y = 2 in add x y` expands to
 ///    `let x = 1 in let y = 2 in add x y`
 fn expand_let(bindings: &[(Ident, Expr)], body: Expr) -> (Vec<(Ident, Expr)>, Expr) {
-    assert!(bindings.len() >= 1);
+    assert!(!bindings.is_empty());
     if bindings.len() == 1 {
         (bindings.to_vec(), body)
     } else {
@@ -212,7 +216,7 @@ fn expand_let(bindings: &[(Ident, Expr)], body: Expr) -> (Vec<(Ident, Expr)>, Ex
 }
 
 fn expand_lambda(params: &[Ident], body: Expr) -> (Vec<Ident>, Expr) {
-    assert!(params.len() >= 1);
+    assert!(!params.is_empty());
     if params.len() == 1 {
         (params.to_vec(), body)
     } else {

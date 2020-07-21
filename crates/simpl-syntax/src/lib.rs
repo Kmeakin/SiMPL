@@ -1,9 +1,13 @@
-#![feature(box_syntax)]
-#![feature(box_patterns)]
+#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+#![feature(box_syntax, box_patterns)]
 
 #[macro_use]
 extern crate lalrpop_util;
-lalrpop_mod!(pub grammar);
+
+lalrpop_mod!(
+    #[allow(dead_code, clippy::all, clippy::pedantic, clippy::nursery)]
+    grammar
+);
 
 pub mod ast;
 
