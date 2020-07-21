@@ -4,6 +4,7 @@
 pub mod codegen;
 pub mod syntax;
 pub mod types;
+pub(crate) mod util;
 
 #[macro_use]
 extern crate lalrpop_util;

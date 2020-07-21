@@ -1,5 +1,5 @@
 use self::{ast::TypedExpr, ty::Type};
-use std::{marker::PhantomData, str::FromStr};
+use std::str::FromStr;
 
 pub mod ast;
 mod constraint;
@@ -11,61 +11,6 @@ mod pp;
 
 #[cfg(test)]
 mod test;
-
-#[derive(Debug, Copy, Clone, Default)]
-pub struct IdGen<T>
-where
-    T: FromId,
-{
-    counter: u32,
-    _phantom: PhantomData<T>,
-}
-
-impl<T: FromId> IdGen<T> {
-    pub fn new() -> Self {
-        Self {
-            counter: 0,
-            _phantom: PhantomData,
-        }
-    }
-
-    fn next_id(&mut self) -> u32 {
-        let x = self.counter;
-        self.counter += 1;
-        x
-    }
-
-    pub fn current_id(&self) -> u32 {
-        self.counter
-    }
-
-    pub fn current(&self) -> T {
-        T::from_id(self.current_id())
-    }
-
-    pub fn fresh(&mut self) -> T {
-        self.next().unwrap()
-    }
-}
-
-impl<T: FromId> Iterator for IdGen<T> {
-    type Item = T;
-
-    /// Always returns `Some`
-    fn next(&mut self) -> Option<Self::Item> {
-        Some(T::from_id(self.next_id()))
-    }
-}
-
-pub trait FromId {
-    fn from_id(id: u32) -> Self;
-}
-
-impl FromId for u32 {
-    fn from_id(id: u32) -> Self {
-        id
-    }
-}
 
 /// Infer the type of the expr
 pub fn type_of(expr: &TypedExpr) -> Type {

@@ -1,8 +1,8 @@
-use crate::syntax::ast::Expr;
 pub use crate::syntax::ast::{Ident, Lit};
-use crate::types::{
-    ty::{Type, TypeEnv},
-    FromId, IdGen,
+use crate::{
+    syntax::ast::Expr,
+    types::ty::{Type, TypeEnv},
+    util::counter::{Counter, FromId},
 };
 use std::str::FromStr;
 
@@ -57,7 +57,7 @@ pub struct LetBinding {
     pub val: Box<TypedExpr>,
 }
 
-pub type TypeVarGen = IdGen<Type>;
+pub type TypeVarGen = Counter<Type>;
 impl FromId for Type {
     fn from_id(id: u32) -> Self {
         Self::Var(id)
@@ -84,7 +84,7 @@ impl TypedExpr {
         let expr = match ast {
             Expr::Lit { val } => Self::Lit {
                 val,
-                ty: gen.fresh(),
+                ty: gen.next(),
             },
             Expr::Var { name } => match tenv.get(&name) {
                 None => return Err(format!("Unbound variable: {}", name)),
@@ -98,7 +98,7 @@ impl TypedExpr {
                 then_branch,
                 else_branch,
             } => Self::If {
-                ty: gen.fresh(),
+                ty: gen.next(),
                 test: box Self::from_ast_inner(*test, tenv, gen)?,
                 then_branch: box Self::from_ast_inner(*then_branch, tenv, gen)?,
                 else_branch: box Self::from_ast_inner(*else_branch, tenv, gen)?,
@@ -107,10 +107,10 @@ impl TypedExpr {
                 let (bindings, body) = expand_let(&bindings, *body);
 
                 assert!(bindings.len() == 1);
-                let ty = gen.fresh();
+                let ty = gen.next();
 
                 let (binding_name, binding_val) = &bindings[0];
-                let binding_ty = gen.fresh();
+                let binding_ty = gen.next();
                 let mut extended_tenv = tenv.clone();
                 extended_tenv.insert(binding_name.into(), binding_ty.clone());
 
@@ -125,12 +125,12 @@ impl TypedExpr {
                 }
             }
             Expr::Letrec { bindings, body } => {
-                let ty = gen.fresh();
+                let ty = gen.next();
                 let mut extended_tenv = tenv.clone();
 
                 let mut tvars = vec![];
                 for (name, _) in &bindings {
-                    let tvar = gen.fresh();
+                    let tvar = gen.next();
                     extended_tenv.insert(name.clone(), tvar.clone());
                     tvars.push(tvar);
                 }
@@ -155,10 +155,10 @@ impl TypedExpr {
                 let (params, body) = expand_lambda(&params, *body);
 
                 assert!(params.len() == 1);
-                let ty = gen.fresh();
+                let ty = gen.next();
 
                 let param_name = &params[0];
-                let param_ty = gen.fresh();
+                let param_ty = gen.next();
                 let mut extended_tenv = tenv.clone();
                 extended_tenv.insert(param_name.clone(), param_ty.clone());
                 Self::Lambda {
@@ -171,7 +171,7 @@ impl TypedExpr {
                 }
             }
             Expr::App { func, arg } => Self::App {
-                ty: gen.fresh(),
+                ty: gen.next(),
                 func: box Self::from_ast_inner(*func, tenv, gen)?,
                 arg: box Self::from_ast_inner(*arg, tenv, gen)?,
             },
