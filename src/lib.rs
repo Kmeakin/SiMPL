@@ -1,7 +1,7 @@
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 #![feature(box_syntax, box_patterns)]
 
-// pub mod codegen;
+pub mod codegen;
 pub mod hir;
 pub mod syntax;
 pub mod types;

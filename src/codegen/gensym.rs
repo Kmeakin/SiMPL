@@ -1,4 +1,5 @@
 use crate::util::counter::{Counter, FromId};
+use simple_symbol::{intern, Symbol};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Gensym {
@@ -14,13 +15,13 @@ impl Gensym {
         }
     }
 
-    pub fn current(&self) -> String {
-        format!("{}{}", self.prefix, self.counter.current())
+    pub fn current(&self) -> Symbol {
+        intern(format!("{}{}", self.prefix, self.counter.current()))
     }
 
-    pub fn next(&mut self) -> String {
+    pub fn next(&mut self) -> Symbol {
         let x = self.counter.next();
-        format!("{}{}", self.prefix, x)
+        intern(format!("{}{}", self.prefix, x))
     }
 
     pub fn reset(&mut self) {

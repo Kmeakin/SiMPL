@@ -27,16 +27,13 @@
 //!     | n
 
 use super::gensym::Gensym;
-use crate::types::ast::TypedExpr;
-pub use crate::types::ast::{Ident, LetBinding, Lit};
+use crate::hir::{Expr, LetBinding, Lit};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 lazy_static! {
     static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
 }
-
-type Expr = TypedExpr;
 
 impl Expr {
     fn is_anf(&self) -> bool {

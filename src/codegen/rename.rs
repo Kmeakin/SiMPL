@@ -3,27 +3,20 @@
 //! scope
 
 use super::gensym::Gensym;
-use crate::types::ast::TypedExpr;
-pub use crate::types::ast::{Ident, LetBinding, Lit};
+use crate::hir::{Expr, LetBinding, Lit};
 use lazy_static::lazy_static;
+use maplit::hashset as hset;
+use simple_symbol::{intern, Symbol};
 use std::{collections::HashSet, sync::Mutex};
 
 lazy_static! {
     static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
 }
 
-type Expr = TypedExpr;
-
-fn hset<T: Eq + std::hash::Hash>(x: T) -> HashSet<T> {
-    let mut hs = HashSet::new();
-    hs.insert(x);
-    hs
-}
-
-fn free_vars(expr: &Expr) -> HashSet<Ident> {
+fn free_vars(expr: &Expr) -> HashSet<Symbol> {
     match expr {
         Expr::Lit { .. } => HashSet::new(),
-        Expr::Var { name, .. } => hset(name.into()),
+        Expr::Var { name, .. } => hset![*name],
         Expr::If {
             test,
             then_branch,
@@ -31,7 +24,7 @@ fn free_vars(expr: &Expr) -> HashSet<Ident> {
             ..
         } => &(&free_vars(test) | &free_vars(then_branch)) | &free_vars(else_branch),
         Expr::Let { binding, body, .. } => {
-            &free_vars(&*binding.val) | &(&free_vars(body) - &hset(binding.name.clone()))
+            &free_vars(&*binding.val) | &(&free_vars(body) - &hset!(binding.name))
         }
         Expr::Letrec { bindings, body, .. } => {
             &bindings
@@ -42,7 +35,7 @@ fn free_vars(expr: &Expr) -> HashSet<Ident> {
                     .map(|b| b.name.clone())
                     .collect::<HashSet<_>>()
         }
-        Expr::Lambda { param, body, .. } => &free_vars(body) - &hset(param.name.clone()),
+        Expr::Lambda { param, body, .. } => &free_vars(body) - &hset!(param.name),
         Expr::App { func, arg, .. } => &free_vars(func) | &free_vars(arg),
     }
 }
@@ -93,11 +86,10 @@ mod test {
     use std::str::FromStr;
 
     #[track_caller]
-    fn test_free_vars(src: &str, expected: HashSet<String>) {
-        // TODO: rewrite Expr::from_str to allow free vars
-        // let ast = Expr::from_str(src).unwrap();
-        // let free = free_vars(&ast);
-        // assert_eq!(free, expected);
+    fn test_free_vars(src: &str, expected: HashSet<Symbol>) {
+        let ast = Expr::from_str(src).unwrap();
+        let free = free_vars(&ast);
+        assert_eq!(free, expected);
     }
 
     #[test]
@@ -109,13 +101,13 @@ mod test {
     fn free_vars_if() {
         test_free_vars(
             "if abc then def else ghi",
-            hset!["abc".into(), "def".into(), "ghi".into()],
+            hset![intern("abc"), intern("def"), intern("ghi")],
         );
     }
 
     #[test]
     fn free_vars_let() {
-        test_free_vars("let x = 5 in add x y", hset!["y".into()]);
+        test_free_vars("let x = 5 in x y", hset![intern("y")]);
     }
 
     #[test]
@@ -126,11 +118,11 @@ mod test {
     #[test]
     fn free_vars_lambda() {
         test_free_vars(r"\x -> x", hset![]);
-        test_free_vars(r"\x -> y", hset!["y".into()]);
+        test_free_vars(r"\x -> y", hset![intern("y")]);
     }
 
     #[test]
     fn free_vars_app() {
-        test_free_vars("f x", hset!["x".into(), "y".into()]);
+        test_free_vars("f x", hset![intern("f"), intern("x")]);
     }
 }
