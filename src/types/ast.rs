@@ -215,6 +215,10 @@ fn expand_let(bindings: &[(Ident, Expr)], body: Expr) -> (Vec<(Ident, Expr)>, Ex
     }
 }
 
+/// Expand an `ast::Expr::Lambda` with many parameters into a nested
+/// sequences of lambdas each binding a single parameter
+/// eg `\x, y -> add x y` expands to
+///    `\x -> \y -> add x y`
 fn expand_lambda(params: &[Ident], body: Expr) -> (Vec<Ident>, Expr) {
     assert!(!params.is_empty());
     if params.len() == 1 {
