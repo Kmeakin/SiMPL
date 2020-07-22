@@ -70,4 +70,10 @@ Args       := Expr+
   - [ ] Type-classes
   
 ## Code generation
-TODO: implement 
+- [ ] Alpha-renaming
+  - Optional?
+- [x] ANF
+- [ ] CPS
+  - Optional?
+- [ ] Closure conversion
+- [ ] LLVM
