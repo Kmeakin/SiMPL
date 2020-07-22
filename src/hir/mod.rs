@@ -228,44 +228,47 @@ fn expand_let(
     }
 }
 
-#[test]
-fn test_expand_lambda() {
-    use ast::{Expr, Lit};
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::syntax::ast::{Expr, Lit};
+    use simple_symbol::intern;
 
-    let params = vec![intern("x"), intern("y")];
-    let body = Expr::Lit { val: Lit::Int(0) };
+    #[test]
+    fn test_expand_lambda() {
+        let params = vec![intern("x"), intern("y")];
+        let body = Expr::Lit { val: Lit::Int(0) };
 
-    assert_eq!(
-        expand_lambda(&params, body),
-        (
-            intern("x"),
-            Expr::Lambda {
-                params: vec![intern("y")],
-                body: box Expr::Lit { val: Lit::Int(0) }
-            }
-        ),
-    )
-}
+        assert_eq!(
+            expand_lambda(&params, body),
+            (
+                intern("x"),
+                Expr::Lambda {
+                    params: vec![intern("y")],
+                    body: box Expr::Lit { val: Lit::Int(0) }
+                }
+            ),
+        )
+    }
 
-#[test]
-fn test_expand_let() {
-    use ast::{Expr, Lit};
-
-    let bindings = vec![
-        (intern("x"), Expr::Lit { val: Lit::Int(1) }),
-        (intern("y"), Expr::Lit { val: Lit::Int(2) }),
-    ];
-
-    let body = Expr::Lit { val: Lit::Int(0) };
-
-    assert_eq!(
-        expand_let(&bindings, body),
-        (
+    #[test]
+    fn test_expand_let() {
+        let bindings = vec![
             (intern("x"), Expr::Lit { val: Lit::Int(1) }),
-            Expr::Let {
-                bindings: vec![(intern("y"), Expr::Lit { val: Lit::Int(2) })],
-                body: box Expr::Lit { val: Lit::Int(0) }
-            }
-        ),
-    )
+            (intern("y"), Expr::Lit { val: Lit::Int(2) }),
+        ];
+
+        let body = Expr::Lit { val: Lit::Int(0) };
+
+        assert_eq!(
+            expand_let(&bindings, body),
+            (
+                (intern("x"), Expr::Lit { val: Lit::Int(1) }),
+                Expr::Let {
+                    bindings: vec![(intern("y"), Expr::Lit { val: Lit::Int(2) })],
+                    body: box Expr::Lit { val: Lit::Int(0) }
+                }
+            ),
+        )
+    }
 }

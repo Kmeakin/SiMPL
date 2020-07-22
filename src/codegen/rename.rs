@@ -56,18 +56,7 @@ impl Expr {
                     ..
                 },
             ) => test1.is_alpha_eq(test2) && then1.is_alpha_eq(then2) && else1.is_alpha_eq(else2),
-            (
-                Self::Let {
-                    binding: binding1,
-                    body: body1,
-                    ..
-                },
-                Self::Let {
-                    binding: binding2,
-                    body: body2,
-                    ..
-                },
-            ) => body1.is_alpha_eq(body2),
+            (Self::Let { .. }, Self::Let { .. }) => todo!(),
             (Self::Letrec { .. }, Self::Letrec { .. }) => todo!(),
             (Self::Lambda { .. }, Self::Lambda { .. }) => todo!(),
             (Self::App { .. }, Self::App { .. }) => todo!(),
@@ -80,6 +69,7 @@ impl Expr {
 mod test {
     use super::*;
     use maplit::hashset as hset;
+    use simple_symbol::intern;
     use std::str::FromStr;
 
     #[track_caller]
