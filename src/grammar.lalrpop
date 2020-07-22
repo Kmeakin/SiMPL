@@ -1,5 +1,6 @@
 use std::str::FromStr;
-use crate::syntax::ast::{Ident, Expr, Lit};
+use crate::syntax::ast::{Symbol, Expr, Lit};
+use simple_symbol::intern;
 
 grammar;
 
@@ -23,7 +24,7 @@ App: Expr = {
 }
 
 pub LambdaExpr: Expr = {
-    "\\" <params:Comma1<Ident>> "->" <body:Expr> => Expr::Lambda {params: params, body: box body},
+    "\\" <params:Comma1<Symbol>> "->" <body:Expr> => Expr::Lambda {params: params, body: box body},
 }
 
 pub IfExpr: Expr = {
@@ -36,8 +37,8 @@ pub LetExpr: Expr = {
           => Expr::Let {bindings, body: box body},
 }
 
-Binding: (Ident, Expr) = {
-    <var:Ident> "=" <val:Expr> => (var, val),
+Binding: (Symbol, Expr) = {
+    <var:Symbol> "=" <val:Expr> => (var, val),
 }
 
 
@@ -46,8 +47,8 @@ pub LetrecExpr: Expr = {
           => Expr::Letrec {bindings, body: box body},
 }
 
-LetrecBinding: (Ident, Expr) = {
-    <var:Ident> "=" <val:LambdaExpr> => (var, val),
+LetrecBinding: (Symbol, Expr) = {
+    <var:Symbol> "=" <val:LambdaExpr> => (var, val),
 }
 
 
@@ -63,7 +64,7 @@ pub SimpleExpr: Expr = {
 }
 
 pub VarExpr: Expr = {
-    <Ident> => Expr::Var {name: <>.into()},
+    <Symbol> => Expr::Var {name: <>.into()},
 }
 
 pub LitExpr: Expr = {
@@ -78,8 +79,8 @@ pub Lit: Lit = {
 
 // Terminals
 
-pub Ident: Ident = {
-    <s:r"[a-zA-Z][a-zA-Z0-9_]*"> => <>.into(),
+pub Symbol: Symbol = {
+    <s:r"[a-zA-Z][a-zA-Z0-9_]*"> => intern(String::from(<>)),
 }
 
 pub Bool: bool = {

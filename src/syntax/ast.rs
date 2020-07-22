@@ -1,5 +1,5 @@
-pub type Ident = String;
 use derive_more::Display;
+pub use simple_symbol::Symbol;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
@@ -7,7 +7,7 @@ pub enum Expr {
         val: Lit,
     },
     Var {
-        name: String,
+        name: Symbol,
     },
     If {
         test: Box<Self>,
@@ -15,15 +15,15 @@ pub enum Expr {
         else_branch: Box<Self>,
     },
     Let {
-        bindings: Vec<(Ident, Self)>,
+        bindings: Vec<(Symbol, Self)>,
         body: Box<Self>,
     },
     Letrec {
-        bindings: Vec<(Ident, Self)>,
+        bindings: Vec<(Symbol, Self)>,
         body: Box<Self>,
     },
     Lambda {
-        params: Vec<Ident>,
+        params: Vec<Symbol>,
         body: Box<Self>,
     },
     App {

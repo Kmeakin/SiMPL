@@ -121,7 +121,7 @@ impl Expr {
                 ty: gen.next(),
             },
             ast::Expr::Var { name } => Self::Var {
-                name: intern(name),
+                name,
                 ty: gen.next(),
             },
             ast::Expr::If {
@@ -135,13 +135,13 @@ impl Expr {
                 else_branch: box Self::from_ast_inner(*else_branch, gen),
             },
             ast::Expr::Let { bindings, body } => {
-                let (binding, body) = expand_let(&bindings, *body);
+                let ((name, val), body) = expand_let(&bindings, *body);
                 Expr::Let {
                     ty: gen.next(),
                     binding: LetBinding {
                         ty: gen.next(),
-                        name: intern(binding.0),
-                        val: box Self::from_ast_inner(binding.1, gen),
+                        name,
+                        val: box Self::from_ast_inner(val, gen),
                     },
                     body: box Self::from_ast_inner(body, gen),
                 }
@@ -152,7 +152,7 @@ impl Expr {
                     .into_iter()
                     .map(|(name, val)| LetBinding {
                         ty: gen.next(),
-                        name: intern(name),
+                        name,
                         val: box Self::from_ast_inner(val, gen),
                     })
                     .collect(),
@@ -163,7 +163,7 @@ impl Expr {
                 Expr::Lambda {
                     ty: gen.next(),
                     param: Param {
-                        name: intern(param),
+                        name: param,
                         ty: gen.next(),
                     },
                     body: box Self::from_ast_inner(body, gen),
@@ -190,7 +190,7 @@ impl Expr {
     }
 }
 
-fn expand_lambda(params: &[String], body: ast::Expr) -> (String, ast::Expr) {
+fn expand_lambda(params: &[Symbol], body: ast::Expr) -> (Symbol, ast::Expr) {
     assert!(!params.is_empty());
     if params.len() == 1 {
         (params[0].clone(), body)
@@ -210,9 +210,9 @@ fn expand_lambda(params: &[String], body: ast::Expr) -> (String, ast::Expr) {
 }
 
 fn expand_let(
-    bindings: &[(String, ast::Expr)],
+    bindings: &[(Symbol, ast::Expr)],
     body: ast::Expr,
-) -> ((String, ast::Expr), ast::Expr) {
+) -> ((Symbol, ast::Expr), ast::Expr) {
     assert!(!bindings.is_empty());
     if bindings.len() == 1 {
         (bindings[0].clone(), body)
@@ -233,15 +233,15 @@ fn expand_let(
 fn test_expand_lambda() {
     use ast::{Expr, Lit};
 
-    let params = vec!["x".into(), "y".into()];
+    let params = vec![intern("x"), intern("y")];
     let body = Expr::Lit { val: Lit::Int(0) };
 
     assert_eq!(
         expand_lambda(&params, body),
         (
-            "x".into(),
+            intern("x"),
             Expr::Lambda {
-                params: vec!["y".into()],
+                params: vec![intern("y")],
                 body: box Expr::Lit { val: Lit::Int(0) }
             }
         ),
@@ -253,8 +253,8 @@ fn test_expand_let() {
     use ast::{Expr, Lit};
 
     let bindings = vec![
-        ("x".into(), Expr::Lit { val: Lit::Int(1) }),
-        ("y".into(), Expr::Lit { val: Lit::Int(2) }),
+        (intern("x"), Expr::Lit { val: Lit::Int(1) }),
+        (intern("y"), Expr::Lit { val: Lit::Int(2) }),
     ];
 
     let body = Expr::Lit { val: Lit::Int(0) };
@@ -262,9 +262,9 @@ fn test_expand_let() {
     assert_eq!(
         expand_let(&bindings, body),
         (
-            ("x".into(), Expr::Lit { val: Lit::Int(1) }),
+            (intern("x"), Expr::Lit { val: Lit::Int(1) }),
             Expr::Let {
-                bindings: vec![("y".into(), Expr::Lit { val: Lit::Int(2) })],
+                bindings: vec![(intern("y"), Expr::Lit { val: Lit::Int(2) })],
                 body: box Expr::Lit { val: Lit::Int(0) }
             }
         ),
