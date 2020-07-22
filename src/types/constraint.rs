@@ -38,6 +38,8 @@ pub fn collect(expr: TypedExpr) -> Constraints {
             assert!(!bindings.is_empty());
             let binding = &bindings[0];
 
+            // TODO: add constraints for the rest of the bindings
+
             let mut cons = vec![
                 Constraint(ty, body.ty()),
                 Constraint(binding.ty.clone(), binding.val.ty()),

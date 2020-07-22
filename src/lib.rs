@@ -2,6 +2,7 @@
 #![feature(box_syntax, box_patterns)]
 
 pub mod codegen;
+pub mod hir;
 pub mod syntax;
 pub mod types;
 pub(crate) mod util;

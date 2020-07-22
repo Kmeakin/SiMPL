@@ -1,4 +1,7 @@
-use crate::types::ast::{Ident, Lit};
+use crate::{
+    types::ast::{Ident, Lit},
+    util::counter::{Counter, FromId},
+};
 use derive_more::Display;
 use std::collections::HashMap;
 
@@ -35,6 +38,13 @@ impl Lit {
         }
     }
 }
+
+pub type TypeVarGen = Counter<Type>;
+// impl FromId for Type {
+//     fn from_id(id: u32) -> Self {
+//         Self::Var(id)
+//     }
+// }
 
 #[macro_export]
 macro_rules! ty {
