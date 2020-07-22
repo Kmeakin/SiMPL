@@ -3,7 +3,6 @@ use crate::{
     types::ty::{Type, TypeVarGen},
 };
 use derive_more::Display;
-use simple_symbol::intern;
 pub use simple_symbol::Symbol;
 use std::str::FromStr;
 
@@ -136,7 +135,7 @@ impl Expr {
             },
             ast::Expr::Let { bindings, body } => {
                 let ((name, val), body) = expand_let(&bindings, *body);
-                Expr::Let {
+                Self::Let {
                     ty: gen.next(),
                     binding: LetBinding {
                         ty: gen.next(),
@@ -146,7 +145,7 @@ impl Expr {
                     body: box Self::from_ast_inner(body, gen),
                 }
             }
-            ast::Expr::Letrec { bindings, body } => Expr::Letrec {
+            ast::Expr::Letrec { bindings, body } => Self::Letrec {
                 ty: gen.next(),
                 bindings: bindings
                     .into_iter()
@@ -160,7 +159,7 @@ impl Expr {
             },
             ast::Expr::Lambda { params, body } => {
                 let (param, body) = expand_lambda(&params, *body);
-                Expr::Lambda {
+                Self::Lambda {
                     ty: gen.next(),
                     param: Param {
                         name: param,
@@ -193,14 +192,14 @@ impl Expr {
 fn expand_lambda(params: &[Symbol], body: ast::Expr) -> (Symbol, ast::Expr) {
     assert!(!params.is_empty());
     if params.len() == 1 {
-        (params[0].clone(), body)
+        (params[0], body)
     } else {
         let param = &params[0];
 
         let (param2, rest_body) = expand_lambda(&params[1..], body);
 
         (
-            param.clone(),
+            *param,
             ast::Expr::Lambda {
                 params: vec![param2],
                 body: box rest_body,

@@ -3,10 +3,10 @@
 //! scope
 
 use super::gensym::Gensym;
-use crate::hir::{Expr, LetBinding, Lit};
+use crate::hir::Expr;
 use lazy_static::lazy_static;
 use maplit::hashset as hset;
-use simple_symbol::{intern, Symbol};
+use simple_symbol::Symbol;
 use std::{collections::HashSet, sync::Mutex};
 
 lazy_static! {
@@ -30,10 +30,7 @@ fn free_vars(expr: &Expr) -> HashSet<Symbol> {
             &bindings
                 .iter()
                 .fold(free_vars(body), |acc, b| &acc | &free_vars(&*b.val))
-                - &bindings
-                    .iter()
-                    .map(|b| b.name.clone())
-                    .collect::<HashSet<_>>()
+                - &bindings.iter().map(|b| b.name).collect::<HashSet<_>>()
         }
         Expr::Lambda { param, body, .. } => &free_vars(body) - &hset!(param.name),
         Expr::App { func, arg, .. } => &free_vars(func) | &free_vars(arg),

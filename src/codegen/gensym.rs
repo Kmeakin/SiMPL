@@ -1,4 +1,4 @@
-use crate::util::counter::{Counter, FromId};
+use crate::util::counter::Counter;
 use simple_symbol::{intern, Symbol};
 
 #[derive(Debug, Copy, Clone)]

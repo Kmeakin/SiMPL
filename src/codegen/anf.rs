@@ -27,7 +27,7 @@
 //!     | n
 
 use super::gensym::Gensym;
-use crate::hir::{Expr, LetBinding, Lit};
+use crate::hir::{Expr, LetBinding};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 
@@ -128,7 +128,7 @@ fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
             let ty = n.ty();
             let t = Expr::Var {
                 ty: ty.clone(),
-                name: name.clone(),
+                name,
             };
             Expr::Let {
                 ty: ty.clone(),

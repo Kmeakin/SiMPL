@@ -35,7 +35,7 @@ impl Expr {
             },
             Self::Var { ty, name } => Self::Var {
                 ty: ty.apply(subst),
-                name: name.clone(),
+                name: *name,
             },
             Self::If {
                 ty,

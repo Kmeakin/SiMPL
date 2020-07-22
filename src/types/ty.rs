@@ -31,11 +31,11 @@ fn display_fn_type(t1: &Type, t2: &Type) -> String {
 }
 
 impl Lit {
-    pub fn ty(&self) -> Type {
+    pub const fn ty(&self) -> Type {
         match self {
-            Lit::Int(_) => Type::Int,
-            Lit::Bool(_) => Type::Bool,
-            Lit::Float(_) => Type::Float,
+            Self::Int(_) => Type::Int,
+            Self::Bool(_) => Type::Bool,
+            Self::Float(_) => Type::Float,
         }
     }
 }

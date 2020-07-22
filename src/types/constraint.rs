@@ -58,7 +58,7 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
 
             for binding in &bindings {
                 cons.push(Constraint(binding.ty.clone(), binding.val.ty()));
-                ext_tenv.insert(binding.name.clone(), binding.ty.clone())
+                ext_tenv.insert(binding.name, binding.ty.clone())
             }
 
             for binding in bindings {
@@ -70,7 +70,7 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
         }
         Expr::Lambda { ty, param, body } => {
             let mut ext_tenv = tenv.clone();
-            ext_tenv.insert(param.name.clone(), param.ty.clone());
+            ext_tenv.insert(param.name, param.ty.clone());
 
             let mut cons = vec![Constraint(ty, Type::Fn(box param.ty, box body.ty()))];
             cons.extend(collect_inner(*body, &ext_tenv));

@@ -1,5 +1,6 @@
 #![warn(clippy::all, clippy::pedantic, clippy::nursery)]
 #![feature(box_syntax, box_patterns)]
+#![allow(clippy::must_use_candidate)]
 
 pub mod codegen;
 pub mod hir;
