@@ -166,6 +166,7 @@ mod test {
     fn normalize_if() {
         test_normalize("if true then 1 else 0");
         test_normalize("if (if false then true else false) then 1 else 0");
+        test_normalize("if (let x = 5, y = 10 in is_zero (add x y)) then 1 else 0");
     }
 
     // TODO: should immediate values be allowed in the value of a binding?
