@@ -2,7 +2,6 @@ use self::ty::Type;
 use crate::hir::Expr;
 use std::str::FromStr;
 
-// pub mod ast;
 mod constraint;
 mod subst;
 pub mod ty;
