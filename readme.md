@@ -16,7 +16,7 @@
   
 ## Syntax
 - Standard Haskell/ML style syntax
-- Implemented in `crates/simpl-syntax`
+- Implemented in `src/syntax`
 - Grammar:
 ```
 Program := Expr
@@ -53,7 +53,7 @@ Args       := Expr+
 ```
 
 ## Type system
-- Implemented in `crates/simpl-types`
+- Implemented in `src/types`
 - Hindley-Milner type system, add type-classes later if I get around to it.
 - Features
   - [x] Infer principal types for every expression
@@ -61,7 +61,7 @@ Args       := Expr+
     - eg `let fact = \x -> if x == 0 then 1 else x * fact (x - 1) in fact 5`
   - [ ] Let-polymorphism:
     - eg allow `let id = \x -> x in (id 1 , id false)` to be typed. 
-    Currently fails because typing `id(1)` solves the constraint `id: t1 -> t1` into `id: Int -> Int`, which then fails when trying to type `id(false)`. `id` should really be `forall t. t1 -> t1`
+    Currently fails because typing `id 1 ` solves the constraint `id: t0 -> t0` into `id: Int -> Int`, which then fails when trying to type `id false`. `id` should really be `forall t0. t0 -> t0`
     - I think let-polymorphism is also called "rank-1 types"?
   - [ ] Explicit type-annotations
     - eg `let x: Int = 5`
@@ -70,6 +70,7 @@ Args       := Expr+
   - [ ] Type-classes
   
 ## Code generation
+- Implemented in `src/types`
 - [ ] Alpha-renaming
   - Optional?
 - [x] ANF
