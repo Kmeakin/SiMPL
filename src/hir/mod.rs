@@ -106,6 +106,9 @@ impl FromStr for Expr {
 }
 
 impl Expr {
+    /// `ast::Expr` -> `hir::Expr`
+    /// Expands nested let/lambda, and attatches fresh type variables to every
+    /// expression/binder
     pub fn from_ast(ast: ast::Expr) -> Self {
         let mut gen = TypeVarGen::new();
         Self::from_ast_inner(ast, &mut gen)
@@ -171,6 +174,18 @@ impl Expr {
                 func: box Self::from_ast_inner(*func, gen),
                 arg: box Self::from_ast_inner(*arg, gen),
             },
+        }
+    }
+
+    pub fn ty(&self) -> Type {
+        match self {
+            Self::Lit { ty, .. }
+            | Self::Var { ty, .. }
+            | Self::If { ty, .. }
+            | Self::Let { ty, .. }
+            | Self::Letrec { ty, .. }
+            | Self::Lambda { ty, .. }
+            | Self::App { ty, .. } => ty.clone(),
         }
     }
 }

@@ -1,8 +1,9 @@
 use crate::{
-    types::ast::{Ident, Lit},
+    hir::{Lit, Symbol},
     util::counter::{Counter, FromId},
 };
 use derive_more::Display;
+use simple_symbol::intern;
 use std::collections::HashMap;
 
 pub type TypeVar = u32;
@@ -40,11 +41,12 @@ impl Lit {
 }
 
 pub type TypeVarGen = Counter<Type>;
-// impl FromId for Type {
-//     fn from_id(id: u32) -> Self {
-//         Self::Var(id)
-//     }
-// }
+
+impl FromId for Type {
+    fn from_id(id: u32) -> Self {
+        Self::Var(id)
+    }
+}
 
 #[macro_export]
 macro_rules! ty {
@@ -82,16 +84,16 @@ pub fn fold_tys(tys: &mut [Type]) -> Type {
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// A mapping from `Ident`s (that is, variables) to `Type`s.
 /// Used when looking up type of an `Expr::Var`
-pub struct TypeEnv(HashMap<Ident, Type>);
+pub struct TypeEnv(HashMap<Symbol, Type>);
 
 impl Default for TypeEnv {
     fn default() -> Self {
         let mut hm = HashMap::new();
-        hm.insert("add".into(), ty![Int => Int => Int]);
-        hm.insert("sub".into(), ty![Int => Int => Int]);
-        hm.insert("mul".into(), ty![Int => Int => Int]);
-        hm.insert("is_zero".into(), ty![Int => Bool]);
-        hm.insert("not".into(), ty![Bool => Bool]);
+        hm.insert(intern("add"), ty![Int => Int => Int]);
+        hm.insert(intern("sub"), ty![Int => Int => Int]);
+        hm.insert(intern("mul"), ty![Int => Int => Int]);
+        hm.insert(intern("is_zero"), ty![Int => Bool]);
+        hm.insert(intern("not"), ty![Bool => Bool]);
 
         Self(hm)
     }
@@ -102,11 +104,11 @@ impl TypeEnv {
         Self(HashMap::new())
     }
 
-    pub fn get(&self, var: &str) -> Option<&Type> {
-        self.0.get(var)
+    pub fn get(&self, var: Symbol) -> Option<&Type> {
+        self.0.get(&var)
     }
 
-    pub fn insert(&mut self, name: Ident, ty: Type) {
+    pub fn insert(&mut self, name: Symbol, ty: Type) {
         self.0.insert(name, ty);
     }
 }

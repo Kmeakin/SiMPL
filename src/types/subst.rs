@@ -1,7 +1,9 @@
-use crate::types::{
-    ast::{LetBinding, Param, TypedExpr},
-    constraint::{Constraint, Constraints},
-    ty::{Type, TypeVar},
+use crate::{
+    hir::{Expr, LetBinding, Param},
+    types::{
+        constraint::{Constraint, Constraints},
+        ty::{Type, TypeVar},
+    },
 };
 use std::collections::HashMap;
 
@@ -24,7 +26,7 @@ impl Type {
     }
 }
 
-impl TypedExpr {
+impl Expr {
     pub fn apply(&self, subst: &Subst) -> Self {
         match self {
             Self::Lit { ty, val } => Self::Lit {
@@ -103,7 +105,7 @@ impl Subst {
         cons.iter().map(|con| self.apply_con(con)).collect()
     }
 
-    pub fn apply_expr(&self, expr: &TypedExpr) -> TypedExpr {
+    pub fn apply_expr(&self, expr: &Expr) -> Expr {
         expr.apply(self)
     }
 

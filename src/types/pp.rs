@@ -1,4 +1,4 @@
-use crate::types::ast::TypedExpr as Expr;
+use crate::hir::Expr;
 use pretty::RcDoc;
 
 const INDENT: isize = 4;
@@ -34,7 +34,7 @@ impl Expr {
                 .append(RcDoc::text(")"))
                 .group(),
             Self::Lambda { param, body, .. } => RcDoc::text(r"\")
-                .append(param.name.clone())
+                .append(param.name.to_string())
                 .append(RcDoc::space())
                 .append(RcDoc::text("->"))
                 .append(RcDoc::space())
@@ -42,7 +42,7 @@ impl Expr {
                 .group(),
             Self::Let { binding, body, .. } => RcDoc::text("let")
                 .append(RcDoc::space())
-                .append(binding.name.clone())
+                .append(binding.name.to_string())
                 .append(RcDoc::space())
                 .append(RcDoc::text("="))
                 .append(RcDoc::space())
