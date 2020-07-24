@@ -12,3 +12,5 @@
 # Codegen
 - https://github.com/sinistersnare/SinScheme
   - Alpha-conversion, ANF, CPS, closure conversion, LLVM
+- http://matt.might.net/articles/compiling-scheme-to-c/
+  - Closure conversion
