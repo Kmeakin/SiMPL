@@ -1,0 +1,6 @@
+---
+source: src/codegen/anf.rs
+expression: norm.pretty()
+---
+let const = \x -> \ignored -> x in
+    (const 5)

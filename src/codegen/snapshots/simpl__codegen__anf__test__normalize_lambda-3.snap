@@ -1,0 +1,5 @@
+---
+source: src/codegen/anf.rs
+expression: norm.pretty()
+---
+let $0 = \x -> x in ($0 1)

@@ -29,7 +29,7 @@
 use super::gensym::Gensym;
 use crate::hir::{Expr, LetBinding};
 use lazy_static::lazy_static;
-use std::sync::Mutex;
+use std::{str::FromStr, sync::Mutex};
 
 lazy_static! {
     static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
@@ -146,12 +146,15 @@ fn normalize_name(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::types::{self, parse_and_type};
+    use crate::{
+        hir::Expr,
+        types::{self, parse_and_type},
+    };
     use insta::assert_snapshot;
 
     #[track_caller]
     fn test_normalize(src: &str) {
-        let expr = parse_and_type(src);
+        let expr = Expr::from_str(src).unwrap();
         let norm = normalize_expr(expr);
         assert!(norm.is_anf());
         assert_snapshot!(norm.pretty());
@@ -160,6 +163,11 @@ mod test {
     #[test]
     fn normalize_lit() {
         test_normalize("123");
+    }
+
+    #[test]
+    fn normalize_var() {
+        test_normalize("abc");
     }
 
     #[test]
@@ -179,6 +187,8 @@ mod test {
     fn normalize_lambda() {
         test_normalize(r"\x -> x");
         test_normalize(r"\x -> 1");
+        test_normalize(r"(\x -> x) 1");
+        test_normalize(r"let const = \x -> \ignored -> x in const 5");
     }
 
     #[test]
