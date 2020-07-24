@@ -29,7 +29,7 @@
 use super::gensym::Gensym;
 use crate::hir::{Expr, LetBinding};
 use lazy_static::lazy_static;
-use std::{str::FromStr, sync::Mutex};
+use std::sync::Mutex;
 
 lazy_static! {
     static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
@@ -151,6 +151,7 @@ mod test {
         types::{self, parse_and_type},
     };
     use insta::assert_snapshot;
+    use std::str::FromStr;
 
     #[track_caller]
     fn test_normalize(src: &str) {

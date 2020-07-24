@@ -5,9 +5,7 @@
 use super::gensym::Gensym;
 use crate::hir::Expr;
 use lazy_static::lazy_static;
-use maplit::hashset as hset;
-use simple_symbol::Symbol;
-use std::{collections::HashSet, sync::Mutex};
+use std::sync::Mutex;
 
 lazy_static! {
     static ref GENSYM: Mutex<Gensym> = Mutex::new(Gensym::new("$"));
