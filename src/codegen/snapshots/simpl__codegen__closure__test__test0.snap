@@ -1,0 +1,6 @@
+---
+source: src/codegen/closure.rs
+expression: clo_conv.pretty()
+---
+let const = \x -> \ignored -> (envRef x) in
+    (const 5)

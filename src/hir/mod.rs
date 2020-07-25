@@ -1,7 +1,5 @@
-use crate::{
-    syntax::ast,
-    types::ty::{Type, TypeVarGen},
-};
+pub use crate::types::ty::Type;
+use crate::{syntax::ast, types::ty::TypeVarGen};
 use derive_more::Display;
 pub use simple_symbol::Symbol;
 use std::str::FromStr;
@@ -59,7 +57,7 @@ pub struct LetBinding {
     pub val: Box<Expr>,
 }
 
-#[derive(Debug, Clone, PartialEq, Display)]
+#[derive(Debug, Copy, Clone, PartialEq, Display)]
 pub enum Lit {
     #[display(fmt = "{}", _0)]
     Bool(bool),
@@ -221,7 +219,7 @@ fn expand_let(
         let binding = &bindings[0];
         let (rest_bindings, rest_body) = expand_let(&bindings[1..], body);
         (
-            dbg!(binding.clone()),
+            binding.clone(),
             ast::Expr::Let {
                 bindings: vec![rest_bindings],
                 body: box rest_body,
