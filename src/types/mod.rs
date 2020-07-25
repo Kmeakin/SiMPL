@@ -7,8 +7,6 @@ mod subst;
 pub mod ty;
 mod unify;
 
-mod pp;
-
 #[cfg(test)]
 mod test;
 

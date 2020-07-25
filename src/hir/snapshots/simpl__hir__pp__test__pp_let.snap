@@ -1,5 +1,5 @@
 ---
-source: src/types/pp.rs
+source: src/hir/pp.rs
 expression: expr.pretty()
 ---
 let x = 5 in x

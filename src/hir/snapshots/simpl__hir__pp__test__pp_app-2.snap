@@ -1,5 +1,5 @@
 ---
-source: src/types/pp.rs
+source: src/hir/pp.rs
 expression: expr.pretty()
 ---
 if (not (is_zero ((add 1) 1)))
