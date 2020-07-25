@@ -6,6 +6,8 @@ use derive_more::Display;
 pub use simple_symbol::Symbol;
 use std::str::FromStr;
 
+mod pp;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Lit {
