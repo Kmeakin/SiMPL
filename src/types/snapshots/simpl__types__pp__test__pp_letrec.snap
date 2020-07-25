@@ -1,0 +1,5 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+letrec f = \x -> (f x) in (f 0)

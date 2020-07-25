@@ -1,0 +1,10 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+letrec f1 = \a -> a,
+       f2 = \b -> b,
+       f3 = \c -> c,
+       f4 = \d -> d
+in
+    (((f1 f2) f3) f4)

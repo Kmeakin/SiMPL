@@ -1,8 +1,17 @@
-use crate::hir::Expr;
+use crate::hir::{Expr, LetBinding};
 use pretty::RcDoc;
 
 const INDENT: isize = 4;
 const WIDTH: usize = 40;
+
+fn binding_to_doc<'a>(binding: &'a LetBinding) -> RcDoc<'a> {
+    RcDoc::nil()
+        .append(binding.name.to_string())
+        .append(RcDoc::space())
+        .append(RcDoc::text("="))
+        .append(RcDoc::space())
+        .append(binding.val.to_doc())
+}
 
 impl Expr {
     pub fn to_doc(&self) -> RcDoc<()> {
@@ -42,18 +51,35 @@ impl Expr {
                 .group(),
             Self::Let { binding, body, .. } => RcDoc::text("let")
                 .append(RcDoc::space())
-                .append(binding.name.to_string())
-                .append(RcDoc::space())
-                .append(RcDoc::text("="))
-                .append(RcDoc::space())
-                .append(binding.val.to_doc())
+                .append(binding_to_doc(binding))
                 .append(RcDoc::space())
                 .append(RcDoc::text("in"))
                 .append(RcDoc::line())
                 .append(body.to_doc())
                 .nest(INDENT)
                 .group(),
-            Self::Letrec { .. } => todo!(),
+            Self::Letrec { bindings, body, .. } => {
+                RcDoc::text("letrec").append(RcDoc::space()).append(
+                    RcDoc::concat(bindings.iter().enumerate().map(|(i, b)| {
+                        binding_to_doc(b)
+                            .append(if i < bindings.len() - 1 {
+                                RcDoc::text(",").append(RcDoc::hardline())
+                            } else {
+                                RcDoc::nil()
+                            })
+                            .nest(("letrec".len() + 1) as isize)
+                            .group()
+                    }))
+                    .append(RcDoc::line())
+                    .nest(-2 * INDENT)
+                    .append(RcDoc::text("in"))
+                    .nest(INDENT)
+                    .append(RcDoc::line())
+                    .append(body.to_doc())
+                    .nest(INDENT)
+                    .group(),
+                )
+            }
         }
     }
 
@@ -66,11 +92,13 @@ impl Expr {
 
 #[cfg(test)]
 mod test {
+    use super::*;
     use insta::assert_snapshot;
+    use std::str::FromStr;
 
     #[track_caller]
     fn test_pp(src: &str) {
-        let expr = crate::types::parse_and_type(src);
+        let expr = Expr::from_str(src).unwrap();
         assert_snapshot!(expr.pretty());
     }
 
@@ -106,5 +134,12 @@ mod test {
     fn pp_let() {
         test_pp(r"let x = 5 in x");
         test_pp(r"let id = \x -> x, first = \a, b -> a in id not (first true 1)");
+    }
+
+    #[test]
+    fn pp_letrec() {
+        test_pp(r"letrec f = \x -> f x in f 0");
+        test_pp(r"letrec f = \x -> x, g = \y -> y in f g");
+        test_pp(r"letrec f1 = \a -> a, f2 = \b -> b, f3 = \c -> c, f4 = \d -> d in f1 f2 f3 f4");
     }
 }

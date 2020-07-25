@@ -1,0 +1,8 @@
+---
+source: src/types/pp.rs
+expression: expr.pretty()
+---
+letrec f = \x -> x,
+       g = \y -> y
+in
+    (f g)
