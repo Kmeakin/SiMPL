@@ -76,7 +76,10 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
         },
         CExpr::Let { ty, binding, body } => CExpr::Let {
             ty: ty.clone(),
-            binding,
+            binding: LetBinding {
+                val: box substitute(*binding.val, subst),
+                ..binding
+            },
             body: box substitute(*body, subst),
         },
         CExpr::Letrec { .. } => todo!(),
@@ -183,6 +186,27 @@ mod test {
         let src = r"
 let const = \x -> \ignored -> x
 in const 5
+";
+        test_closure_convert(src);
+    }
+
+    #[test]
+    fn test1() {
+        let src = r"
+let x = 5,
+    f = \ignored -> x
+in f 100
+";
+        test_closure_convert(src);
+    }
+
+    #[test]
+    fn test2() {
+        let src = r"
+let x = 5,
+    y = 10,
+    f = \ignored -> add y x
+in f 100
 ";
         test_closure_convert(src);
     }

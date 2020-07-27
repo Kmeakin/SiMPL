@@ -1,0 +1,7 @@
+---
+source: src/codegen/closure.rs
+expression: clo_conv.pretty()
+---
+let x = 5 in
+    let f = \ignored -> (envRef x) in
+        (f 100)
