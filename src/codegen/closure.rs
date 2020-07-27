@@ -1,27 +1,31 @@
 //! Closure-conversion
 //! Requires the `ANF` pass to be run first
 
-use super::util::free_vars;
+use super::util::{free_vars, FreeVars};
 use crate::hir::{Expr, Lit, Param, Type};
 use simple_symbol::Symbol;
 use std::collections::{HashMap, HashSet};
 
 mod pp;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct LetBinding {
     pub ty: Type,
     pub name: Symbol,
     pub val: Box<CExpr>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum CExpr {
     Lit {
         ty: Type,
         val: Lit,
     },
     Var {
+        ty: Type,
+        name: Symbol,
+    },
+    EnvRef {
         ty: Type,
         name: Symbol,
     },
@@ -44,7 +48,7 @@ pub enum CExpr {
     MkClosure {
         ty: Type,
         param: Param,
-        free_vars: HashSet<Symbol>,
+        free_vars: FreeVars,
         body: Box<Self>,
     },
     AppClosure {
@@ -52,9 +56,21 @@ pub enum CExpr {
         func: Box<Self>,
         arg: Box<Self>,
     },
-    EnvRef {
-        name: Symbol,
-    },
+}
+
+impl CExpr {
+    pub fn ty(&self) -> Type {
+        match self {
+            Self::Lit { ty, .. }
+            | Self::Var { ty, .. }
+            | Self::EnvRef { ty, .. }
+            | Self::If { ty, .. }
+            | Self::Let { ty, .. }
+            | Self::Letrec { ty, .. }
+            | Self::MkClosure { ty, .. }
+            | Self::AppClosure { ty, .. } => ty.clone(),
+        }
+    }
 }
 
 fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
@@ -97,7 +113,7 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
             func: box substitute(*func, subst),
             arg: box substitute(*arg, subst),
         },
-        CExpr::EnvRef { name } => CExpr::EnvRef { name },
+        CExpr::EnvRef { name, ty } => CExpr::EnvRef { name, ty },
     }
 }
 
@@ -144,10 +160,17 @@ pub fn closure_convert(expr: &Expr) -> CExpr {
                 free_vars: fv.clone(),
                 body: box substitute(
                     closure_convert(&**body),
-                    dbg!(&fv
-                        .iter()
-                        .map(|&name| (name, CExpr::EnvRef { name }))
-                        .collect()),
+                    &fv.iter()
+                        .map(|(name, ty)| {
+                            (
+                                *name,
+                                CExpr::EnvRef {
+                                    name: *name,
+                                    ty: ty.clone(),
+                                },
+                            )
+                        })
+                        .collect(),
                 ),
             }
         }

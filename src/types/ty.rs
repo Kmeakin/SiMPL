@@ -8,7 +8,7 @@ use std::collections::HashMap;
 
 pub type TypeVar = u32;
 
-#[derive(Debug, Clone, PartialEq, Eq, Display)]
+#[derive(Debug, Clone, PartialEq, Eq, Display, Hash)]
 pub enum Type {
     #[display(fmt = "Int")]
     Int,

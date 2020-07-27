@@ -1,30 +1,62 @@
-use crate::hir::Expr;
-use maplit::hashset as hset;
+use crate::hir::{Expr, Type};
+use maplit::{hashmap as hmap, hashset as hset};
 use simple_symbol::Symbol;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
-pub fn free_vars(expr: &Expr) -> HashSet<Symbol> {
+pub type FreeVars = HashMap<Symbol, Type>;
+
+pub fn free_vars(expr: &Expr) -> FreeVars {
     match expr {
-        Expr::Lit { .. } => HashSet::new(),
-        Expr::Var { name, .. } => hset![*name],
+        Expr::Lit { .. } => hmap![],
+        Expr::Var { name, ty } => hmap![*name => ty.clone()],
         Expr::If {
             test,
             then_branch,
             else_branch,
             ..
-        } => &(&free_vars(test) | &free_vars(then_branch)) | &free_vars(else_branch),
-        Expr::Let { binding, body, .. } => {
-            &free_vars(&*binding.val) | &(&free_vars(body) - &hset!(binding.name))
+        } => hashmap_union(
+            hashmap_union(free_vars(test), free_vars(then_branch)),
+            free_vars(else_branch),
+        ),
+        Expr::Let { binding, body, .. } => hashmap_diff(
+            hashmap_union(free_vars(&*binding.val), free_vars(body)),
+            hmap![binding.name => binding.ty.clone()],
+        ),
+
+        Expr::Letrec { bindings, body, .. } => hashmap_diff(
+            bindings.iter().fold(free_vars(body), |acc, b| {
+                hashmap_union(acc, free_vars(&*b.val))
+            }),
+            bindings.iter().map(|b| (b.name, b.ty.clone())).collect(),
+        ),
+        Expr::Lambda { param, body, .. } => {
+            hashmap_diff(free_vars(body), hmap![param.name => param.ty.clone()])
         }
-        Expr::Letrec { bindings, body, .. } => {
-            &bindings
-                .iter()
-                .fold(free_vars(body), |acc, b| &acc | &free_vars(&*b.val))
-                - &bindings.iter().map(|b| b.name).collect::<HashSet<_>>()
-        }
-        Expr::Lambda { param, body, .. } => &free_vars(body) - &hset!(param.name),
-        Expr::App { func, arg, .. } => &free_vars(func) | &free_vars(arg),
+
+        Expr::App { func, arg, .. } => hashmap_union(free_vars(func), free_vars(arg)),
     }
+}
+
+fn hashmap_union<K, V>(hm1: HashMap<K, V>, hm2: HashMap<K, V>) -> HashMap<K, V>
+where
+    K: std::hash::Hash + Eq,
+    V: std::hash::Hash + Eq,
+{
+    let mut ret = HashMap::new();
+    ret.extend(hm1);
+    ret.extend(hm2);
+    ret
+}
+
+fn hashmap_diff<K, V>(hm1: HashMap<K, V>, hm2: HashMap<K, V>) -> HashMap<K, V>
+where
+    K: std::hash::Hash + Eq + Clone + std::fmt::Debug,
+    V: std::hash::Hash + Eq + Clone + std::fmt::Debug,
+{
+    hm1.into_iter()
+        .filter(|(k, _)| !hm2.contains_key(&k))
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect::<HashMap<K, V>>()
 }
 
 #[cfg(test)]
@@ -37,8 +69,9 @@ mod test {
     #[track_caller]
     fn test_free_vars(src: &str, expected: HashSet<Symbol>) {
         let ast = Expr::from_str(src).unwrap();
-        let free = free_vars(&ast);
-        assert_eq!(free, expected);
+        let free_vars = free_vars(&ast);
+        let free_vars: HashSet<Symbol> = free_vars.iter().map(|(name, ty)| *name).collect();
+        assert_eq!(free_vars, expected);
     }
 
     #[test]

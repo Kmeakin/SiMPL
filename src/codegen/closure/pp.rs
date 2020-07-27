@@ -49,7 +49,7 @@ impl CExpr {
                 .append(RcDoc::space())
                 .append(body.to_doc())
                 .group(),
-            Self::EnvRef { name } => RcDoc::text("(")
+            Self::EnvRef { name, .. } => RcDoc::text("(")
                 .append("envRef")
                 .append(RcDoc::space())
                 .append(name.to_string())
