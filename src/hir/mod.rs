@@ -195,13 +195,11 @@ fn expand_lambda(params: &[Symbol], body: ast::Expr) -> (Symbol, ast::Expr) {
         (params[0], body)
     } else {
         let param = &params[0];
-
-        let (param2, rest_body) = expand_lambda(&params[1..], body);
-
+        let (rest_param, rest_body) = expand_lambda(&params[1..], body);
         (
             *param,
             ast::Expr::Lambda {
-                params: vec![param2],
+                params: vec![rest_param],
                 body: box rest_body,
             },
         )

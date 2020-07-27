@@ -31,7 +31,7 @@ impl Expr {
         match self {
             Self::Lit { ty, val } => Self::Lit {
                 ty: ty.apply(subst),
-                val: val.clone(),
+                val: *val,
             },
             Self::Var { ty, name } => Self::Var {
                 ty: ty.apply(subst),

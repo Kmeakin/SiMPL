@@ -8,8 +8,6 @@ use std::collections::{HashMap, HashSet};
 
 mod pp;
 
-type Env = HashMap<Symbol, CExpr>;
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct LetBinding {
     pub ty: Type,
@@ -69,13 +67,13 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
             then_branch,
             else_branch,
         } => CExpr::If {
-            ty: ty.clone(),
+            ty,
             test: box substitute(*test, subst),
             then_branch: box substitute(*then_branch, subst),
             else_branch: box substitute(*else_branch, subst),
         },
         CExpr::Let { ty, binding, body } => CExpr::Let {
-            ty: ty.clone(),
+            ty,
             binding: LetBinding {
                 val: box substitute(*binding.val, subst),
                 ..binding
@@ -103,7 +101,7 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
     }
 }
 
-fn closure_convert(expr: &Expr) -> CExpr {
+pub fn closure_convert(expr: &Expr) -> CExpr {
     match expr {
         Expr::Lit { ty, val } => CExpr::Lit {
             ty: ty.clone(),

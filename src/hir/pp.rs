@@ -4,7 +4,7 @@ use pretty::RcDoc;
 const INDENT: isize = 4;
 const WIDTH: usize = 40;
 
-fn binding_to_doc<'a>(binding: &'a LetBinding) -> RcDoc<'a> {
+fn binding_to_doc(binding: &LetBinding) -> RcDoc {
     RcDoc::nil()
         .append(binding.name.to_string())
         .append(RcDoc::space())
