@@ -2,9 +2,9 @@
 //! Requires the `ANF` pass to be run first
 
 use super::util::{free_vars, FreeVars};
-use crate::hir::{Expr, Lit, Param, Type};
-use simple_symbol::Symbol;
-use std::collections::{HashMap, HashSet};
+pub use crate::hir::{Lit, Param, Symbol, Type};
+use crate::{hir::Expr, util::counter::Counter};
+use std::collections::HashMap;
 
 mod pp;
 
@@ -26,6 +26,7 @@ pub enum CExpr {
         name: Symbol,
     },
     EnvRef {
+        closure_id: u32,
         ty: Type,
         name: Symbol,
     },
@@ -46,6 +47,7 @@ pub enum CExpr {
         body: Box<Self>,
     },
     MkClosure {
+        closure_id: u32,
         ty: Type,
         param: Param,
         free_vars: FreeVars,
@@ -98,11 +100,13 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
         },
         CExpr::Letrec { .. } => todo!(),
         CExpr::MkClosure {
+            closure_id,
             ty,
             param,
             free_vars,
             body,
         } => CExpr::MkClosure {
+            closure_id,
             ty,
             param,
             free_vars,
@@ -113,11 +117,24 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
             func: box substitute(*func, subst),
             arg: box substitute(*arg, subst),
         },
-        CExpr::EnvRef { name, ty } => CExpr::EnvRef { name, ty },
+        CExpr::EnvRef {
+            closure_id,
+            name,
+            ty,
+        } => CExpr::EnvRef {
+            closure_id,
+            name,
+            ty,
+        },
     }
 }
 
 pub fn closure_convert(expr: &Expr) -> CExpr {
+    let mut gen = Counter::new();
+    closure_convert_inner(expr, &mut gen)
+}
+
+fn closure_convert_inner(expr: &Expr, gen: &mut Counter<u32>) -> CExpr {
     match expr {
         Expr::Lit { ty, val } => CExpr::Lit {
             ty: ty.clone(),
@@ -134,18 +151,18 @@ pub fn closure_convert(expr: &Expr) -> CExpr {
             else_branch,
         } => CExpr::If {
             ty: ty.clone(),
-            test: box closure_convert(&**test),
-            then_branch: box closure_convert(&**then_branch),
-            else_branch: box closure_convert(&**else_branch),
+            test: box closure_convert_inner(&**test, gen),
+            then_branch: box closure_convert_inner(&**then_branch, gen),
+            else_branch: box closure_convert_inner(&**else_branch, gen),
         },
         Expr::Let { ty, binding, body } => CExpr::Let {
             ty: ty.clone(),
             binding: LetBinding {
                 ty: binding.ty.clone(),
                 name: binding.name,
-                val: box closure_convert(&*binding.val),
+                val: box closure_convert_inner(&*binding.val, gen),
             },
-            body: box closure_convert(&*body),
+            body: box closure_convert_inner(&*body, gen),
         },
         Expr::Letrec { .. } => todo!(),
         Expr::Lambda {
@@ -153,18 +170,21 @@ pub fn closure_convert(expr: &Expr) -> CExpr {
             param,
             ref body,
         } => {
+            let closure_id = gen.next();
             let fv = free_vars(&expr.clone());
             CExpr::MkClosure {
+                closure_id,
                 ty: ty.clone(),
                 param: param.clone(),
                 free_vars: fv.clone(),
                 body: box substitute(
-                    closure_convert(&**body),
+                    closure_convert_inner(&**body, gen),
                     &fv.iter()
                         .map(|(name, ty)| {
                             (
                                 *name,
                                 CExpr::EnvRef {
+                                    closure_id,
                                     name: *name,
                                     ty: ty.clone(),
                                 },
@@ -176,8 +196,8 @@ pub fn closure_convert(expr: &Expr) -> CExpr {
         }
         Expr::App { ty, func, arg } => CExpr::AppClosure {
             ty: ty.clone(),
-            func: box closure_convert(&**func),
-            arg: box closure_convert(&**arg),
+            func: box closure_convert_inner(&**func, gen),
+            arg: box closure_convert_inner(&**arg, gen),
         },
     }
 }

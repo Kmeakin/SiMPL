@@ -1,0 +1,10 @@
+---
+source: src/codegen/compile.rs
+expression: compiled
+---
+#include "prelude.h"
+
+int main (int argc, char** argv) {
+    5;
+    return 0;
+}

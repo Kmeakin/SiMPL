@@ -52,7 +52,8 @@ impl Expr {
                 ty: ty.apply(subst),
                 binding: LetBinding {
                     ty: binding.ty.apply(subst),
-                    ..binding.clone()
+                    name: binding.name,
+                    val: box binding.val.apply(subst),
                 },
                 body: box body.apply(subst),
             },
@@ -62,7 +63,8 @@ impl Expr {
                     .iter()
                     .map(|binding| LetBinding {
                         ty: binding.ty.apply(subst),
-                        ..binding.clone()
+                        name: binding.name,
+                        val: box binding.val.apply(subst),
                     })
                     .collect(),
                 body: box body.apply(subst),
