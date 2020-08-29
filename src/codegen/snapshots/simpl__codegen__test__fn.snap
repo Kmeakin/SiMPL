@@ -5,7 +5,7 @@ expression: res.print_to_string().to_string()
 ; ModuleID = 'test_compile'
 source_filename = "test_compile"
 
-define i32 (i1) addrspace(1)* @toplevel() {
+define i32 (i1)* @toplevel() {
 entry:
   ret i32 (i1)* @lambda
 }

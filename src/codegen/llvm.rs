@@ -4,8 +4,8 @@ use inkwell::{
     context::Context,
     module::Module,
     types::BasicType,
-    values::{BasicValue, BasicValueEnum, FunctionValue, PointerValue},
-    AddressSpace, IntPredicate,
+    values::{AnyValue, BasicValue, BasicValueEnum, FunctionValue, PointerValue},
+    IntPredicate,
 };
 use simple_symbol::Symbol;
 use std::collections::HashMap;
@@ -30,14 +30,14 @@ impl<'ctx> Compiler<'ctx> {
         let body_val = self.compile_expr(&env, parent, expr);
         self.builder.build_return(Some(&body_val));
 
-        // match self.module.verify() {
-        //     Ok(()) => {}
-        //     Err(s) => {
-        //         println!("{}\n", self.module.print_to_string().to_string());
-        //         eprintln!("{}", s.to_string());
-        //         panic!()
-        //     }
-        // }
+        match self.module.verify() {
+            Ok(()) => {}
+            Err(s) => {
+                println!("{}\n", self.module.print_to_string().to_string());
+                eprintln!("{}", s.to_string());
+                panic!()
+            }
+        }
 
         &self.module
     }
@@ -150,6 +150,7 @@ impl<'ctx> Compiler<'ctx> {
 
         self.builder
             .position_at_end(parent.get_last_basic_block().unwrap());
-        fn_val.as_global_value().as_pointer_value().into()
+
+        return fn_val.as_any_value_enum().into_pointer_value().into();
     }
 }

@@ -14,7 +14,7 @@ impl Type {
             Self::Fn(arg, ret) => ret
                 .llvm_type(ctx)
                 .fn_type(&[arg.llvm_type(ctx)], false)
-                .ptr_type(AddressSpace::Global)
+                .ptr_type(AddressSpace::Generic)
                 .into(),
             Self::Var(_) => panic!("Cannot instantiate type {}", self),
         }
