@@ -1,0 +1,22 @@
+---
+source: src/codegen/test.rs
+expression: res.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define i32 @toplevel() {
+entry:
+  br i1 true, label %then, label %else
+
+then:                                             ; preds = %entry
+  br label %cont
+
+else:                                             ; preds = %entry
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i32 [ 100, %then ], [ 200, %else ]
+  ret i32 %phi
+}
+

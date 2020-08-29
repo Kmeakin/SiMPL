@@ -32,3 +32,8 @@ fn compile_lit() {
     test_compile("true");
     test_compile("false");
 }
+
+#[test]
+fn compile_if() {
+    test_compile("if true then 100 else 200");
+}
