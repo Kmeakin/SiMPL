@@ -1,0 +1,12 @@
+---
+source: src/codegen/test.rs
+expression: res.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define i32 @toplevel() {
+entry:
+  ret i32 5
+}
+
