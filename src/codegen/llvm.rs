@@ -1,13 +1,13 @@
-use crate::hir::{Expr, Lit};
+use crate::hir::{Expr, Lit, Param, Type};
 use inkwell::{
     builder::Builder,
     context::Context,
     module::Module,
     types::BasicType,
-    values::{BasicValueEnum, FunctionValue, PointerValue},
-    IntPredicate,
+    values::{BasicValue, BasicValueEnum, FunctionValue, PointerValue},
+    AddressSpace, IntPredicate,
 };
-use simple_symbol::{intern, resolve, Symbol};
+use simple_symbol::Symbol;
 use std::collections::HashMap;
 
 type Env<'a> = HashMap<Symbol, PointerValue<'a>>;
@@ -25,9 +25,19 @@ impl<'ctx> Compiler<'ctx> {
         let parent = self.module.add_function("toplevel", ty, None);
         let entry = self.ctx.append_basic_block(parent, "entry");
         self.builder.position_at_end(entry);
+
         let env = Env::new();
         let body_val = self.compile_expr(&env, parent, expr);
         self.builder.build_return(Some(&body_val));
+
+        // match self.module.verify() {
+        //     Ok(()) => {}
+        //     Err(s) => {
+        //         println!("{}\n", self.module.print_to_string().to_string());
+        //         eprintln!("{}", s.to_string());
+        //         panic!()
+        //     }
+        // }
 
         &self.module
     }
@@ -42,6 +52,9 @@ impl<'ctx> Compiler<'ctx> {
                 else_branch,
                 ..
             } => self.compile_if(env, parent, test, then_branch, else_branch),
+            Expr::Lambda { ty, param, body } => {
+                self.compile_lambda(env, parent, ty.clone(), param.clone(), body)
+            }
             _ => todo!(),
         }
     }
@@ -68,8 +81,6 @@ impl<'ctx> Compiler<'ctx> {
         els: &Expr,
     ) -> BasicValueEnum {
         let test_val = self.compile_expr(env, parent, test);
-        let then_val = self.compile_expr(env, parent, then);
-        let else_val = self.compile_expr(env, parent, els);
 
         let then_ty = then.ty().llvm_type(self.ctx);
         let else_ty = els.ty().llvm_type(self.ctx);
@@ -90,14 +101,55 @@ impl<'ctx> Compiler<'ctx> {
         self.builder.build_conditional_branch(cmp, then_bb, else_bb);
 
         self.builder.position_at_end(then_bb);
+        let then_val = self.compile_expr(env, parent, then);
         self.builder.build_unconditional_branch(cont_bb);
+        let then_bb = self.builder.get_insert_block().unwrap();
 
         self.builder.position_at_end(else_bb);
+        let else_val = self.compile_expr(env, parent, els);
         self.builder.build_unconditional_branch(cont_bb);
+        let else_bb = self.builder.get_insert_block().unwrap();
 
         self.builder.position_at_end(cont_bb);
         let phi = self.builder.build_phi(then_ty, "phi");
         phi.add_incoming(&[(&then_val, then_bb), (&else_val, else_bb)]);
+
         phi.as_basic_value()
+    }
+
+    fn compile_lambda(
+        &self,
+        env: &Env<'ctx>,
+        parent: FunctionValue,
+        ty: Type,
+        param: Param,
+        body: &Expr,
+    ) -> BasicValueEnum {
+        let param_name = &param.name.to_string();
+        let mut env = env.clone();
+
+        let fn_ty = ty.llvm_fn_type(self.ctx).unwrap();
+        let fn_val = self.module.add_function("lambda", fn_ty, None);
+        fn_val
+            .get_first_param()
+            .unwrap()
+            .set_name(&param.name.to_string());
+
+        let entry = self.ctx.append_basic_block(fn_val, "lambda_entry");
+        self.builder.position_at_end(entry);
+        let alloca = self
+            .builder
+            .build_alloca(param.ty.llvm_type(self.ctx), param_name);
+        self.builder
+            .build_store(alloca, fn_val.get_first_param().unwrap());
+        env.insert(param.name, alloca);
+
+        let body = self.compile_expr(&env, fn_val, body);
+
+        self.builder.build_return(Some(&body));
+
+        self.builder
+            .position_at_end(parent.get_last_basic_block().unwrap());
+        fn_val.as_global_value().as_pointer_value().into()
     }
 }

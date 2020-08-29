@@ -37,3 +37,8 @@ fn compile_lit() {
 fn compile_if() {
     test_compile("if true then 100 else 200");
 }
+
+#[test]
+fn test_fn() {
+    test_compile(r"\b -> if b then 100 else 200");
+}
