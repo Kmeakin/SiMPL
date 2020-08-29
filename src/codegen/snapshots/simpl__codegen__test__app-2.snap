@@ -1,0 +1,52 @@
+---
+source: src/codegen/test.rs
+expression: res.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define i32 @toplevel() {
+entry:
+  %call = call i1 @lambda.1(i1 true)
+  %call1 = call i32 @lambda(i1 %call)
+  ret i32 %call1
+}
+
+define i32 @lambda(i1 %b) {
+lambda_entry:
+  %b1 = alloca i1
+  store i1 %b, i1* %b1
+  %b2 = load i1, i1* %b1
+  %cmp = icmp eq i1 %b2, true
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %lambda_entry
+  br label %cont
+
+else:                                             ; preds = %lambda_entry
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i32 [ 100, %then ], [ 200, %else ]
+  ret i32 %phi
+}
+
+define i1 @lambda.1(i1 %b) {
+lambda_entry:
+  %b1 = alloca i1
+  store i1 %b, i1* %b1
+  %b2 = load i1, i1* %b1
+  %cmp = icmp eq i1 %b2, true
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %lambda_entry
+  br label %cont
+
+else:                                             ; preds = %lambda_entry
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i1 [ false, %then ], [ true, %else ]
+  ret i1 %phi
+}
+

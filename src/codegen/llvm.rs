@@ -55,6 +55,7 @@ impl<'ctx> Compiler<'ctx> {
             Expr::Lambda { ty, param, body } => {
                 self.compile_lambda(env, parent, ty.clone(), param.clone(), body)
             }
+            Expr::App { func, arg, .. } => self.compile_app(env, parent, func, arg),
             _ => todo!(),
         }
     }
@@ -152,5 +153,21 @@ impl<'ctx> Compiler<'ctx> {
             .position_at_end(parent.get_last_basic_block().unwrap());
 
         fn_val.as_any_value_enum().into_pointer_value().into()
+    }
+
+    fn compile_app(
+        &self,
+        env: &Env<'ctx>,
+        parent: FunctionValue,
+        func: &Expr,
+        arg: &Expr,
+    ) -> BasicValueEnum {
+        let func_val = self.compile_expr(env, parent, func);
+        let arg_val = self.compile_expr(env, parent, arg);
+        self.builder
+            .build_call(func_val.into_pointer_value(), &[arg_val], "call")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
     }
 }
