@@ -151,6 +151,6 @@ impl<'ctx> Compiler<'ctx> {
         self.builder
             .position_at_end(parent.get_last_basic_block().unwrap());
 
-        return fn_val.as_any_value_enum().into_pointer_value().into();
+        fn_val.as_any_value_enum().into_pointer_value().into()
     }
 }
