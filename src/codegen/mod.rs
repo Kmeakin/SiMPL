@@ -1,3 +1,4 @@
+mod closure;
 mod llvm;
 mod types;
 
