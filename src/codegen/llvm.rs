@@ -27,13 +27,19 @@ impl<'ctx> Compiler<'ctx> {
         self.builder.position_at_end(entry);
 
         let env = Env::new();
-        let body_val = self.compile_expr(&env, parent, expr);
+        let body_val = self.compile_expr(&env, parent, None, expr);
         self.builder.build_return(Some(&body_val));
 
         &self.module
     }
 
-    fn compile_expr(&self, env: &Env<'ctx>, parent: FunctionValue, expr: &Expr) -> BasicValueEnum {
+    fn compile_expr(
+        &self,
+        env: &Env<'ctx>,
+        parent: FunctionValue,
+        name: Option<&str>,
+        expr: &Expr,
+    ) -> BasicValueEnum {
         match expr {
             Expr::Lit { val, .. } => self.compile_lit(*val),
             Expr::Var { name, .. } => self.compile_var(env, *name),
@@ -42,11 +48,13 @@ impl<'ctx> Compiler<'ctx> {
                 then_branch,
                 else_branch,
                 ..
-            } => self.compile_if(env, parent, test, then_branch, else_branch),
-            Expr::Let { binding, body, .. } => self.compile_let(env, parent, binding, body),
-            Expr::Lambda { ty, param, body } => self.compile_lambda(env, parent, ty, param, body),
-            Expr::App { func, arg, .. } => self.compile_app(env, parent, func, arg),
-            _ => todo!(),
+            } => self.compile_if(env, parent, name, test, then_branch, else_branch),
+            Expr::Let { binding, body, .. } => self.compile_let(env, parent, name, binding, body),
+            Expr::Letrec { .. } => todo!(),
+            Expr::Lambda { ty, param, body } => {
+                self.compile_lambda(env, parent, ty, name, param, body)
+            }
+            Expr::App { func, arg, .. } => self.compile_app(env, parent, name, func, arg),
         }
     }
 
@@ -75,11 +83,12 @@ impl<'ctx> Compiler<'ctx> {
         &self,
         env: &Env<'ctx>,
         parent: FunctionValue,
+        name: Option<&str>,
         test: &Expr,
         then: &Expr,
         els: &Expr,
     ) -> BasicValueEnum {
-        let test_val = self.compile_expr(env, parent, test);
+        let test_val = self.compile_expr(env, parent, name, test);
 
         let then_ty = then.ty().llvm_type(self.ctx);
         let else_ty = els.ty().llvm_type(self.ctx);
@@ -100,12 +109,12 @@ impl<'ctx> Compiler<'ctx> {
         self.builder.build_conditional_branch(cmp, then_bb, else_bb);
 
         self.builder.position_at_end(then_bb);
-        let then_val = self.compile_expr(env, parent, then);
+        let then_val = self.compile_expr(env, parent, name, then);
         self.builder.build_unconditional_branch(cont_bb);
         let then_bb = self.builder.get_insert_block().unwrap();
 
         self.builder.position_at_end(else_bb);
-        let else_val = self.compile_expr(env, parent, els);
+        let else_val = self.compile_expr(env, parent, name, els);
         self.builder.build_unconditional_branch(cont_bb);
         let else_bb = self.builder.get_insert_block().unwrap();
 
@@ -120,6 +129,7 @@ impl<'ctx> Compiler<'ctx> {
         &self,
         env: &Env<'ctx>,
         parent: FunctionValue,
+        name: Option<&str>,
         binding: &LetBinding,
         body: &Expr,
     ) -> BasicValueEnum {
@@ -128,11 +138,11 @@ impl<'ctx> Compiler<'ctx> {
         let alloca = self
             .builder
             .build_alloca(binding.ty.llvm_type(self.ctx), binding_name);
-        let value = self.compile_expr(&env, parent, &binding.val);
+        let value = self.compile_expr(&env, parent, Some(&binding.name.to_string()), &binding.val);
         self.builder.build_store(alloca, value);
         env.insert(binding.name, alloca);
 
-        self.compile_expr(&env, parent, body)
+        self.compile_expr(&env, parent, name, body)
     }
 
     fn compile_lambda(
@@ -140,6 +150,7 @@ impl<'ctx> Compiler<'ctx> {
         env: &Env<'ctx>,
         parent: FunctionValue,
         ty: &Type,
+        name: Option<&str>,
         param: &Param,
         body: &Expr,
     ) -> BasicValueEnum {
@@ -147,7 +158,9 @@ impl<'ctx> Compiler<'ctx> {
         let mut env = env.clone();
 
         let fn_ty = ty.llvm_fn_type(self.ctx).unwrap();
-        let fn_val = self.module.add_function("lambda", fn_ty, None);
+        let fn_val = self
+            .module
+            .add_function(name.unwrap_or("lambda"), fn_ty, None);
         fn_val
             .get_first_param()
             .unwrap()
@@ -162,7 +175,7 @@ impl<'ctx> Compiler<'ctx> {
             .build_store(alloca, fn_val.get_first_param().unwrap());
         env.insert(param.name, alloca);
 
-        let body = self.compile_expr(&env, fn_val, body);
+        let body = self.compile_expr(&env, fn_val, name, body);
 
         self.builder.build_return(Some(&body));
 
@@ -176,11 +189,12 @@ impl<'ctx> Compiler<'ctx> {
         &self,
         env: &Env<'ctx>,
         parent: FunctionValue,
+        name: Option<&str>,
         func: &Expr,
         arg: &Expr,
     ) -> BasicValueEnum {
-        let func_val = self.compile_expr(env, parent, func);
-        let arg_val = self.compile_expr(env, parent, arg);
+        let func_val = self.compile_expr(env, parent, name, func);
+        let arg_val = self.compile_expr(env, parent, name, arg);
         self.builder
             .build_call(func_val.into_pointer_value(), &[arg_val], "call")
             .try_as_basic_value()

@@ -9,6 +9,8 @@ define i1 @toplevel() {
 entry:
   %not = alloca i1 (i1)*
   store i1 (i1)* @not, i1 (i1)** %not
+  %idBool = alloca i1 (i1)*
+  store i1 (i1)* @idBool, i1 (i1)** %idBool
   %not1 = load i1 (i1)*, i1 (i1)** %not
   %call = call i1 %not1(i1 true)
   ret i1 %call
@@ -30,6 +32,25 @@ else:                                             ; preds = %lambda_entry
 
 cont:                                             ; preds = %else, %then
   %phi = phi i1 [ false, %then ], [ true, %else ]
+  ret i1 %phi
+}
+
+define i1 @idBool(i1 %b) {
+lambda_entry:
+  %b1 = alloca i1
+  store i1 %b, i1* %b1
+  %b2 = load i1, i1* %b1
+  %cmp = icmp eq i1 %b2, true
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %lambda_entry
+  br label %cont
+
+else:                                             ; preds = %lambda_entry
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i1 [ true, %then ], [ false, %else ]
   ret i1 %phi
 }
 

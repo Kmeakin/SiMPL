@@ -65,4 +65,11 @@ let not = \b -> if b then false else true
 in not true
 ",
     );
+    test_compile(
+        r"
+let not = \b -> if b then false else true,
+    idBool = \b -> if b then true else false
+in not true
+",
+    );
 }
