@@ -24,7 +24,7 @@ App: Expr = {
 }
 
 pub LambdaExpr: Expr = {
-    "\\" <params:Comma1<Symbol>> "->" <body:Expr> => Expr::Lambda {params: params, body: box body},
+    "\\" <params:Comma1<Symbol>> "->" <body:Expr> => Expr::Lambda {params, body: box body},
 }
 
 pub IfExpr: Expr = {
