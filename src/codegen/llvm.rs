@@ -30,15 +30,6 @@ impl<'ctx> Compiler<'ctx> {
         let body_val = self.compile_expr(&env, parent, expr);
         self.builder.build_return(Some(&body_val));
 
-        match self.module.verify() {
-            Ok(()) => {}
-            Err(s) => {
-                println!("{}\n", self.module.print_to_string().to_string());
-                eprintln!("{}", s.to_string());
-                panic!()
-            }
-        }
-
         &self.module
     }
 

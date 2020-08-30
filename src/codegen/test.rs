@@ -22,8 +22,18 @@ fn test_compile(src: &str) {
         builder,
     };
 
-    let res = compiler.compile_toplevel(&expr);
-    assert_snapshot!(res.print_to_string().to_string());
+    let module = compiler.compile_toplevel(&expr);
+
+    match module.verify() {
+        Ok(()) => {}
+        Err(s) => {
+            println!("{}\n", module.print_to_string().to_string());
+            eprintln!("{}", s.to_string());
+            panic!()
+        }
+    }
+
+    assert_snapshot!(module.print_to_string().to_string());
 }
 
 #[test]
