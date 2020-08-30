@@ -8,23 +8,23 @@ If {
             true,
         ),
     },
-    then_branch: Lit {
+    then: Lit {
         val: Int(
             0,
         ),
     },
-    else_branch: If {
+    els: If {
         test: Lit {
             val: Bool(
                 false,
             ),
         },
-        then_branch: Lit {
+        then: Lit {
             val: Float(
                 0.5,
             ),
         },
-        else_branch: Lit {
+        els: Lit {
             val: Float(
                 1.5,
             ),

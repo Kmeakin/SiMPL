@@ -15,14 +15,14 @@ impl Expr {
             (
                 Self::If {
                     test: test1,
-                    then_branch: then1,
-                    else_branch: else1,
+                    then: then1,
+                    els: else1,
                     ..
                 },
                 Self::If {
                     test: test2,
-                    then_branch: then2,
-                    else_branch: else2,
+                    then: then2,
+                    els: else2,
                     ..
                 },
             ) => test1.is_alpha_eq(test2) && then1.is_alpha_eq(then2) && else1.is_alpha_eq(else2),
@@ -58,13 +58,13 @@ fn rename_inner(expr: Expr, env: &HashMap<Symbol, Symbol>, gen: &mut Gensym) -> 
         Expr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => Expr::If {
             ty,
             test: box rename_inner(*test, env, gen),
-            then_branch: box rename_inner(*then_branch, env, gen),
-            else_branch: box rename_inner(*else_branch, env, gen),
+            then: box rename_inner(*then, env, gen),
+            els: box rename_inner(*els, env, gen),
         },
         Expr::Let { ty, binding, body } => {
             let new_name = rename_var(binding.name, gen);

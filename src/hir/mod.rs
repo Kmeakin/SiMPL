@@ -19,8 +19,8 @@ pub enum Expr {
     If {
         ty: Type,
         test: Box<Self>,
-        then_branch: Box<Self>,
-        else_branch: Box<Self>,
+        then: Box<Self>,
+        els: Box<Self>,
     },
     Let {
         ty: Type,
@@ -123,15 +123,11 @@ impl Expr {
                 name,
                 ty: gen.next(),
             },
-            ast::Expr::If {
-                test,
-                then_branch,
-                else_branch,
-            } => Self::If {
+            ast::Expr::If { test, then, els } => Self::If {
                 ty: gen.next(),
                 test: box Self::from_ast_inner(*test, gen),
-                then_branch: box Self::from_ast_inner(*then_branch, gen),
-                else_branch: box Self::from_ast_inner(*else_branch, gen),
+                then: box Self::from_ast_inner(*then, gen),
+                els: box Self::from_ast_inner(*els, gen),
             },
             ast::Expr::Let { bindings, body } => {
                 let ((name, val), body) = expand_let(&bindings, *body);

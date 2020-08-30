@@ -8,12 +8,12 @@ If {
             true,
         ),
     },
-    then_branch: Lit {
+    then: Lit {
         val: Int(
             1,
         ),
     },
-    else_branch: Lit {
+    els: Lit {
         val: Int(
             0,
         ),

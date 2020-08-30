@@ -11,8 +11,8 @@ pub enum Expr {
     },
     If {
         test: Box<Self>,
-        then_branch: Box<Self>,
-        else_branch: Box<Self>,
+        then: Box<Self>,
+        els: Box<Self>,
     },
     Let {
         bindings: Vec<(Symbol, Self)>,

@@ -28,8 +28,8 @@ pub LambdaExpr: Expr = {
 }
 
 pub IfExpr: Expr = {
-    "if" <test:Expr> "then" <then_branch:Expr> "else" <else_branch:Expr>
-         => Expr::If {test: box test, then_branch: box then_branch, else_branch: box else_branch},
+    "if" <test:Expr> "then" <then:Expr> "else" <els:Expr>
+         => Expr::If {test: box test, then: box then, els: box els},
 }
 
 pub LetExpr: Expr = {

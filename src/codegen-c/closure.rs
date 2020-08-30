@@ -33,8 +33,8 @@ pub enum CExpr {
     If {
         ty: Type,
         test: Box<Self>,
-        then_branch: Box<Self>,
-        else_branch: Box<Self>,
+        then: Box<Self>,
+        els: Box<Self>,
     },
     Let {
         ty: Type,
@@ -82,13 +82,13 @@ fn substitute(cexpr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
         CExpr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => CExpr::If {
             ty,
             test: box substitute(*test, subst),
-            then_branch: box substitute(*then_branch, subst),
-            else_branch: box substitute(*else_branch, subst),
+            then: box substitute(*then, subst),
+            els: box substitute(*els, subst),
         },
         CExpr::Let { ty, binding, body } => CExpr::Let {
             ty,
@@ -147,13 +147,13 @@ fn closure_convert_inner(expr: &Expr, gen: &mut Counter<u32>) -> CExpr {
         Expr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => CExpr::If {
             ty: ty.clone(),
             test: box closure_convert_inner(&**test, gen),
-            then_branch: box closure_convert_inner(&**then_branch, gen),
-            else_branch: box closure_convert_inner(&**else_branch, gen),
+            then: box closure_convert_inner(&**then, gen),
+            els: box closure_convert_inner(&**els, gen),
         },
         Expr::Let { ty, binding, body } => CExpr::Let {
             ty: ty.clone(),

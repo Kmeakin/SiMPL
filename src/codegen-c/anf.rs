@@ -43,11 +43,8 @@ impl Expr {
     fn is_e(&self) -> bool {
         match self {
             Self::If {
-                test,
-                then_branch,
-                else_branch,
-                ..
-            } => test.is_ae() && then_branch.is_ae() && else_branch.is_ae(),
+                test, then, els, ..
+            } => test.is_ae() && then.is_ae() && els.is_ae(),
             Self::Let { binding, body, .. } => binding.val.is_e() && body.is_e(),
             Self::Letrec { .. } => todo!(),
             Self::App { func, arg, .. } => func.is_ae() && arg.is_ae(),
@@ -78,14 +75,14 @@ fn normalize(expr: Expr, k: Box<dyn FnOnce(Expr) -> Expr>) -> Expr {
         Expr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => normalize_name(*test, box |t| {
             k(Expr::If {
                 ty,
                 test: box t,
-                then_branch: box normalize_expr_inner(*then_branch),
-                else_branch: box normalize_expr_inner(*else_branch),
+                then: box normalize_expr_inner(*then),
+                els: box normalize_expr_inner(*els),
             })
         }),
 

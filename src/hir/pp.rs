@@ -19,21 +19,18 @@ impl Expr {
             Self::Lit { val, .. } => RcDoc::as_string(val),
             Self::Var { name, .. } => RcDoc::as_string(name),
             Self::If {
-                test,
-                then_branch,
-                else_branch,
-                ..
+                test, then, els, ..
             } => RcDoc::text("if")
                 .append(RcDoc::space())
                 .append(test.to_doc())
                 .append(RcDoc::line())
                 .append(RcDoc::text("then"))
                 .append(RcDoc::space())
-                .append(then_branch.to_doc())
+                .append(then.to_doc())
                 .append(RcDoc::line())
                 .append(RcDoc::text("else"))
                 .append(RcDoc::space())
-                .append(else_branch.to_doc())
+                .append(els.to_doc())
                 .nest(INDENT)
                 .group(),
             Self::App { func, arg, .. } => RcDoc::text("(")

@@ -23,17 +23,17 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
         Expr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => {
             let mut cons = vec![
                 Constraint(test.ty(), Type::Bool),
-                Constraint(then_branch.ty(), ty.clone()),
-                Constraint(else_branch.ty(), ty),
+                Constraint(then.ty(), ty.clone()),
+                Constraint(els.ty(), ty),
             ];
             cons.extend(collect_inner(*test, tenv));
-            cons.extend(collect_inner(*then_branch, tenv));
-            cons.extend(collect_inner(*else_branch, tenv));
+            cons.extend(collect_inner(*then, tenv));
+            cons.extend(collect_inner(*els, tenv));
             cons
         }
 

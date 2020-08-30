@@ -76,13 +76,13 @@ pub fn convert(expr: Expr) -> CExpr {
         Expr::If {
             ty,
             test,
-            then_branch,
-            else_branch,
+            then,
+            els,
         } => CExpr::If {
             ty,
             test: box convert(*test),
-            then: box convert(*then_branch),
-            els: box convert(*else_branch),
+            then: box convert(*then),
+            els: box convert(*els),
         },
         Expr::Let { ty, binding, body } => CExpr::Let {
             ty,
@@ -197,13 +197,10 @@ pub fn free_vars(expr: &Expr) -> FreeVars {
         Expr::Lit { .. } => hmap![],
         Expr::Var { name, ty } => hmap![*name => ty.clone()],
         Expr::If {
-            test,
-            then_branch,
-            else_branch,
-            ..
+            test, then, els, ..
         } => hashmap_union(
-            hashmap_union(free_vars(test), free_vars(then_branch)),
-            free_vars(else_branch),
+            hashmap_union(free_vars(test), free_vars(then)),
+            free_vars(els),
         ),
         Expr::Let { binding, body, .. } => hashmap_diff(
             hashmap_union(free_vars(&*binding.val), free_vars(body)),

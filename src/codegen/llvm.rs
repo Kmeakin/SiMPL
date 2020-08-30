@@ -44,11 +44,8 @@ impl<'ctx> Compiler<'ctx> {
             Expr::Lit { val, .. } => self.compile_lit(*val),
             Expr::Var { name, .. } => self.compile_var(env, *name),
             Expr::If {
-                test,
-                then_branch,
-                else_branch,
-                ..
-            } => self.compile_if(env, parent, name, test, then_branch, else_branch),
+                test, then, els, ..
+            } => self.compile_if(env, parent, name, test, then, els),
             Expr::Let { binding, body, .. } => self.compile_let(env, parent, name, binding, body),
             Expr::Letrec { .. } => todo!(),
             Expr::Lambda { ty, param, body } => {

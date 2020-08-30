@@ -147,15 +147,12 @@ typedef struct {{
             CExpr::Lit { val, .. } => val.to_string(),
             CExpr::Var { name, .. } => c_ident(&name.to_string()),
             CExpr::If {
-                test,
-                then_branch,
-                else_branch,
-                ..
+                test, then, els, ..
             } => format!(
                 "({}) ? ({}) : ({})",
                 self.compile_expr(*test),
-                self.compile_expr(*then_branch),
-                self.compile_expr(*else_branch)
+                self.compile_expr(*then),
+                self.compile_expr(*els)
             ),
             CExpr::Let { binding, body, .. } => {
                 let binding_ty = match *binding.val {

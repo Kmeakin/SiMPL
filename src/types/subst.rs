@@ -40,13 +40,13 @@ impl Expr {
             Self::If {
                 ty,
                 test,
-                then_branch,
-                else_branch,
+                then,
+                els,
             } => Self::If {
                 ty: ty.apply(subst),
                 test: box test.apply(subst),
-                then_branch: box then_branch.apply(subst),
-                else_branch: box else_branch.apply(subst),
+                then: box then.apply(subst),
+                els: box els.apply(subst),
             },
             Self::Let { ty, binding, body } => Self::Let {
                 ty: ty.apply(subst),
