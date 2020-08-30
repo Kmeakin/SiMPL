@@ -1,4 +1,5 @@
-use crate::hir::{Expr, Lit, Param, Symbol, Type};
+use crate::hir::Expr;
+pub use crate::hir::{Lit, Param, Symbol, Type};
 use maplit::hashmap as hmap;
 use std::collections::HashMap;
 
@@ -240,9 +241,9 @@ where
     hm1.into_iter()
         .filter_map(|(k, v)| {
             if hm2.contains_key(&k) {
-                Some((k, v))
-            } else {
                 None
+            } else {
+                Some((k, v))
             }
         })
         .collect::<HashMap<K, V>>()
