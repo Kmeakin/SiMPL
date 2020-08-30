@@ -1,8 +1,5 @@
 use super::llvm::Compiler;
-use crate::{
-    hir::{Expr, Lit, Symbol},
-    types::infer_and_apply,
-};
+use crate::{hir::Expr, types::infer_and_apply};
 use inkwell::context::Context;
 use insta::assert_snapshot;
 use std::str::FromStr;

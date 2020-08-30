@@ -5,11 +5,11 @@ expression: module.print_to_string().to_string()
 ; ModuleID = 'test_compile'
 source_filename = "test_compile"
 
-define i32 @toplevel() {
+define i64 @toplevel() {
 entry:
-  %x = alloca i32
-  store i32 5, i32* %x
-  %x1 = load i32, i32* %x
-  ret i32 %x1
+  %x = alloca i64
+  store i64 5, i64* %x
+  %x1 = load i64, i64* %x
+  ret i64 %x1
 }
 

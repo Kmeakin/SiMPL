@@ -5,7 +5,7 @@ expression: module.print_to_string().to_string()
 ; ModuleID = 'test_compile'
 source_filename = "test_compile"
 
-define i32 @toplevel() {
+define i64 @toplevel() {
 entry:
   br i1 true, label %then, label %else
 
@@ -16,7 +16,7 @@ else:                                             ; preds = %entry
   br label %cont
 
 cont:                                             ; preds = %else, %then
-  %phi = phi i32 [ 100, %then ], [ 200, %else ]
-  ret i32 %phi
+  %phi = phi i64 [ 100, %then ], [ 200, %else ]
+  ret i64 %phi
 }
 

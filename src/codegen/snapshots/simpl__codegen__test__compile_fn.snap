@@ -5,12 +5,12 @@ expression: module.print_to_string().to_string()
 ; ModuleID = 'test_compile'
 source_filename = "test_compile"
 
-define i32 (i1)* @toplevel() {
+define i64 (i1)* @toplevel() {
 entry:
-  ret i32 (i1)* @lambda
+  ret i64 (i1)* @lambda
 }
 
-define i32 @lambda(i1 %b) {
+define i64 @lambda(i1 %b) {
 lambda_entry:
   %b1 = alloca i1
   store i1 %b, i1* %b1
@@ -25,7 +25,7 @@ else:                                             ; preds = %lambda_entry
   br label %cont
 
 cont:                                             ; preds = %else, %then
-  %phi = phi i32 [ 100, %then ], [ 200, %else ]
-  ret i32 %phi
+  %phi = phi i64 [ 100, %then ], [ 200, %else ]
+  ret i64 %phi
 }
 

@@ -9,7 +9,7 @@ impl Type {
     pub fn llvm_type<'ctx>(&self, ctx: &'ctx Context) -> BasicTypeEnum<'ctx> {
         match self {
             Self::Bool => ctx.bool_type().into(),
-            Self::Int => ctx.i32_type().into(),
+            Self::Int => ctx.i64_type().into(),
             Self::Float => ctx.f64_type().into(),
             Self::Fn(arg, ret) => ret
                 .llvm_type(ctx)

@@ -52,8 +52,16 @@ impl<'ctx> Compiler<'ctx> {
 
     fn compile_lit(&self, val: Lit) -> BasicValueEnum {
         match val {
-            Lit::Bool(b) => self.ctx.bool_type().const_int(b as u64, false).into(),
-            Lit::Int(i) => self.ctx.i32_type().const_int(i as u64, false).into(),
+            Lit::Bool(b) => self
+                .ctx
+                .bool_type()
+                .const_int(if b { 1 } else { 0 }, false)
+                .into(),
+            Lit::Int(i) => self
+                .ctx
+                .i64_type()
+                .const_int(unsafe { std::mem::transmute(i) }, false)
+                .into(),
             Lit::Float(f) => self.ctx.f64_type().const_float(f).into(),
         }
     }
