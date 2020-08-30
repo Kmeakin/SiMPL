@@ -48,3 +48,8 @@ fn test_app() {
     test_compile(r"(\b -> if b then 100 else 200) true");
     test_compile(r"(\b -> if b then 100 else 200) ((\b -> if b then false else true) true)");
 }
+
+#[test]
+fn compile_let() {
+    test_compile("let x = 5 in x");
+}

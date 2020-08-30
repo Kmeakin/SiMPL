@@ -1,4 +1,4 @@
-use crate::hir::{Expr, Lit, Param, Type};
+use crate::hir::{Expr, LetBinding, Lit, Param, Type};
 use inkwell::{
     builder::Builder,
     context::Context,
@@ -52,6 +52,7 @@ impl<'ctx> Compiler<'ctx> {
                 else_branch,
                 ..
             } => self.compile_if(env, parent, test, then_branch, else_branch),
+            Expr::Let { binding, body, .. } => self.compile_let(env, parent, binding, body),
             Expr::Lambda { ty, param, body } => {
                 self.compile_lambda(env, parent, ty.clone(), param.clone(), body)
             }
@@ -116,6 +117,26 @@ impl<'ctx> Compiler<'ctx> {
         phi.add_incoming(&[(&then_val, then_bb), (&else_val, else_bb)]);
 
         phi.as_basic_value()
+    }
+
+    fn compile_let(
+        &self,
+        env: &Env<'ctx>,
+        parent: FunctionValue,
+        binding: &LetBinding,
+        body: &Expr,
+    ) -> BasicValueEnum {
+        let binding_name = &binding.name.to_string();
+        let mut env = env.clone();
+        let alloca = self
+            .builder
+            .build_alloca(binding.ty.llvm_type(self.ctx), binding_name);
+        let value = self.compile_expr(&env, parent, &binding.val);
+        self.builder.build_store(alloca, value);
+        env.insert(binding.name, alloca);
+
+        let body = self.compile_expr(&env, parent, body);
+        body
     }
 
     fn compile_lambda(
