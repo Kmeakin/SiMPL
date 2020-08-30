@@ -6,7 +6,7 @@ expression: module.print_to_string().to_string()
 source_filename = "test_compile"
 
 define i64 (i1)* @toplevel() {
-entry:
+toplevel_entry:
   ret i64 (i1)* @lambda
 }
 

@@ -6,7 +6,7 @@ expression: module.print_to_string().to_string()
 source_filename = "test_compile"
 
 define i64 @toplevel() {
-entry:
+toplevel_entry:
   %x = alloca i64
   store i64 5, i64* %x
   %x1 = load i64, i64* %x

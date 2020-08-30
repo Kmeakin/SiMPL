@@ -6,7 +6,7 @@ expression: module.print_to_string().to_string()
 source_filename = "test_compile"
 
 define i1 @toplevel() {
-entry:
+toplevel_entry:
   %not = alloca i1 (i1)*
   store i1 (i1)* @not, i1 (i1)** %not
   %not1 = load i1 (i1)*, i1 (i1)** %not
@@ -15,17 +15,17 @@ entry:
 }
 
 define i1 @not(i1 %b) {
-lambda_entry:
+not_entry:
   %b1 = alloca i1
   store i1 %b, i1* %b1
   %b2 = load i1, i1* %b1
   %cmp = icmp eq i1 %b2, true
   br i1 %cmp, label %then, label %else
 
-then:                                             ; preds = %lambda_entry
+then:                                             ; preds = %not_entry
   br label %cont
 
-else:                                             ; preds = %lambda_entry
+else:                                             ; preds = %not_entry
   br label %cont
 
 cont:                                             ; preds = %else, %then

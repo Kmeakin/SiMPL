@@ -23,7 +23,7 @@ impl<'ctx> Compiler<'ctx> {
     pub fn compile_toplevel(&self, expr: &Expr) -> &Module<'ctx> {
         let ty = expr.ty().llvm_type(self.ctx).fn_type(&[], false);
         let parent = self.module.add_function("toplevel", ty, None);
-        let entry = self.ctx.append_basic_block(parent, "entry");
+        let entry = self.ctx.append_basic_block(parent, "toplevel_entry");
         self.builder.position_at_end(entry);
 
         let env = Env::new();
@@ -156,17 +156,18 @@ impl<'ctx> Compiler<'ctx> {
     ) -> BasicValueEnum {
         let param_name = &param.name.to_string();
         let mut env = env.clone();
+        let fn_name = name.unwrap_or("lambda");
 
         let fn_ty = ty.llvm_fn_type(self.ctx).unwrap();
-        let fn_val = self
-            .module
-            .add_function(name.unwrap_or("lambda"), fn_ty, None);
+        let fn_val = self.module.add_function(fn_name, fn_ty, None);
         fn_val
             .get_first_param()
             .unwrap()
             .set_name(&param.name.to_string());
 
-        let entry = self.ctx.append_basic_block(fn_val, "lambda_entry");
+        let entry = self
+            .ctx
+            .append_basic_block(fn_val, &format!("{fn_name}_entry"));
         self.builder.position_at_end(entry);
         let alloca = self
             .builder
