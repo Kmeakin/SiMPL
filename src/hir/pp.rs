@@ -67,7 +67,7 @@ impl Expr {
                             } else {
                                 RcDoc::nil()
                             })
-                            .nest(("letrec".len() + 1) as isize)
+                            .nest(7)
                             .group()
                     }))
                     .append(RcDoc::line())

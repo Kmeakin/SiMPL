@@ -207,17 +207,17 @@ pub fn free_vars(expr: &Expr) -> FreeVars {
         ),
         Expr::Let { binding, body, .. } => hashmap_diff(
             hashmap_union(free_vars(&*binding.val), free_vars(body)),
-            hmap![binding.name => binding.ty.clone()],
+            &hmap![binding.name => binding.ty.clone()],
         ),
 
         Expr::Letrec { bindings, body, .. } => hashmap_diff(
             bindings.iter().fold(free_vars(body), |acc, b| {
                 hashmap_union(acc, free_vars(&*b.val))
             }),
-            bindings.iter().map(|b| (b.name, b.ty.clone())).collect(),
+            &bindings.iter().map(|b| (b.name, b.ty.clone())).collect(),
         ),
         Expr::Lambda { param, body, .. } => {
-            hashmap_diff(free_vars(body), hmap![param.name => param.ty.clone()])
+            hashmap_diff(free_vars(body), &hmap![param.name => param.ty.clone()])
         }
 
         Expr::App { func, arg, .. } => hashmap_union(free_vars(func), free_vars(arg)),
@@ -235,13 +235,18 @@ where
     ret
 }
 
-fn hashmap_diff<K, V>(hm1: HashMap<K, V>, hm2: HashMap<K, V>) -> HashMap<K, V>
+fn hashmap_diff<K, V>(hm1: HashMap<K, V>, hm2: &HashMap<K, V>) -> HashMap<K, V>
 where
     K: std::hash::Hash + Eq + Clone + std::fmt::Debug,
     V: std::hash::Hash + Eq + Clone + std::fmt::Debug,
 {
     hm1.into_iter()
-        .filter(|(k, _)| !hm2.contains_key(&k))
-        .map(|(k, v)| (k.clone(), v.clone()))
+        .filter_map(|(k, v)| {
+            if hm2.contains_key(&k) {
+                Some((k, v))
+            } else {
+                None
+            }
+        })
         .collect::<HashMap<K, V>>()
 }

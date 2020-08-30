@@ -44,9 +44,7 @@ impl<'ctx> Compiler<'ctx> {
                 ..
             } => self.compile_if(env, parent, test, then_branch, else_branch),
             Expr::Let { binding, body, .. } => self.compile_let(env, parent, binding, body),
-            Expr::Lambda { ty, param, body } => {
-                self.compile_lambda(env, parent, ty.clone(), param.clone(), body)
-            }
+            Expr::Lambda { ty, param, body } => self.compile_lambda(env, parent, ty, param, body),
             Expr::App { func, arg, .. } => self.compile_app(env, parent, func, arg),
             _ => todo!(),
         }
@@ -126,16 +124,15 @@ impl<'ctx> Compiler<'ctx> {
         self.builder.build_store(alloca, value);
         env.insert(binding.name, alloca);
 
-        let body = self.compile_expr(&env, parent, body);
-        body
+        self.compile_expr(&env, parent, body)
     }
 
     fn compile_lambda(
         &self,
         env: &Env<'ctx>,
         parent: FunctionValue,
-        ty: Type,
-        param: Param,
+        ty: &Type,
+        param: &Param,
         body: &Expr,
     ) -> BasicValueEnum {
         let param_name = &param.name.to_string();
