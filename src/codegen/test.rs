@@ -62,4 +62,10 @@ fn compile_app() {
 #[test]
 fn compile_let() {
     test_compile("let x = 5 in x");
+    test_compile(
+        r"
+let not = \b -> if b then false else true
+in not true
+",
+    );
 }
