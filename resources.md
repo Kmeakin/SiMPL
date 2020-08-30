@@ -14,3 +14,7 @@
   - Alpha-conversion, ANF, CPS, closure conversion, LLVM
 - http://matt.might.net/articles/compiling-scheme-to-c/
   - Closure conversion
+
+https://jozefg.bitbucket.io/posts/2015-03-24-pcf.html
+https://danilafe.com/blog/00_compiler_intro/
+https://dev.realworldocaml.org/runtime-memory-layout.html
