@@ -50,13 +50,13 @@ pub IfExpr: Expr = {
 }
 
 pub LetExpr: Expr = {
-    "let" <bindings:Comma1<Binding>> "in" <body:Expr>
+    "let" <bindings:Comma1<LetBinding>> "in" <body:Expr>
           => Expr::Let {bindings, body: box body},
 }
 
-Binding: (Symbol, Option<Type>, Expr) = {
-    <var:Symbol> "=" <val:Expr> => (var, None, val),
-    <var:Symbol> ":" <ty: Type> "=" <val:Expr> => (var, Some(ty), val),
+LetBinding: LetBinding = {
+    <name:Symbol> "=" <val:Expr> => LetBinding {name, ann: None, val: box val},
+    <name:Symbol> ":" <ty: Type> "=" <val:Expr> => LetBinding {name, ann: Some(ty), val: box val},
 }
 
 
@@ -65,8 +65,9 @@ pub LetrecExpr: Expr = {
           => Expr::Letrec {bindings, body: box body},
 }
 
-LetrecBinding: (Symbol, Expr) = {
-    <var:Symbol> "=" <val:LambdaExpr> => (var, val),
+LetrecBinding: LetBinding = {
+    <name:Symbol> "=" <val:LambdaExpr> => LetBinding {name, ann: None, val: box val},
+    <name:Symbol> ":" <ty: Type> "=" <val:LambdaExpr> => LetBinding {name, ann: Some(ty), val: box val},
 }
 
 
