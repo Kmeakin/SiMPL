@@ -4,8 +4,14 @@ expression: parse(src).unwrap()
 ---
 Lambda {
     params: [
-        "x",
-        "y",
+        Param {
+            name: "x",
+            ann: None,
+        },
+        Param {
+            name: "y",
+            ann: None,
+        },
     ],
     body: Var {
         name: "y",

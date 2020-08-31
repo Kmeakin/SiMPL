@@ -4,11 +4,15 @@ expression: parse(src).unwrap()
 ---
 Letrec {
     bindings: [
-        (
-            "f",
-            Lambda {
+        LetBinding {
+            name: "f",
+            ann: None,
+            val: Lambda {
                 params: [
-                    "x",
+                    Param {
+                        name: "x",
+                        ann: None,
+                    },
                 ],
                 body: App {
                     func: Var {
@@ -19,18 +23,22 @@ Letrec {
                     },
                 },
             },
-        ),
-        (
-            "g",
-            Lambda {
+        },
+        LetBinding {
+            name: "g",
+            ann: None,
+            val: Lambda {
                 params: [
-                    "y",
+                    Param {
+                        name: "y",
+                        ann: None,
+                    },
                 ],
                 body: Var {
                     name: "y",
                 },
             },
-        ),
+        },
     ],
     body: Var {
         name: "f",

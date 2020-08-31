@@ -4,7 +4,10 @@ expression: parse(src).unwrap()
 ---
 Lambda {
     params: [
-        "x",
+        Param {
+            name: "x",
+            ann: None,
+        },
     ],
     body: Var {
         name: "x",

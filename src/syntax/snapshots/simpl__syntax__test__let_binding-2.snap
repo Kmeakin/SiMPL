@@ -4,22 +4,24 @@ expression: parse(src).unwrap()
 ---
 Let {
     bindings: [
-        (
-            "x",
-            Lit {
+        LetBinding {
+            name: "x",
+            ann: None,
+            val: Lit {
                 val: Int(
                     5,
                 ),
             },
-        ),
-        (
-            "y",
-            Lit {
+        },
+        LetBinding {
+            name: "y",
+            ann: None,
+            val: Lit {
                 val: Bool(
                     false,
                 ),
             },
-        ),
+        },
     ],
     body: Var {
         name: "x",
