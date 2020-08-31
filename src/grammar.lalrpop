@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::syntax::ast::{Symbol, Expr, Lit};
+use crate::syntax::ast::*;
 use simple_symbol::intern;
 
 grammar;
@@ -14,6 +14,18 @@ pub Expr: Expr = {
     LetrecExpr => <>,
 }
 
+pub Type: Type = {
+    <t1: AtomType> "->" <t2: Type> => Type::Fn(box t1, box t2),
+    AtomType => <>,
+}
+
+AtomType: Type = {
+    "Int" => Type::Int,
+    "Bool" => Type::Bool,
+    "Float" => Type::Float,
+    "(" <Type> ")" => <>,
+}
+
 pub AppExpr: Expr = {
     MatchExpr => <>,
     App => <>,
@@ -24,7 +36,12 @@ App: Expr = {
 }
 
 pub LambdaExpr: Expr = {
-    "\\" <params:Comma1<Symbol>> "->" <body:Expr> => Expr::Lambda {params, body: box body},
+    "\\" <params:Comma1<Param>> "->" <body:Expr> => Expr::Lambda {params, body: box body},
+}
+
+Param: Param = {
+    <name: Symbol> => Param {name, ann: None},
+    <name: Symbol> ":" <ty: AtomType> => Param {name, ann: Some(ty)},
 }
 
 pub IfExpr: Expr = {
@@ -37,8 +54,9 @@ pub LetExpr: Expr = {
           => Expr::Let {bindings, body: box body},
 }
 
-Binding: (Symbol, Expr) = {
-    <var:Symbol> "=" <val:Expr> => (var, val),
+Binding: (Symbol, Option<Type>, Expr) = {
+    <var:Symbol> "=" <val:Expr> => (var, None, val),
+    <var:Symbol> ":" <ty: Type> "=" <val:Expr> => (var, Some(ty), val),
 }
 
 

@@ -1,3 +1,4 @@
+pub use crate::types::ty::Type;
 use derive_more::Display;
 pub use simple_symbol::Symbol;
 
@@ -15,15 +16,15 @@ pub enum Expr {
         els: Box<Self>,
     },
     Let {
-        bindings: Vec<(Symbol, Self)>,
+        bindings: Vec<LetBinding>,
         body: Box<Self>,
     },
     Letrec {
-        bindings: Vec<(Symbol, Self)>,
+        bindings: Vec<LetBinding>,
         body: Box<Self>,
     },
     Lambda {
-        params: Vec<Symbol>,
+        params: Vec<Param>,
         body: Box<Self>,
     },
     App {
@@ -40,6 +41,19 @@ pub enum Lit {
     Int(i64),
     #[display(fmt = "{}", _0)]
     Float(f64),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LetBinding {
+    pub name: Symbol,
+    pub ann: Option<Type>,
+    pub val: Box<Expr>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Param {
+    pub name: Symbol,
+    pub ann: Option<Type>,
 }
 
 impl From<bool> for Lit {
