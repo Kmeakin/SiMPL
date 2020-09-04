@@ -1,0 +1,22 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define i64 @toplevel() {
+toplevel_entry:
+  br i1 true, label %then, label %else
+
+then:                                             ; preds = %toplevel_entry
+  br label %cont
+
+else:                                             ; preds = %toplevel_entry
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i64 [ 1, %then ], [ 0, %else ]
+  ret i64 %phi
+}
+

@@ -1,0 +1,15 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define i64 @toplevel() {
+toplevel_entry:
+  %x = alloca i64
+  store i64 5, i64* %x
+  %x1 = load i64, i64* %x
+  ret i64 %x1
+}
+

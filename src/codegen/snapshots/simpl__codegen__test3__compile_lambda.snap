@@ -1,0 +1,45 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+%Closure = type { i8*, i8* }
+%Env = type { i64 }
+
+define %Closure @toplevel() {
+toplevel_entry:
+  %x = alloca i64
+  store i64 5, i64* %x
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (i64 (%Env, i64)* @lambda to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i64* getelementptr (i64, i64* null, i32 1) to i32))
+  %closure.env1 = bitcast i8* %malloccall to %Env*
+  %env.x = getelementptr inbounds %Env, %Env* %closure.env1, i32 0, i32 0
+  %x2 = load i64, i64* %x
+  store i64 %x2, i64* %env.x
+  %closure.env3 = bitcast %Env* %closure.env1 to i8*
+  store i8* %closure.env3, i8** %closure.env
+  %closure4 = load %Closure, %Closure* %closure
+  ret %Closure %closure4
+}
+
+define i64 @lambda(%Env %env, i64 %y) {
+lambda_entry:
+  %env1 = alloca %Env
+  store %Env %env, %Env* %env1
+  %env.x = alloca i64
+  %env.x2 = getelementptr inbounds %Env, %Env* %env1, i32 0, i32 0
+  %env.x3 = load i64, i64* %env.x2
+  store i64 %env.x3, i64* %env.x
+  %y4 = alloca i64
+  store i64 %y, i64* %y4
+  %x = load i64, i64* %env.x
+  ret i64 %x
+}
+
+declare noalias i8* @malloc(i32)
+

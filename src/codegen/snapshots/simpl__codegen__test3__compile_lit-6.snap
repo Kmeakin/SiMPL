@@ -1,0 +1,12 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+define double @toplevel() {
+toplevel_entry:
+  ret double 4.500000e+00
+}
+
