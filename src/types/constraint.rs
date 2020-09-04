@@ -46,6 +46,10 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
                 Constraint(binding.ty, binding.val.ty()),
             ];
 
+            if let Some(ty) = binding.ann {
+                cons.push(Constraint(ty, binding.val.ty()));
+            }
+
             cons.extend(collect_inner(*binding.val, tenv));
             cons.extend(collect_inner(*body, &ext_tenv));
             cons
@@ -72,7 +76,15 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
             let mut ext_tenv = tenv.clone();
             ext_tenv.insert(param.name, param.ty.clone());
 
-            let mut cons = vec![Constraint(ty, Type::Fn(box param.ty, box body.ty()))];
+            let mut cons = vec![Constraint(
+                ty,
+                Type::Fn(box param.ty.clone(), box body.ty()),
+            )];
+
+            if let Some(ty) = param.ann {
+                cons.push(Constraint(ty, param.ty))
+            }
+
             cons.extend(collect_inner(*body, &ext_tenv));
             cons
         }
@@ -144,6 +156,7 @@ mod test {
             param: Param {
                 ty: t1.clone(),
                 name: intern("param").into(),
+                ann: None,
             },
             body: box Expr::Var {
                 ty: t2.clone(),
@@ -218,6 +231,7 @@ mod test {
                     ty: t2.clone(),
                     val: Lit::Bool(false),
                 },
+                ann: None,
             },
             body: box Expr::Var {
                 ty: t3.clone(),
@@ -249,6 +263,7 @@ mod test {
             param: Param {
                 ty: t1.clone(),
                 name: intern("a").into(),
+                ann: None,
             },
             body: box Expr::Var {
                 ty: t2.clone(),
@@ -276,12 +291,14 @@ mod test {
             param: Param {
                 ty: t1.clone(),
                 name: intern("a").into(),
+                ann: None,
             },
             body: box Expr::Lambda {
                 ty: t2.clone(),
                 param: Param {
                     ty: t3.clone(),
                     name: intern("b").into(),
+                    ann: None,
                 },
                 body: box Expr::Var {
                     ty: t4.clone(),
@@ -320,18 +337,21 @@ mod test {
             param: Param {
                 ty: t1.clone(),
                 name: intern("f").into(),
+                ann: None,
             },
             body: box Expr::Lambda {
                 ty: t2.clone(),
                 param: Param {
                     ty: t3.clone(),
                     name: intern("g").into(),
+                    ann: None,
                 },
                 body: box Expr::Lambda {
                     ty: t4.clone(),
                     param: Param {
                         ty: t5.clone(),
                         name: intern("x").into(),
+                        ann: None,
                     },
                     body: box Expr::App {
                         ty: t6.clone(),

@@ -48,12 +48,14 @@ pub enum Expr {
 pub struct Param {
     pub ty: Type,
     pub name: Symbol,
+    pub ann: Option<Type>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct LetBinding {
     pub ty: Type,
     pub name: Symbol,
+    pub ann: Option<Type>,
     pub val: Box<Expr>,
 }
 
@@ -136,6 +138,7 @@ impl Expr {
                     binding: LetBinding {
                         ty: gen.next(),
                         name: binding.name,
+                        ann: binding.ann,
                         val: box Self::from_ast_inner(*binding.val, gen),
                     },
                     body: box Self::from_ast_inner(body, gen),
@@ -148,6 +151,7 @@ impl Expr {
                     .map(|binding| LetBinding {
                         ty: gen.next(),
                         name: binding.name,
+                        ann: binding.ann,
                         val: box Self::from_ast_inner(*binding.val, gen),
                     })
                     .collect(),
@@ -159,6 +163,7 @@ impl Expr {
                     ty: gen.next(),
                     param: Param {
                         name: param.name,
+                        ann: param.ann,
                         ty: gen.next(),
                     },
                     body: box Self::from_ast_inner(body, gen),

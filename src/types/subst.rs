@@ -53,6 +53,7 @@ impl Expr {
                 binding: LetBinding {
                     ty: binding.ty.apply(subst),
                     name: binding.name,
+                    ann: binding.ann.clone(),
                     val: box binding.val.apply(subst),
                 },
                 body: box body.apply(subst),
@@ -65,6 +66,7 @@ impl Expr {
                         ty: binding.ty.apply(subst),
                         name: binding.name,
                         val: box binding.val.apply(subst),
+                        ann: binding.ann.clone(),
                     })
                     .collect(),
                 body: box body.apply(subst),
