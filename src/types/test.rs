@@ -102,3 +102,28 @@ in
     let ty = type_of(&expr);
     assert_eq!(ty, ty![({5} => {6}) => {5} => {6}])
 }
+
+#[test]
+fn infer_annotations() {
+    let expr = Expr::from_str(
+        r"
+let
+    idInt = \a: Int -> a
+in
+    idInt",
+    )
+    .unwrap();
+    let ty = type_of(&expr);
+    assert_eq!(ty, ty![Int => Int]);
+
+    let expr = Expr::from_str(
+        r"
+let
+    idInt: Int -> Int = \a -> a
+in
+    idInt",
+    )
+    .unwrap();
+    let ty = type_of(&expr);
+    assert_eq!(ty, ty![Int => Int])
+}
