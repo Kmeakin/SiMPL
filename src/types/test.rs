@@ -39,7 +39,7 @@ fn infer_inc_fn() {
 }
 
 #[test]
-fn letrec() {
+fn infer_letrec() {
     let expr = Expr::from_str(
         r"
 letrec
@@ -55,7 +55,7 @@ in
 }
 
 #[test]
-fn letrec_mutually_recursive() {
+fn infer_letrec_mutually_recursive() {
     let expr = Expr::from_str(
         r"
 letrec
@@ -74,7 +74,7 @@ in
 }
 
 #[test]
-fn let_many() {
+fn infer_let_many() {
     let expr = Expr::from_str(
         r"
 let
@@ -90,7 +90,7 @@ in
 }
 
 #[test]
-fn lambda_many() {
+fn infer_lambda_many() {
     let expr = Expr::from_str(
         r"
 let
