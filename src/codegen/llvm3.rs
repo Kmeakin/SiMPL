@@ -193,15 +193,19 @@ impl<'ctx> Compiler<'ctx> {
     }
 
     fn compile_let(&self, ctx: &Ctx<'ctx>, binding: &LetBinding, body: &CExpr) -> BasicValueEnum {
-        let binding_name = &binding.name.to_string();
+        let binding_name = resolve(binding.name);
         let mut ctx = ctx.clone();
         let alloca = self
             .builder
             .build_alloca(binding.ty.llvm_type(self), binding_name);
+
+        let old_name = ctx.name;
+        ctx.name = Some(binding_name);
         let value = self.compile_expr(&ctx, &binding.val);
         self.builder.build_store(alloca, value);
         ctx.env.insert(binding.name, alloca);
 
+        ctx.name = old_name;
         self.compile_expr(&ctx, body)
     }
 

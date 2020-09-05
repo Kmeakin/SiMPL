@@ -8,14 +8,14 @@ source_filename = "test_compile"
 %Closure = type { i8*, i8* }
 %Env = type {}
 %Env.0 = type { i1 }
-%Env.1 = type { i64, i1 }
+%Env.1 = type { i1, i64 }
 
 define i64 @toplevel() {
 toplevel_entry:
   %ifThenElse = alloca %Closure
   %closure = alloca %Closure
   %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
-  store i8* bitcast (%Closure (i8*, i1)* @lambda to i8*), i8** %closure.code
+  store i8* bitcast (%Closure (i8*, i1)* @ifThenElse to i8*), i8** %closure.code
   %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
   %malloccall = tail call i8* @malloc(i32 0)
   %closure.env1 = bitcast i8* %malloccall to %Env*
@@ -51,8 +51,8 @@ toplevel_entry:
   ret i64 %call23
 }
 
-define %Closure @lambda(i8* %env, i1 %b) {
-lambda_entry:
+define %Closure @ifThenElse(i8* %env, i1 %b) {
+ifThenElse_entry:
   %env1 = alloca i8*
   store i8* %env, i8** %env1
   %env2 = load i8*, i8** %env1
@@ -61,7 +61,7 @@ lambda_entry:
   store i1 %b, i1* %b4
   %closure = alloca %Closure
   %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
-  store i8* bitcast (%Closure (i8*, i64)* @lambda.1 to i8*), i8** %closure.code
+  store i8* bitcast (%Closure (i8*, i64)* @ifThenElse.1 to i8*), i8** %closure.code
   %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
   %malloccall = tail call i8* @malloc(i32 ptrtoint (i1* getelementptr (i1, i1* null, i32 1) to i32))
   %closure.env5 = bitcast i8* %malloccall to %Env.0*
@@ -74,8 +74,8 @@ lambda_entry:
   ret %Closure %closure8
 }
 
-define %Closure @lambda.1(i8* %env, i64 %x) {
-lambda_entry:
+define %Closure @ifThenElse.1(i8* %env, i64 %x) {
+ifThenElse_entry:
   %env1 = alloca i8*
   store i8* %env, i8** %env1
   %env2 = load i8*, i8** %env1
@@ -88,47 +88,47 @@ lambda_entry:
   store i64 %x, i64* %x6
   %closure = alloca %Closure
   %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
-  store i8* bitcast (i64 (i8*, i64)* @lambda.2 to i8*), i8** %closure.code
+  store i8* bitcast (i64 (i8*, i64)* @ifThenElse.2 to i8*), i8** %closure.code
   %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
   %malloccall = tail call i8* @malloc(i32 ptrtoint (%Env.1* getelementptr (%Env.1, %Env.1* null, i32 1) to i32))
   %closure.env7 = bitcast i8* %malloccall to %Env.1*
-  %env.x = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 0
-  %x8 = load i64, i64* %x6
-  store i64 %x8, i64* %env.x
-  %env.b9 = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 1
+  %env.b8 = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 0
   %b = load i1, i1* %env.b
-  store i1 %b, i1* %env.b9
+  store i1 %b, i1* %env.b8
+  %env.x = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 1
+  %x9 = load i64, i64* %x6
+  store i64 %x9, i64* %env.x
   %closure.env10 = bitcast %Env.1* %closure.env7 to i8*
   store i8* %closure.env10, i8** %closure.env
   %closure11 = load %Closure, %Closure* %closure
   ret %Closure %closure11
 }
 
-define i64 @lambda.2(i8* %env, i64 %y) {
-lambda_entry:
+define i64 @ifThenElse.2(i8* %env, i64 %y) {
+ifThenElse_entry:
   %env1 = alloca i8*
   store i8* %env, i8** %env1
   %env2 = load i8*, i8** %env1
   %env3 = bitcast i8* %env2 to %Env.1*
-  %env.x = alloca i64
-  %env.x4 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 0
-  %env.x5 = load i64, i64* %env.x4
-  store i64 %env.x5, i64* %env.x
   %env.b = alloca i1
-  %env.b6 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 1
-  %env.b7 = load i1, i1* %env.b6
-  store i1 %env.b7, i1* %env.b
+  %env.b4 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 0
+  %env.b5 = load i1, i1* %env.b4
+  store i1 %env.b5, i1* %env.b
+  %env.x = alloca i64
+  %env.x6 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 1
+  %env.x7 = load i64, i64* %env.x6
+  store i64 %env.x7, i64* %env.x
   %y8 = alloca i64
   store i64 %y, i64* %y8
   %b = load i1, i1* %env.b
   %cmp = icmp eq i1 %b, true
   br i1 %cmp, label %then, label %else
 
-then:                                             ; preds = %lambda_entry
+then:                                             ; preds = %ifThenElse_entry
   %x = load i64, i64* %env.x
   br label %cont
 
-else:                                             ; preds = %lambda_entry
+else:                                             ; preds = %ifThenElse_entry
   %y9 = load i64, i64* %y8
   br label %cont
 

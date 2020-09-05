@@ -15,7 +15,7 @@ toplevel_entry:
   %f = alloca %Closure
   %closure = alloca %Closure
   %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
-  store i8* bitcast (i64 (i8*, i64)* @lambda to i8*), i8** %closure.code
+  store i8* bitcast (i64 (i8*, i64)* @f to i8*), i8** %closure.code
   %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
   %malloccall = tail call i8* @malloc(i32 ptrtoint (i64* getelementptr (i64, i64* null, i32 1) to i32))
   %closure.env1 = bitcast i8* %malloccall to %Env*
@@ -38,8 +38,8 @@ toplevel_entry:
   ret i64 %call
 }
 
-define i64 @lambda(i8* %env, i64 %y) {
-lambda_entry:
+define i64 @f(i8* %env, i64 %y) {
+f_entry:
   %env1 = alloca i8*
   store i8* %env, i8** %env1
   %env2 = load i8*, i8** %env1
