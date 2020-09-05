@@ -90,3 +90,15 @@ fn compile_lambda() {
     // test_compile(r"\x: Int -> x");
     test_compile(r"let x = 5 in \y: Int -> x");
 }
+
+#[test]
+fn compile_app() {
+    test_compile_and_execute(
+        r"
+let x = 5,
+    f = \y -> x
+in f 555
+",
+        5,
+    );
+}

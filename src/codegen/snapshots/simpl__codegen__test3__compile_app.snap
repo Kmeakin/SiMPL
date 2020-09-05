@@ -8,10 +8,11 @@ source_filename = "test_compile"
 %Closure = type { i8*, i8* }
 %Env = type { i64 }
 
-define %Closure @toplevel() {
+define i64 @toplevel() {
 toplevel_entry:
   %x = alloca i64
   store i64 5, i64* %x
+  %f = alloca %Closure
   %closure = alloca %Closure
   %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
   store i8* bitcast (i64 (i8*, i64)* @lambda to i8*), i8** %closure.code
@@ -24,7 +25,17 @@ toplevel_entry:
   %closure.env3 = bitcast %Env* %closure.env1 to i8*
   store i8* %closure.env3, i8** %closure.env
   %closure4 = load %Closure, %Closure* %closure
-  ret %Closure %closure4
+  store %Closure %closure4, %Closure* %f
+  %f5 = load %Closure, %Closure* %f
+  %closure6 = alloca %Closure
+  store %Closure %f5, %Closure* %closure6
+  %closure.fn = getelementptr inbounds %Closure, %Closure* %closure6, i32 0, i32 0
+  %closure.fn7 = load i8*, i8** %closure.fn
+  %closure.fn8 = bitcast i8* %closure.fn7 to i64 (i8*, i64)*
+  %closure.env9 = getelementptr inbounds %Closure, %Closure* %closure6, i32 0, i32 1
+  %closure.env10 = load i8*, i8** %closure.env9
+  %call = call i64 %closure.fn8(i8* %closure.env10, i64 555)
+  ret i64 %call
 }
 
 define i64 @lambda(i8* %env, i64 %y) {

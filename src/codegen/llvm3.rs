@@ -121,6 +121,7 @@ impl<'ctx> Compiler<'ctx> {
                 body,
                 ..
             } => self.compile_lambda(ctx, param, free_vars, body),
+            CExpr::App { func, arg, ty } => self.compile_app(ctx, ty, func, arg),
             _ => todo!(),
         }
     }
@@ -220,7 +221,7 @@ impl<'ctx> Compiler<'ctx> {
         let fn_ty = body
             .ty()
             .llvm_type(self)
-            .fn_type(&[env_ty, param.ty.llvm_type(self)], false);
+            .fn_type(&[self.void_ptr_ty(), param.ty.llvm_type(self)], false);
         let fn_val = self.module.add_function(fn_name, fn_ty, None);
         fn_val.get_nth_param(0).unwrap().set_name("env");
         fn_val
@@ -235,16 +236,24 @@ impl<'ctx> Compiler<'ctx> {
 
         // load captured env
         let mut ctx = ctx.clone();
-        let env_alloca = self.builder.build_alloca(env_ty, "env");
+        let env_alloca = self.builder.build_alloca(self.void_ptr_ty(), "env");
         self.builder
             .build_store(env_alloca, fn_val.get_nth_param(0).unwrap());
+        let env_val = self
+            .builder
+            .build_load(env_alloca, "env")
+            .into_pointer_value();
+        let env_val = self
+            .builder
+            .build_bitcast(env_val, env_ty.ptr_type(AddressSpace::Generic), "env")
+            .into_pointer_value();
 
         for (idx, (name, ty)) in free_vars.iter().enumerate() {
             let sname = &format!("env.{}", resolve(*name));
             let field_alloca = self.builder.build_alloca(ty.llvm_type(self), sname);
             let field_gep = self
                 .builder
-                .build_struct_gep(env_alloca, idx as u32, sname)
+                .build_struct_gep(env_val, idx as u32, sname)
                 .unwrap();
             let field_val = self.builder.build_load(field_gep, sname);
             self.builder.build_store(field_alloca, field_val);
@@ -264,5 +273,46 @@ impl<'ctx> Compiler<'ctx> {
         self.builder.build_return(Some(&body));
 
         fn_val
+    }
+
+    fn compile_app(
+        &self,
+        ctx: &Ctx<'ctx>,
+        result_ty: &Type,
+        func: &CExpr,
+        arg: &CExpr,
+    ) -> BasicValueEnum {
+        let closure = self.compile_expr(ctx, func);
+        let closure_alloca = self.builder.build_alloca(self.closure_ty(), "closure");
+        self.builder.build_store(closure_alloca, closure);
+        let fn_gep = self
+            .builder
+            .build_struct_gep(closure_alloca, 0, "closure.fn")
+            .unwrap();
+        let fn_val = self.builder.build_load(fn_gep, "closure.fn");
+        let fn_val = self
+            .builder
+            .build_bitcast(
+                fn_val,
+                result_ty
+                    .llvm_type(self)
+                    .fn_type(&[self.void_ptr_ty(), arg.ty().llvm_type(self)], false)
+                    .ptr_type(AddressSpace::Generic),
+                "closure.fn",
+            )
+            .into_pointer_value();
+
+        let env_gep = self
+            .builder
+            .build_struct_gep(closure_alloca, 1, "closure.env")
+            .unwrap();
+        let env_val = self.builder.build_load(env_gep, "closure.env");
+        let arg_val = self.compile_expr(ctx, arg);
+
+        self.builder
+            .build_call(fn_val, &[env_val, arg_val], "call")
+            .try_as_basic_value()
+            .left()
+            .unwrap()
     }
 }
