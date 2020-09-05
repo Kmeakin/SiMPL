@@ -26,10 +26,9 @@ pub struct Ctx<'a> {
     name: Option<&'a str>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Function<'a> {
     value: FunctionValue<'a>,
-    closure: Option<Closure<'a>>,
 }
 
 #[derive(Debug, Clone)]
@@ -43,10 +42,7 @@ impl<'a> Ctx<'a> {
         Self {
             env: Env::new(),
             name: None,
-            parent: Function {
-                value: parent,
-                closure: None,
-            },
+            parent: Function { value: parent },
         }
     }
 }
@@ -318,6 +314,7 @@ impl<'ctx> Compiler<'ctx> {
             .build_store(param_alloca, fn_val.get_nth_param(1).unwrap());
         ctx.env.insert(param.name, param_alloca);
 
+        ctx.parent.value = fn_val;
         let body = self.compile_expr(&ctx, body);
         self.builder.build_return(Some(&body));
 

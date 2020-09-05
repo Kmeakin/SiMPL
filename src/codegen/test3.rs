@@ -89,6 +89,8 @@ fn compile_vars() {
 fn compile_if() {
     test_compile_and_execute("if true then 5 else 10", 5);
     test_compile_and_execute("if false then 5 else 10", 10);
+    test_compile_and_execute(r"let f = \b -> if b then 5 else 10 in f true", 5);
+    test_compile_and_execute(r"let f = \b -> if b then 5 else 10 in f false", 10);
 }
 
 #[test]
