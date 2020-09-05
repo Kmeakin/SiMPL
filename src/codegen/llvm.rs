@@ -50,11 +50,11 @@ impl<'a> Ctx<'a> {
 impl Type {
     fn llvm_type<'a>(&self, compiler: &Compiler<'a>) -> BasicTypeEnum<'a> {
         match self {
-            Type::Bool => compiler.llvm.bool_type().into(),
-            Type::Int => compiler.llvm.i64_type().into(),
-            Type::Float => compiler.llvm.f64_type().into(),
-            Type::Fn(..) => compiler.closure_ty(),
-            Type::Var(_) => panic!("Cannot instantiate type {}", self),
+            Self::Bool => compiler.llvm.bool_type().into(),
+            Self::Int => compiler.llvm.i64_type().into(),
+            Self::Float => compiler.llvm.f64_type().into(),
+            Self::Fn(..) => compiler.closure_ty(),
+            Self::Var(_) => panic!("Cannot instantiate type {}", self),
         }
     }
 }
@@ -69,14 +69,15 @@ impl<'ctx> Compiler<'ctx> {
         //     void* code,
         //     void* env,
         // }
-        match self.module.get_struct_type("Closure") {
-            Some(ty) => ty.into(),
-            None => {
+
+        self.module.get_struct_type("Closure").map_or_else(
+            || {
                 let ty = self.llvm.opaque_struct_type("Closure");
                 ty.set_body(&[self.void_ptr_ty(), self.void_ptr_ty()], false);
                 ty.into()
-            }
-        }
+            },
+            |ty| ty.into(),
+        )
     }
 
     fn env_ty(&self, free_vars: &FreeVars) -> BasicTypeEnum<'ctx> {
@@ -240,7 +241,7 @@ impl<'ctx> Compiler<'ctx> {
             .unwrap();
         let env_val = self.builder.build_malloc(env_ty, "closure.env").unwrap();
 
-        for (idx, (name, ty)) in free_vars.iter().enumerate() {
+        for (idx, (name, _)) in free_vars.iter().enumerate() {
             let sname = &format!("env.{}", resolve(*name));
             let field_gep = self
                 .builder
