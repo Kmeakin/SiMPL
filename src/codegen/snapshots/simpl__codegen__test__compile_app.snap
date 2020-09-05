@@ -5,28 +5,54 @@ expression: module.print_to_string().to_string()
 ; ModuleID = 'test_compile'
 source_filename = "test_compile"
 
+%Closure = type { i8*, i8* }
+%Env = type { i64 }
+
 define i64 @toplevel() {
 toplevel_entry:
-  %call = call i64 @lambda(i1 true)
+  %x = alloca i64
+  store i64 5, i64* %x
+  %f = alloca %Closure
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (i64 (i8*, i64)* @f to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i64* getelementptr (i64, i64* null, i32 1) to i32))
+  %closure.env1 = bitcast i8* %malloccall to %Env*
+  %env.x = getelementptr inbounds %Env, %Env* %closure.env1, i32 0, i32 0
+  %x2 = load i64, i64* %x
+  store i64 %x2, i64* %env.x
+  %closure.env3 = bitcast %Env* %closure.env1 to i8*
+  store i8* %closure.env3, i8** %closure.env
+  %closure4 = load %Closure, %Closure* %closure
+  store %Closure %closure4, %Closure* %f
+  %f5 = load %Closure, %Closure* %f
+  %closure6 = alloca %Closure
+  store %Closure %f5, %Closure* %closure6
+  %closure.fn = getelementptr inbounds %Closure, %Closure* %closure6, i32 0, i32 0
+  %closure.fn7 = load i8*, i8** %closure.fn
+  %closure.fn8 = bitcast i8* %closure.fn7 to i64 (i8*, i64)*
+  %closure.env9 = getelementptr inbounds %Closure, %Closure* %closure6, i32 0, i32 1
+  %closure.env10 = load i8*, i8** %closure.env9
+  %call = call i64 %closure.fn8(i8* %closure.env10, i64 555)
   ret i64 %call
 }
 
-define i64 @lambda(i1 %b) {
-lambda_entry:
-  %b1 = alloca i1
-  store i1 %b, i1* %b1
-  %b2 = load i1, i1* %b1
-  %cmp = icmp eq i1 %b2, true
-  br i1 %cmp, label %then, label %else
-
-then:                                             ; preds = %lambda_entry
-  br label %cont
-
-else:                                             ; preds = %lambda_entry
-  br label %cont
-
-cont:                                             ; preds = %else, %then
-  %phi = phi i64 [ 100, %then ], [ 200, %else ]
-  ret i64 %phi
+define i64 @f(i8* %env, i64 %y) {
+f_entry:
+  %env1 = alloca i8*
+  store i8* %env, i8** %env1
+  %env2 = load i8*, i8** %env1
+  %env3 = bitcast i8* %env2 to %Env*
+  %env.x = alloca i64
+  %env.x4 = getelementptr inbounds %Env, %Env* %env3, i32 0, i32 0
+  %env.x5 = load i64, i64* %env.x4
+  store i64 %env.x5, i64* %env.x
+  %y6 = alloca i64
+  store i64 %y, i64* %y6
+  %x = load i64, i64* %env.x
+  ret i64 %x
 }
+
+declare noalias i8* @malloc(i32)
 

@@ -1,6 +1,6 @@
 mod closure;
-mod llvm3;
+mod llvm;
 mod types;
 
 #[cfg(test)]
-mod test3;
+mod test;

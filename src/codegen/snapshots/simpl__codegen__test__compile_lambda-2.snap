@@ -1,5 +1,5 @@
 ---
-source: src/codegen/test3.rs
+source: src/codegen/test.rs
 expression: module.print_to_string().to_string()
 ---
 ; ModuleID = 'test_compile'

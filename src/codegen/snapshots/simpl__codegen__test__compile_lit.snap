@@ -7,6 +7,6 @@ source_filename = "test_compile"
 
 define i64 @toplevel() {
 toplevel_entry:
-  ret i64 5
+  ret i64 0
 }
 

@@ -1,4 +1,4 @@
-use super::{closure::convert, llvm3::Compiler};
+use super::{closure::convert, llvm::Compiler};
 use crate::{hir::Expr, types::infer_and_apply};
 use inkwell::{context::Context, OptimizationLevel};
 use insta::assert_snapshot;
