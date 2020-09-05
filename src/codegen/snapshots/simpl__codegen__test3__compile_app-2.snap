@@ -1,0 +1,141 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+%Closure = type { i8*, i8* }
+%Env = type {}
+%Env.0 = type { i1 }
+%Env.1 = type { i64, i1 }
+
+define i64 @toplevel() {
+toplevel_entry:
+  %ifThenElse = alloca %Closure
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (%Closure (i8*, i1)* @lambda to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 0)
+  %closure.env1 = bitcast i8* %malloccall to %Env*
+  %closure.env2 = bitcast %Env* %closure.env1 to i8*
+  store i8* %closure.env2, i8** %closure.env
+  %closure3 = load %Closure, %Closure* %closure
+  store %Closure %closure3, %Closure* %ifThenElse
+  %ifThenElse4 = load %Closure, %Closure* %ifThenElse
+  %closure5 = alloca %Closure
+  store %Closure %ifThenElse4, %Closure* %closure5
+  %closure.fn = getelementptr inbounds %Closure, %Closure* %closure5, i32 0, i32 0
+  %closure.fn6 = load i8*, i8** %closure.fn
+  %closure.fn7 = bitcast i8* %closure.fn6 to %Closure (i8*, i1)*
+  %closure.env8 = getelementptr inbounds %Closure, %Closure* %closure5, i32 0, i32 1
+  %closure.env9 = load i8*, i8** %closure.env8
+  %call = call %Closure %closure.fn7(i8* %closure.env9, i1 false)
+  %closure10 = alloca %Closure
+  store %Closure %call, %Closure* %closure10
+  %closure.fn11 = getelementptr inbounds %Closure, %Closure* %closure10, i32 0, i32 0
+  %closure.fn12 = load i8*, i8** %closure.fn11
+  %closure.fn13 = bitcast i8* %closure.fn12 to %Closure (i8*, i64)*
+  %closure.env14 = getelementptr inbounds %Closure, %Closure* %closure10, i32 0, i32 1
+  %closure.env15 = load i8*, i8** %closure.env14
+  %call16 = call %Closure %closure.fn13(i8* %closure.env15, i64 5)
+  %closure17 = alloca %Closure
+  store %Closure %call16, %Closure* %closure17
+  %closure.fn18 = getelementptr inbounds %Closure, %Closure* %closure17, i32 0, i32 0
+  %closure.fn19 = load i8*, i8** %closure.fn18
+  %closure.fn20 = bitcast i8* %closure.fn19 to i64 (i8*, i64)*
+  %closure.env21 = getelementptr inbounds %Closure, %Closure* %closure17, i32 0, i32 1
+  %closure.env22 = load i8*, i8** %closure.env21
+  %call23 = call i64 %closure.fn20(i8* %closure.env22, i64 10)
+  ret i64 %call23
+}
+
+define %Closure @lambda(i8* %env, i1 %b) {
+lambda_entry:
+  %env1 = alloca i8*
+  store i8* %env, i8** %env1
+  %env2 = load i8*, i8** %env1
+  %env3 = bitcast i8* %env2 to %Env*
+  %b4 = alloca i1
+  store i1 %b, i1* %b4
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (%Closure (i8*, i64)* @lambda.1 to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (i1* getelementptr (i1, i1* null, i32 1) to i32))
+  %closure.env5 = bitcast i8* %malloccall to %Env.0*
+  %env.b = getelementptr inbounds %Env.0, %Env.0* %closure.env5, i32 0, i32 0
+  %b6 = load i1, i1* %b4
+  store i1 %b6, i1* %env.b
+  %closure.env7 = bitcast %Env.0* %closure.env5 to i8*
+  store i8* %closure.env7, i8** %closure.env
+  %closure8 = load %Closure, %Closure* %closure
+  ret %Closure %closure8
+}
+
+define %Closure @lambda.1(i8* %env, i64 %x) {
+lambda_entry:
+  %env1 = alloca i8*
+  store i8* %env, i8** %env1
+  %env2 = load i8*, i8** %env1
+  %env3 = bitcast i8* %env2 to %Env.0*
+  %env.b = alloca i1
+  %env.b4 = getelementptr inbounds %Env.0, %Env.0* %env3, i32 0, i32 0
+  %env.b5 = load i1, i1* %env.b4
+  store i1 %env.b5, i1* %env.b
+  %x6 = alloca i64
+  store i64 %x, i64* %x6
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (i64 (i8*, i64)* @lambda.2 to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 ptrtoint (%Env.1* getelementptr (%Env.1, %Env.1* null, i32 1) to i32))
+  %closure.env7 = bitcast i8* %malloccall to %Env.1*
+  %env.x = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 0
+  %x8 = load i64, i64* %x6
+  store i64 %x8, i64* %env.x
+  %env.b9 = getelementptr inbounds %Env.1, %Env.1* %closure.env7, i32 0, i32 1
+  %b = load i1, i1* %env.b
+  store i1 %b, i1* %env.b9
+  %closure.env10 = bitcast %Env.1* %closure.env7 to i8*
+  store i8* %closure.env10, i8** %closure.env
+  %closure11 = load %Closure, %Closure* %closure
+  ret %Closure %closure11
+}
+
+define i64 @lambda.2(i8* %env, i64 %y) {
+lambda_entry:
+  %env1 = alloca i8*
+  store i8* %env, i8** %env1
+  %env2 = load i8*, i8** %env1
+  %env3 = bitcast i8* %env2 to %Env.1*
+  %env.x = alloca i64
+  %env.x4 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 0
+  %env.x5 = load i64, i64* %env.x4
+  store i64 %env.x5, i64* %env.x
+  %env.b = alloca i1
+  %env.b6 = getelementptr inbounds %Env.1, %Env.1* %env3, i32 0, i32 1
+  %env.b7 = load i1, i1* %env.b6
+  store i1 %env.b7, i1* %env.b
+  %y8 = alloca i64
+  store i64 %y, i64* %y8
+  %b = load i1, i1* %env.b
+  %cmp = icmp eq i1 %b, true
+  br i1 %cmp, label %then, label %else
+
+then:                                             ; preds = %lambda_entry
+  %x = load i64, i64* %env.x
+  br label %cont
+
+else:                                             ; preds = %lambda_entry
+  %y9 = load i64, i64* %y8
+  br label %cont
+
+cont:                                             ; preds = %else, %then
+  %phi = phi i64 [ %x, %then ], [ %y9, %else ]
+  ret i64 %phi
+}
+
+declare noalias i8* @malloc(i32)
+

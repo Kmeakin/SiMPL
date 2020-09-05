@@ -109,4 +109,11 @@ in f 555
 ",
         5,
     );
+    test_compile_and_execute(
+        r"
+    let ifThenElse = \b, x, y -> if b then x else y
+    in  ifThenElse false 5 10
+    ",
+        10,
+    );
 }
