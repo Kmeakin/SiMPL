@@ -1,5 +1,0 @@
----
-source: src/codegen/anf.rs
-expression: norm.pretty()
----
-let abc = 1 in abc

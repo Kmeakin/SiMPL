@@ -1,5 +1,0 @@
----
-source: src/codegen/anf.rs
-expression: norm.pretty()
----
-abc

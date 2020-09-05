@@ -1,8 +1,0 @@
----
-source: src/codegen/anf.rs
-expression: norm.pretty()
----
-let $0 = if false
-        then true
-        else false in
-    if $0 then 1 else 0

@@ -1,5 +1,0 @@
----
-source: src/codegen/rename.rs
-expression: renamed.pretty()
----
-letrec f$0 = \x$1 -> (f$0 x$1) in f$0
