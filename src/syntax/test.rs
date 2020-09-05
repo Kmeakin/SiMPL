@@ -38,12 +38,14 @@ fn if_then_else() {
 fn let_binding() {
     test_parse_ok("let x = 5 in x");
     test_parse_ok("let x = 5, y = false in x");
+    test_parse_ok("let x = 5, y = false, in x");
 }
 
 #[test]
 fn letrec_binding() {
     test_parse_ok(r"letrec f = \x -> f x in f");
     test_parse_ok(r"letrec f = \x -> f x, g = \y -> y in f");
+    test_parse_ok(r"letrec f = \x -> f x, g = \y -> y, in f");
 }
 
 #[test]

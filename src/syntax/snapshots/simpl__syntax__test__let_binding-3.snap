@@ -1,0 +1,29 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Let {
+    bindings: [
+        LetBinding {
+            name: "x",
+            ann: None,
+            val: Lit {
+                val: Int(
+                    5,
+                ),
+            },
+        },
+        LetBinding {
+            name: "y",
+            ann: None,
+            val: Lit {
+                val: Bool(
+                    false,
+                ),
+            },
+        },
+    ],
+    body: Var {
+        name: "x",
+    },
+}

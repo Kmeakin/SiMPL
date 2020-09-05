@@ -118,6 +118,7 @@ pub Float: f64 = {
 // Helpers
 
 #[inline]
+// List of T delimited by D. Trailing delimiter accepted.
 Delim<T, D>: Vec<T> = {
     <v:(<T> <D>)*> <e:T?> => match e {
         None => v.iter().map(|x| x.0.clone()).collect(),
@@ -130,7 +131,18 @@ Delim<T, D>: Vec<T> = {
 }
 
 #[inline]
+// List of atleast 1 T delimited by D. Trailing delimiter accepted.
 Delim1<T, D>: Vec<T> = {
+    <v:(<T> <D>)+> => {
+        let v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
+        v
+    },
+    Delim1NoTrail<T, D> => <>,
+}
+
+#[inline]
+// List of atleast 1 T delimited by D. Trailing delimiter not accepted.
+Delim1NoTrail<T, D>: Vec<T> = {
     <v:(<T> <D>)*> <e:T> => {
         let mut v = v.iter().map(|x| x.0.clone()).collect::<Vec<_>>();
         v.push(e);
@@ -143,3 +155,6 @@ Comma<T> = Delim<T, ",">;
 
 #[inline]
 Comma1<T> = Delim1<T, ",">;
+
+#[inline]
+Comma1NoTrail<T> = Delim1NoTrail<T, ",">;
