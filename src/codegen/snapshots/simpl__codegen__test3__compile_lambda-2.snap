@@ -1,0 +1,38 @@
+---
+source: src/codegen/test3.rs
+expression: module.print_to_string().to_string()
+---
+; ModuleID = 'test_compile'
+source_filename = "test_compile"
+
+%Closure = type { i8*, i8* }
+%Env = type {}
+
+define %Closure @toplevel() {
+toplevel_entry:
+  %closure = alloca %Closure
+  %closure.code = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 0
+  store i8* bitcast (i64 (i8*, i64)* @lambda to i8*), i8** %closure.code
+  %closure.env = getelementptr inbounds %Closure, %Closure* %closure, i32 0, i32 1
+  %malloccall = tail call i8* @malloc(i32 0)
+  %closure.env1 = bitcast i8* %malloccall to %Env*
+  %closure.env2 = bitcast %Env* %closure.env1 to i8*
+  store i8* %closure.env2, i8** %closure.env
+  %closure3 = load %Closure, %Closure* %closure
+  ret %Closure %closure3
+}
+
+define i64 @lambda(i8* %env, i64 %x) {
+lambda_entry:
+  %env1 = alloca i8*
+  store i8* %env, i8** %env1
+  %env2 = load i8*, i8** %env1
+  %env3 = bitcast i8* %env2 to %Env*
+  %x4 = alloca i64
+  store i64 %x, i64* %x4
+  %x5 = load i64, i64* %x4
+  ret i64 %x5
+}
+
+declare noalias i8* @malloc(i32)
+

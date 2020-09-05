@@ -95,8 +95,8 @@ fn compile_if() {
 
 #[test]
 fn compile_lambda() {
-    // test_compile(r"\x: Int -> x");
     test_compile(r"let x = 5 in \y: Int -> x");
+    test_compile(r"\x: Int -> x");
 }
 
 #[test]
