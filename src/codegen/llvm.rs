@@ -22,19 +22,8 @@ pub struct Compiler<'ctx> {
 #[derive(Debug, Clone)]
 pub struct Ctx<'a> {
     env: Env<'a>,
-    parent: Function<'a>,
+    parent: FunctionValue<'a>,
     name: Option<&'a str>,
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct Function<'a> {
-    value: FunctionValue<'a>,
-}
-
-#[derive(Debug, Clone)]
-pub struct Closure<'a> {
-    free_vars: FreeVars,
-    val: PointerValue<'a>,
 }
 
 impl<'a> Ctx<'a> {
@@ -42,7 +31,7 @@ impl<'a> Ctx<'a> {
         Self {
             env: Env::new(),
             name: None,
-            parent: Function { value: parent },
+            parent,
         }
     }
 }
@@ -169,9 +158,9 @@ impl<'ctx> Compiler<'ctx> {
             "cmp",
         );
 
-        let then_bb = self.llvm.append_basic_block(ctx.parent.value, "then");
-        let else_bb = self.llvm.append_basic_block(ctx.parent.value, "else");
-        let cont_bb = self.llvm.append_basic_block(ctx.parent.value, "cont");
+        let then_bb = self.llvm.append_basic_block(ctx.parent, "then");
+        let else_bb = self.llvm.append_basic_block(ctx.parent, "else");
+        let cont_bb = self.llvm.append_basic_block(ctx.parent, "cont");
         self.builder.build_conditional_branch(cmp, then_bb, else_bb);
 
         // then branch
@@ -220,7 +209,7 @@ impl<'ctx> Compiler<'ctx> {
         let env_ty = self.env_ty(free_vars);
         let fn_val = self.compile_function(ctx, free_vars, env_ty, param, body);
         self.builder
-            .position_at_end(ctx.parent.value.get_last_basic_block().unwrap());
+            .position_at_end(ctx.parent.get_last_basic_block().unwrap());
 
         let closure = self.builder.build_alloca(self.closure_ty(), "closure");
 
@@ -319,7 +308,7 @@ impl<'ctx> Compiler<'ctx> {
             .build_store(param_alloca, fn_val.get_nth_param(1).unwrap());
         ctx.env.insert(param.name, param_alloca);
 
-        ctx.parent.value = fn_val;
+        ctx.parent = fn_val;
         let body = self.compile_expr(&ctx, body);
         self.builder.build_return(Some(&body));
 
