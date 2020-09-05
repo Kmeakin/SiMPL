@@ -16,7 +16,7 @@ else:                                             ; preds = %toplevel_entry
   br label %cont
 
 cont:                                             ; preds = %else, %then
-  %phi = phi i64 [ 1, %then ], [ 0, %else ]
+  %phi = phi i64 [ 5, %then ], [ 10, %else ]
   ret i64 %phi
 }
 

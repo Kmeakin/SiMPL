@@ -112,8 +112,11 @@ impl<'ctx> Compiler<'ctx> {
 
     fn compile_expr(&self, ctx: &Ctx<'ctx>, expr: &CExpr) -> BasicValueEnum {
         match expr {
-            CExpr::Var { name, .. } | CExpr::EnvRef { name, .. } => self.compile_var(ctx, *name),
             CExpr::Lit { val, .. } => self.compile_lit(val),
+            CExpr::Var { name, .. } | CExpr::EnvRef { name, .. } => self.compile_var(ctx, *name),
+            CExpr::If {
+                test, then, els, ..
+            } => self.compile_if(ctx, test, then, els),
             CExpr::Let { binding, body, .. } => self.compile_let(ctx, binding, body),
             CExpr::MkClosure {
                 param,
@@ -145,6 +148,52 @@ impl<'ctx> Compiler<'ctx> {
     fn compile_var(&self, ctx: &Ctx<'ctx>, name: Symbol) -> BasicValueEnum {
         let ptr = ctx.env.get(&name).unwrap();
         self.builder.build_load(*ptr, &name.to_string())
+    }
+
+    fn compile_if(
+        &self,
+        ctx: &Ctx<'ctx>,
+        test: &CExpr,
+        then: &CExpr,
+        els: &CExpr,
+    ) -> BasicValueEnum {
+        assert_eq!(test.ty(), Type::Bool);
+        let test_val = self.compile_expr(ctx, test);
+
+        let then_ty = then.ty().llvm_type(self);
+        let else_ty = els.ty().llvm_type(self);
+        assert_eq!(then_ty, else_ty);
+
+        let const_true = self.llvm.bool_type().const_int(1, false);
+        let cmp = self.builder.build_int_compare(
+            IntPredicate::EQ,
+            test_val.into_int_value(),
+            const_true,
+            "cmp",
+        );
+
+        let then_bb = self.llvm.append_basic_block(ctx.parent.value, "then");
+        let else_bb = self.llvm.append_basic_block(ctx.parent.value, "else");
+        let cont_bb = self.llvm.append_basic_block(ctx.parent.value, "cont");
+        self.builder.build_conditional_branch(cmp, then_bb, else_bb);
+
+        // then branch
+        self.builder.position_at_end(then_bb);
+        let then_val = self.compile_expr(ctx, then);
+        self.builder.build_unconditional_branch(cont_bb);
+        let then_bb = self.builder.get_insert_block().unwrap();
+
+        // else branch
+        self.builder.position_at_end(else_bb);
+        let else_val = self.compile_expr(ctx, els);
+        self.builder.build_unconditional_branch(cont_bb);
+        let else_bb = self.builder.get_insert_block().unwrap();
+
+        // merge the branches
+        self.builder.position_at_end(cont_bb);
+        let phi = self.builder.build_phi(then_ty, "phi");
+        phi.add_incoming(&[(&then_val, then_bb), (&else_val, else_bb)]);
+        phi.as_basic_value()
     }
 
     fn compile_let(&self, ctx: &Ctx<'ctx>, binding: &LetBinding, body: &CExpr) -> BasicValueEnum {
