@@ -13,6 +13,7 @@ lazy_static = "1.4.0"
 simple-symbol = "3.0.0"
 maplit = "1.0.2"
 inkwell = { git = "https://github.com/TheDan64/inkwell", branch = "llvm10-0" }
+indexmap = "1.5.1"
 
 [build-dependencies]
 lalrpop = { version = "0.19.0", features = ["lexer"] }

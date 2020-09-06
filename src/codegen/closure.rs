@@ -1,9 +1,9 @@
 use crate::hir::Expr;
 pub use crate::hir::{Lit, Param, Symbol, Type};
-use maplit::hashmap as hmap;
+use indexmap::{indexmap as imap, IndexMap};
 use std::collections::HashMap;
 
-pub type FreeVars = HashMap<Symbol, Type>;
+pub type FreeVars = IndexMap<Symbol, Type>;
 
 #[derive(Debug, Clone)]
 pub enum CExpr {
@@ -195,45 +195,42 @@ fn substitute(expr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
 
 pub fn free_vars(expr: &Expr) -> FreeVars {
     match expr {
-        Expr::Lit { .. } => hmap![],
-        Expr::Var { name, ty } => hmap![*name => ty.clone()],
+        Expr::Lit { .. } => imap![],
+        Expr::Var { name, ty } => imap![*name => ty.clone()],
         Expr::If {
             test, then, els, ..
-        } => hashmap_union(
-            hashmap_union(free_vars(test), free_vars(then)),
-            free_vars(els),
-        ),
-        Expr::Let { binding, body, .. } => hashmap_diff(
-            hashmap_union(free_vars(&*binding.val), free_vars(body)),
-            &hmap![binding.name => binding.ty.clone()],
+        } => imap_union(imap_union(free_vars(test), free_vars(then)), free_vars(els)),
+        Expr::Let { binding, body, .. } => imap_diff(
+            imap_union(free_vars(&*binding.val), free_vars(body)),
+            &imap![binding.name => binding.ty.clone()],
         ),
 
-        Expr::Letrec { bindings, body, .. } => hashmap_diff(
+        Expr::Letrec { bindings, body, .. } => imap_diff(
             bindings.iter().fold(free_vars(body), |acc, b| {
-                hashmap_union(acc, free_vars(&*b.val))
+                imap_union(acc, free_vars(&*b.val))
             }),
             &bindings.iter().map(|b| (b.name, b.ty.clone())).collect(),
         ),
         Expr::Lambda { param, body, .. } => {
-            hashmap_diff(free_vars(body), &hmap![param.name => param.ty.clone()])
+            imap_diff(free_vars(body), &imap![param.name => param.ty.clone()])
         }
 
-        Expr::App { func, arg, .. } => hashmap_union(free_vars(func), free_vars(arg)),
+        Expr::App { func, arg, .. } => imap_union(free_vars(func), free_vars(arg)),
     }
 }
 
-fn hashmap_union<K, V>(hm1: HashMap<K, V>, hm2: HashMap<K, V>) -> HashMap<K, V>
+fn imap_union<K, V>(hm1: IndexMap<K, V>, hm2: IndexMap<K, V>) -> IndexMap<K, V>
 where
     K: std::hash::Hash + Eq,
     V: std::hash::Hash + Eq,
 {
-    let mut ret = HashMap::new();
+    let mut ret = IndexMap::new();
     ret.extend(hm1);
     ret.extend(hm2);
     ret
 }
 
-fn hashmap_diff<K, V>(hm1: HashMap<K, V>, hm2: &HashMap<K, V>) -> HashMap<K, V>
+fn imap_diff<K, V>(hm1: IndexMap<K, V>, hm2: &IndexMap<K, V>) -> IndexMap<K, V>
 where
     K: std::hash::Hash + Eq + Clone + std::fmt::Debug,
     V: std::hash::Hash + Eq + Clone + std::fmt::Debug,
@@ -246,5 +243,5 @@ where
                 Some((k, v))
             }
         })
-        .collect::<HashMap<K, V>>()
+        .collect::<IndexMap<K, V>>()
 }
