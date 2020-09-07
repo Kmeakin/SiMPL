@@ -1,4 +1,3 @@
-pub use crate::grammar;
 pub mod ast;
 
 #[cfg(test)]
@@ -11,3 +10,8 @@ pub fn parse(src: &str) -> Result<ast::Expr, ParseError> {
     let parser = grammar::ExprParser::new();
     parser.parse(src)
 }
+
+lalrpop_mod!(
+    #[allow(dead_code, clippy::all, clippy::pedantic, clippy::nursery)]
+    pub grammar, "/syntax/grammar.rs"
+);

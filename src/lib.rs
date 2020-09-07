@@ -14,8 +14,3 @@ pub(crate) mod util;
 
 #[macro_use]
 extern crate lalrpop_util;
-
-lalrpop_mod!(
-    #[allow(dead_code, clippy::all, clippy::pedantic, clippy::nursery)]
-    pub grammar
-);
