@@ -4,6 +4,6 @@ expression: parse(src).unwrap()
 ---
 Lit {
     val: Bool(
-        true,
+        false,
     ),
 }

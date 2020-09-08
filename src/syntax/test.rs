@@ -10,6 +10,7 @@ fn test_parse_ok(src: &str) {
 fn literal() {
     test_parse_ok("123");
     test_parse_ok("123.456");
+    test_parse_ok("123.456e-10");
     test_parse_ok("true");
     test_parse_ok("false");
 }

@@ -3,7 +3,7 @@ source: src/syntax/test.rs
 expression: parse(src).unwrap()
 ---
 Lit {
-    val: Bool(
-        true,
+    val: Float(
+        0.0000000123456,
     ),
 }
