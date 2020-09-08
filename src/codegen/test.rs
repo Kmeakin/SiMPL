@@ -124,4 +124,5 @@ fn compile_ops() {
     test_compile_and_execute("1 + 2 * 3 - 4", 3); // 1 + (2 * 3) - 4
     test_compile_and_execute("1 == 1", true);
     test_compile_and_execute("1 != 1", false);
+    test_compile_and_execute("let x = 6, y = 7 in x * y", 42);
 }
