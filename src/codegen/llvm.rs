@@ -144,6 +144,7 @@ impl<'ctx> Compiler<'ctx> {
         rhs: &CExpr,
         op: Binop,
     ) -> BasicValueEnum {
+        #![allow(clippy::enum_glob_use)]
         use Binop::*;
 
         let lhs_val = self.compile_expr(ctx, lhs);
@@ -292,6 +293,8 @@ impl<'ctx> Compiler<'ctx> {
 
         for (idx, (name, _)) in free_vars.iter().enumerate() {
             let sname = &format!("env.{}", resolve(*name));
+
+            #[allow(clippy::cast_possible_truncation)]
             let field_gep = self
                 .builder
                 .build_struct_gep(env_val, idx as u32, sname)
@@ -350,6 +353,8 @@ impl<'ctx> Compiler<'ctx> {
         for (idx, (name, ty)) in free_vars.iter().enumerate() {
             let sname = &format!("env.{}", resolve(*name));
             let field_alloca = self.builder.build_alloca(ty.llvm_type(self), sname);
+
+            #[allow(clippy::cast_possible_truncation)]
             let field_gep = self
                 .builder
                 .build_struct_gep(env_val, idx as u32, sname)

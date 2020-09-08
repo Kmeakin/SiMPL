@@ -14,6 +14,8 @@ pub fn collect(expr: Expr) -> Constraints {
 }
 
 fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
+    #![allow(clippy::enum_glob_use)]
+
     match expr {
         Expr::Lit { ty, val } => vec![Constraint(ty, val.ty())],
         Expr::Var { ty, name } => match tenv.get(name) {
