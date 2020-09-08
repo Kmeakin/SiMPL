@@ -1,5 +1,8 @@
-pub use crate::types::ty::Type;
 use crate::{syntax::ast, types::ty::TypeVarGen};
+pub use crate::{
+    syntax::ast::{Op, OpType},
+    types::ty::Type,
+};
 use derive_more::Display;
 pub use simple_symbol::Symbol;
 use std::str::FromStr;
@@ -13,6 +16,13 @@ pub enum Expr {
     Var {
         ty: Type,
         name: Symbol,
+    },
+    Binop {
+        ty: Type,
+        rhs: Box<Self>,
+        lhs: Box<Self>,
+        op: Op,
+        op_ty: OpType,
     },
     If {
         ty: Type,
@@ -180,6 +190,7 @@ impl Expr {
         match self {
             Self::Lit { ty, .. }
             | Self::Var { ty, .. }
+            | Self::Binop { ty, .. }
             | Self::If { ty, .. }
             | Self::Let { ty, .. }
             | Self::Letrec { ty, .. }

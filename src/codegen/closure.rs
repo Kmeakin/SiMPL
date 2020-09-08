@@ -74,6 +74,7 @@ pub fn convert(expr: Expr) -> CExpr {
     match expr {
         Expr::Lit { ty, val } => CExpr::Lit { ty, val },
         Expr::Var { ty, name } => CExpr::Var { ty, name },
+        Expr::Binop { .. } => todo!(),
         Expr::If {
             ty,
             test,
@@ -197,6 +198,7 @@ pub fn free_vars(expr: &Expr) -> FreeVars {
     match expr {
         Expr::Lit { .. } => imap![],
         Expr::Var { name, ty } => imap![*name => ty.clone()],
+        Expr::Binop { .. } => todo!(),
         Expr::If {
             test, then, els, ..
         } => imap_union(imap_union(free_vars(test), free_vars(then)), free_vars(els)),

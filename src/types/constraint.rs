@@ -20,6 +20,7 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
             Some(ty2) => vec![Constraint(ty, ty2.clone())],
             None => panic!("Unbound variable: {}", name),
         },
+        Expr::Binop { .. } => todo!(),
         Expr::If {
             ty,
             test,

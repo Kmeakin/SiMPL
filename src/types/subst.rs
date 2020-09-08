@@ -37,6 +37,7 @@ impl Expr {
                 ty: ty.apply(subst),
                 name: *name,
             },
+            Self::Binop { .. } => todo!(),
             Self::If {
                 ty,
                 test,
