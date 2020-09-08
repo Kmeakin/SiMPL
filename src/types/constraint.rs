@@ -23,6 +23,7 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
         Expr::Binop { ty, lhs, rhs, op } => {
             use Binop::*;
             use Type::*;
+
             let (lhs_ty, rhs_ty, out_ty) = match op {
                 IntAdd | IntSub | IntMul | IntDiv => (Int, Int, Int),
                 IntLt | IntLeq | IntGt | IntGeq => (Int, Int, Bool),
@@ -30,14 +31,18 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
                 FloatAdd | FloatSub | FloatMul | FloatDiv => (Float, Float, Float),
                 FloatLt | FloatLeq | FloatGt | FloatGeq => (Float, Float, Bool),
 
-                Eq | Neq => (lhs.ty(), lhs.ty(), Bool),
+                Eq | Neq => (rhs.ty(), lhs.ty(), Bool),
             };
 
-            vec![
+            let mut cons = vec![
                 Constraint(lhs.ty(), lhs_ty),
                 Constraint(rhs.ty(), rhs_ty),
                 Constraint(ty, out_ty),
-            ]
+            ];
+
+            cons.extend(collect_inner(*lhs, tenv));
+            cons.extend(collect_inner(*rhs, tenv));
+            cons
         }
         Expr::If {
             ty,
