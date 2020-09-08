@@ -46,7 +46,7 @@ LetrecExpr     := "letrec" LetrecBindings "in" Expr
 letrecBindings := (Ident "=" LambdaExpr),+
 
 LambdaExpr := "\" Params "->" Expr
-Params     := (Ident),+
+Params     := Ident,+
 
 AppExpr    := Expr Args
 Args       := Expr+
