@@ -70,11 +70,6 @@ Args       := Expr+
   - [ ] Type-classes
   
 ## Code generation
-- Implemented in `src/types`
-- [ ] Alpha-renaming
-  - Optional?
-- [x] ANF
-- [ ] CPS
-  - Optional?
-- [ ] Closure conversion
-- [ ] LLVM
+- Implemented in `src/codegen`
+- [x] Closure conversion
+- [x] LLVM
