@@ -117,3 +117,11 @@ in f 555
         10,
     );
 }
+
+#[test]
+fn compile_ops() {
+    test_compile_and_execute("1 * 2 + 3 / 4", 2); // (1 * 2) + (3 / 4)
+    test_compile_and_execute("1 + 2 * 3 - 4", 3); // 1 + (2 * 3) - 4
+    test_compile_and_execute("1 == 1", true);
+    test_compile_and_execute("1 != 1", false);
+}
