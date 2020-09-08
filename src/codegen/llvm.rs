@@ -144,9 +144,10 @@ impl<'ctx> Compiler<'ctx> {
         rhs: &CExpr,
         op: Binop,
     ) -> BasicValueEnum {
+        use Binop::*;
+
         let lhs_val = self.compile_expr(ctx, lhs);
         let rhs_val = self.compile_expr(ctx, rhs);
-        use Binop::*;
 
         #[rustfmt::skip]
         macro_rules! int_op {($op:ident, $name:expr) => {self.builder.$op(lhs_val.into_int_value(), rhs_val.into_int_value(), $name) .into()};}
