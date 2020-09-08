@@ -20,17 +20,14 @@ Binop {
                     3,
                 ),
             },
-            op: Mul,
-            op_ty: IntOp,
+            op: IntMul,
         },
-        op: Add,
-        op_ty: IntOp,
+        op: IntAdd,
     },
     rhs: Lit {
         val: Int(
             4,
         ),
     },
-    op: Sub,
-    op_ty: IntOp,
+    op: IntSub,
 }

@@ -1,8 +1,5 @@
 use crate::{syntax::ast, types::ty::TypeVarGen};
-pub use crate::{
-    syntax::ast::{Op, OpType},
-    types::ty::Type,
-};
+pub use crate::{syntax::ast::Binop, types::ty::Type};
 use derive_more::Display;
 pub use simple_symbol::Symbol;
 use std::str::FromStr;
@@ -21,8 +18,7 @@ pub enum Expr {
         ty: Type,
         rhs: Box<Self>,
         lhs: Box<Self>,
-        op: Op,
-        op_ty: OpType,
+        op: Binop,
     },
     If {
         ty: Type,
@@ -133,17 +129,11 @@ impl Expr {
                 name,
                 ty: gen.next(),
             },
-            ast::Expr::Binop {
-                lhs,
-                rhs,
-                op,
-                op_ty,
-            } => Self::Binop {
+            ast::Expr::Binop { lhs, rhs, op } => Self::Binop {
                 ty: gen.next(),
                 lhs: box Self::from_ast_inner(*lhs, gen),
                 rhs: box Self::from_ast_inner(*rhs, gen),
                 op,
-                op_ty,
             },
             ast::Expr::If { test, then, els } => Self::If {
                 ty: gen.next(),

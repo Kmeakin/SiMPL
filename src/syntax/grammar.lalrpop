@@ -16,51 +16,51 @@ pub Expr: Expr = {
 
 pub MultOp: Expr = {
     <lhs: MultExpr> "*" <rhs: AppExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Mul, op_ty: OpType::IntOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntMul},
     <lhs: MultExpr> "/" <rhs: AppExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Div, op_ty: OpType::IntOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntDiv},
 
     <lhs: MultExpr> "*." <rhs: AppExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Mul, op_ty: OpType::FloatOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatMul},
     <lhs: MultExpr> "/." <rhs: AppExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Div, op_ty: OpType::FloatOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatDiv},
 }
 
 pub AddOp: Expr = {
     <lhs: AddExpr> "+" <rhs: MultExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Add, op_ty: OpType::IntOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntAdd},
     <lhs: AddExpr> "-" <rhs: MultExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Sub, op_ty: OpType::IntOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntSub},
 
     <lhs: AddExpr> "+." <rhs: MultExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Add, op_ty: OpType::FloatOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatAdd},
     <lhs: AddExpr> "-." <rhs: MultExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Sub, op_ty: OpType::FloatOp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatSub},
 }
 
 pub CmpOp: Expr = {
     <lhs: AddExpr> "<" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Lt, op_ty: OpType::IntCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntLt},
     <lhs: AddExpr> "<=" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Leq, op_ty: OpType::IntCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntLeq},
     <lhs: AddExpr> ">" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Gt, op_ty: OpType::IntCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntGt},
     <lhs: AddExpr> ">=" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Geq, op_ty: OpType::IntCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::IntGeq},
 
     <lhs: AddExpr> "<." <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Lt, op_ty: OpType::FloatCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatLt},
     <lhs: AddExpr> "<=." <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Leq, op_ty: OpType::FloatCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatLeq},
     <lhs: AddExpr> ">." <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Gt, op_ty: OpType::FloatCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatGt},
     <lhs: AddExpr> ">=." <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Geq, op_ty: OpType::FloatCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::FloatGeq},
 
     <lhs: AddExpr> "==" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Eq, op_ty: OpType::AnyCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::Eq},
     <lhs: AddExpr> "!=" <rhs: AddExpr>
-          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Op::Eq, op_ty: OpType::AnyCmp},
+          => Expr::Binop {lhs: box lhs, rhs: box rhs, op: Binop::Neq},
 }
 
 pub MultExpr: Expr = {

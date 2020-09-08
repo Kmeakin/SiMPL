@@ -1,5 +1,5 @@
 use crate::{
-    hir::{Expr, OpType},
+    hir::{Binop, Expr},
     types::ty::{Type, TypeEnv},
 };
 
@@ -20,19 +20,17 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
             Some(ty2) => vec![Constraint(ty, ty2.clone())],
             None => panic!("Unbound variable: {}", name),
         },
-        Expr::Binop {
-            ty,
-            lhs,
-            rhs,
-            op_ty,
-            ..
-        } => {
-            let (lhs_ty, rhs_ty, out_ty) = match op_ty {
-                OpType::IntOp => (Type::Int, Type::Int, Type::Int),
-                OpType::FloatOp => (Type::Float, Type::Float, Type::Float),
-                OpType::IntCmp => (Type::Int, Type::Int, Type::Bool),
-                OpType::FloatCmp => (Type::Float, Type::Float, Type::Bool),
-                OpType::AnyCmp => (lhs.ty(), lhs.ty(), Type::Bool),
+        Expr::Binop { ty, lhs, rhs, op } => {
+            use Binop::*;
+            use Type::*;
+            let (lhs_ty, rhs_ty, out_ty) = match op {
+                IntAdd | IntSub | IntMul | IntDiv => (Int, Int, Int),
+                IntLt | IntLeq | IntGt | IntGeq => (Int, Int, Bool),
+
+                FloatAdd | FloatSub | FloatMul | FloatDiv => (Float, Float, Float),
+                FloatLt | FloatLeq | FloatGt | FloatGeq => (Float, Float, Bool),
+
+                Eq | Neq => (lhs.ty(), lhs.ty(), Bool),
             };
 
             vec![

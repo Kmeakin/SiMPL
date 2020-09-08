@@ -1,5 +1,5 @@
 use crate::hir::Expr;
-pub use crate::hir::{Lit, Op, OpType, Param, Symbol, Type};
+pub use crate::hir::{Binop, Lit, Param, Symbol, Type};
 use indexmap::{indexmap as imap, IndexMap};
 use std::collections::HashMap;
 
@@ -23,8 +23,7 @@ pub enum CExpr {
         ty: Type,
         lhs: Box<Self>,
         rhs: Box<Self>,
-        op: Op,
-        op_ty: OpType,
+        op: Binop,
     },
     If {
         ty: Type,
@@ -82,18 +81,11 @@ pub fn convert(expr: Expr) -> CExpr {
     match expr {
         Expr::Lit { ty, val } => CExpr::Lit { ty, val },
         Expr::Var { ty, name } => CExpr::Var { ty, name },
-        Expr::Binop {
-            ty,
-            lhs,
-            rhs,
-            op,
-            op_ty,
-        } => CExpr::Binop {
+        Expr::Binop { ty, lhs, rhs, op } => CExpr::Binop {
             ty,
             lhs: box convert(*lhs),
             rhs: box convert(*rhs),
             op,
-            op_ty,
         },
         Expr::If {
             ty,
@@ -165,18 +157,11 @@ fn substitute(expr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
     match expr {
         CExpr::Lit { .. } | CExpr::EnvRef { .. } => expr,
         CExpr::Var { name, .. } => subst.get(&name).unwrap_or(&expr).clone(),
-        CExpr::Binop {
-            ty,
-            lhs,
-            rhs,
-            op,
-            op_ty,
-        } => CExpr::Binop {
+        CExpr::Binop { ty, lhs, rhs, op } => CExpr::Binop {
             ty,
             lhs: box substitute(*lhs, subst),
             rhs: box substitute(*rhs, subst),
             op,
-            op_ty,
         },
         CExpr::If {
             ty,

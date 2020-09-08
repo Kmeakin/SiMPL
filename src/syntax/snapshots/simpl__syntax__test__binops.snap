@@ -14,8 +14,7 @@ Binop {
                 2,
             ),
         },
-        op: Mul,
-        op_ty: IntOp,
+        op: IntMul,
     },
     rhs: Binop {
         lhs: Lit {
@@ -28,9 +27,7 @@ Binop {
                 4,
             ),
         },
-        op: Div,
-        op_ty: IntOp,
+        op: IntDiv,
     },
-    op: Add,
-    op_ty: IntOp,
+    op: IntAdd,
 }

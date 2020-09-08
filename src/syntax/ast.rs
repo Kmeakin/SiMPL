@@ -13,8 +13,7 @@ pub enum Expr {
     Binop {
         lhs: Box<Self>,
         rhs: Box<Self>,
-        op: Op,
-        op_ty: OpType,
+        op: Binop,
     },
     If {
         test: Box<Self>,
@@ -57,26 +56,25 @@ pub struct LetBinding {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum Op {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Lt,
-    Leq,
-    Gt,
-    Geq,
+pub enum Binop {
+    IntAdd,
+    IntSub,
+    IntMul,
+    IntDiv,
+    IntLt,
+    IntLeq,
+    IntGt,
+    IntGeq,
+    FloatAdd,
+    FloatSub,
+    FloatMul,
+    FloatDiv,
+    FloatLt,
+    FloatLeq,
+    FloatGt,
+    FloatGeq,
     Eq,
     Neq,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub enum OpType {
-    IntOp,
-    FloatOp,
-    IntCmp,
-    FloatCmp,
-    AnyCmp,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,4 +1,4 @@
-use super::closure::{CExpr, FreeVars, LetBinding, Lit, Param, Type};
+use super::closure::{Binop, CExpr, FreeVars, LetBinding, Lit, Param, Type};
 use inkwell::{
     builder::Builder,
     context::Context,
@@ -100,6 +100,7 @@ impl<'ctx> Compiler<'ctx> {
         match expr {
             CExpr::Lit { val, .. } => self.compile_lit(val),
             CExpr::Var { name, .. } | CExpr::EnvRef { name, .. } => self.compile_var(ctx, *name),
+            CExpr::Binop { lhs, rhs, op, .. } => self.compile_binop(ctx, lhs, rhs, *op),
             CExpr::If {
                 test, then, els, ..
             } => self.compile_if(ctx, test, then, els),
@@ -134,6 +135,16 @@ impl<'ctx> Compiler<'ctx> {
     fn compile_var(&self, ctx: &Ctx<'ctx>, name: Symbol) -> BasicValueEnum {
         let ptr = ctx.env.get(&name).unwrap();
         self.builder.build_load(*ptr, &name.to_string())
+    }
+
+    fn compile_binop(
+        &self,
+        ctx: &Ctx<'ctx>,
+        lhs: &CExpr,
+        rhs: &CExpr,
+        op: Binop,
+    ) -> BasicValueEnum {
+        todo!()
     }
 
     fn compile_if(

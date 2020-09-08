@@ -37,18 +37,11 @@ impl Expr {
                 ty: ty.apply(subst),
                 name: *name,
             },
-            Self::Binop {
-                ty,
-                lhs,
-                rhs,
-                op,
-                op_ty,
-            } => Self::Binop {
+            Self::Binop { ty, lhs, rhs, op } => Self::Binop {
                 ty: ty.apply(subst),
                 lhs: box lhs.apply(subst),
                 rhs: box rhs.apply(subst),
                 op: *op,
-                op_ty: *op_ty,
             },
             Self::If {
                 ty,
