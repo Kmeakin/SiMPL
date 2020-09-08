@@ -1,5 +1,5 @@
 use crate::{
-    hir::Expr,
+    hir::{Expr, OpType},
     types::ty::{Type, TypeEnv},
 };
 
@@ -20,7 +20,27 @@ fn collect_inner(expr: Expr, tenv: &TypeEnv) -> Constraints {
             Some(ty2) => vec![Constraint(ty, ty2.clone())],
             None => panic!("Unbound variable: {}", name),
         },
-        Expr::Binop { .. } => todo!(),
+        Expr::Binop {
+            ty,
+            lhs,
+            rhs,
+            op_ty,
+            ..
+        } => {
+            let (lhs_ty, rhs_ty, out_ty) = match op_ty {
+                OpType::IntOp => (Type::Int, Type::Int, Type::Int),
+                OpType::FloatOp => (Type::Float, Type::Float, Type::Float),
+                OpType::IntCmp => (Type::Int, Type::Int, Type::Bool),
+                OpType::FloatCmp => (Type::Float, Type::Float, Type::Bool),
+                OpType::AnyCmp => (lhs.ty(), lhs.ty(), Type::Bool),
+            };
+
+            vec![
+                Constraint(lhs.ty(), lhs_ty),
+                Constraint(rhs.ty(), rhs_ty),
+                Constraint(ty, out_ty),
+            ]
+        }
         Expr::If {
             ty,
             test,

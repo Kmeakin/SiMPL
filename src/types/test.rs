@@ -1,7 +1,17 @@
 use crate::{
     ty,
-    types::{ty::Type, *},
+    types::{
+        ty::{Type, Type::*},
+        *,
+    },
 };
+
+#[track_caller]
+fn test_infer(src: &str, expected: Type) {
+    let expr = Expr::from_str(src).unwrap();
+    let ty = type_of(&expr);
+    assert_eq!(ty, expected);
+}
 
 #[test]
 fn infer_identity_fn() {
@@ -33,7 +43,7 @@ fn infer_pred_fn() {
 
 #[test]
 fn infer_inc_fn() {
-    let expr = Expr::from_str(r"let inc = \x -> add x 1 in inc (inc 1)").unwrap();
+    let expr = Expr::from_str(r"let inc = \x -> x + 1 in inc (inc 1)").unwrap();
     let ty = type_of(&expr);
     assert_eq!(ty, ty![Int])
 }
@@ -126,4 +136,15 @@ in
     .unwrap();
     let ty = type_of(&expr);
     assert_eq!(ty, ty![Int => Int])
+}
+
+#[test]
+fn infer_operators() {
+    test_infer("1 + 2", Int);
+    test_infer("1.0 +. 2.0", Float);
+
+    test_infer("1 == 2", Bool);
+    test_infer("1.0 == 2.0", Bool);
+    test_infer("true == false", Bool);
+    test_infer(r"(\x -> x) == (\y -> y)", Bool);
 }

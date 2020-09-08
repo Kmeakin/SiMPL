@@ -74,7 +74,6 @@ pub enum Op {
 pub enum OpType {
     IntOp,
     FloatOp,
-    BoolOp,
     IntCmp,
     FloatCmp,
     AnyCmp,
