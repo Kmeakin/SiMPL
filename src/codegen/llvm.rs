@@ -5,7 +5,7 @@ use inkwell::{
     module::Module,
     types::{BasicType, BasicTypeEnum},
     values::{AnyValue, BasicValue, BasicValueEnum, FunctionValue, PointerValue},
-    AddressSpace, IntPredicate,
+    AddressSpace, FloatPredicate, IntPredicate,
 };
 use simple_symbol::{resolve, Symbol};
 use std::collections::HashMap;
@@ -144,7 +144,55 @@ impl<'ctx> Compiler<'ctx> {
         rhs: &CExpr,
         op: Binop,
     ) -> BasicValueEnum {
-        todo!()
+        let lhs_val = self.compile_expr(ctx, lhs);
+        let rhs_val = self.compile_expr(ctx, rhs);
+        use Binop::*;
+
+        #[rustfmt::skip]
+        macro_rules! int_op {($op:ident, $name:expr) => {self.builder.$op(lhs_val.into_int_value(), rhs_val.into_int_value(), $name) .into()};}
+
+        #[rustfmt::skip]
+        macro_rules! int_cmp {($cmp:expr, $name:expr) => {self.builder.build_int_compare($cmp, lhs_val.into_int_value(), rhs_val.into_int_value(), $name,) .into()};}
+
+        #[rustfmt::skip]
+        macro_rules! float_op {($op:ident, $name:expr) => {self.builder.$op(lhs_val.into_float_value(), rhs_val.into_float_value(), $name,) .into()};}
+
+        #[rustfmt::skip]
+        macro_rules! float_cmp {($cmp:expr, $name:expr) => {self.builder.build_float_compare($cmp, lhs_val.into_float_value(), rhs_val.into_float_value(), $name,) .into()};}
+
+        match op {
+            IntAdd => int_op!(build_int_add, "add"),
+            IntSub => int_op!(build_int_sub, "sub"),
+            IntMul => int_op!(build_int_mul, "mul"),
+            IntDiv => int_op!(build_int_exact_signed_div, "div"),
+
+            IntLt => int_cmp!(IntPredicate::SLT, "cmp"),
+            IntLeq => int_cmp!(IntPredicate::SLE, "cmp"),
+            IntGt => int_cmp!(IntPredicate::SGT, "cmp"),
+            IntGeq => int_cmp!(IntPredicate::SGE, "cmp"),
+
+            FloatAdd => float_op!(build_float_add, "add"),
+            FloatSub => float_op!(build_float_sub, "sub"),
+            FloatMul => float_op!(build_float_mul, "mul"),
+            FloatDiv => float_op!(build_float_div, "div"),
+
+            FloatLt => float_cmp!(FloatPredicate::OLT, "cmp"),
+            FloatLeq => float_cmp!(FloatPredicate::OLE, "cmp"),
+            FloatGt => float_cmp!(FloatPredicate::OGT, "cmp"),
+            FloatGeq => float_cmp!(FloatPredicate::OGE, "cmp"),
+
+            Eq => match lhs.ty() {
+                Type::Bool | Type::Int => int_cmp!(IntPredicate::EQ, "cmp"),
+                Type::Float => float_cmp!(FloatPredicate::OEQ, "cmp"),
+                _ => todo!(),
+            },
+
+            Neq => match lhs.ty() {
+                Type::Bool | Type::Int => int_cmp!(IntPredicate::NE, "cmp"),
+                Type::Float => float_cmp!(FloatPredicate::UNE, "cmp"),
+                _ => todo!(),
+            },
+        }
     }
 
     fn compile_if(
