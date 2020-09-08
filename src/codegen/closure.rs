@@ -1,5 +1,5 @@
 use crate::hir::Expr;
-pub use crate::hir::{Lit, Param, Symbol, Type};
+pub use crate::hir::{Lit, Op, OpType, Param, Symbol, Type};
 use indexmap::{indexmap as imap, IndexMap};
 use std::collections::HashMap;
 
@@ -18,6 +18,13 @@ pub enum CExpr {
     EnvRef {
         ty: Type,
         name: Symbol,
+    },
+    Binop {
+        ty: Type,
+        lhs: Box<Self>,
+        rhs: Box<Self>,
+        op: Op,
+        op_ty: OpType,
     },
     If {
         ty: Type,
@@ -61,6 +68,7 @@ impl CExpr {
             Self::Lit { ty, .. }
             | Self::Var { ty, .. }
             | Self::EnvRef { ty, .. }
+            | Self::Binop { ty, .. }
             | Self::If { ty, .. }
             | Self::Let { ty, .. }
             | Self::Letrec { ty, .. }
@@ -74,7 +82,19 @@ pub fn convert(expr: Expr) -> CExpr {
     match expr {
         Expr::Lit { ty, val } => CExpr::Lit { ty, val },
         Expr::Var { ty, name } => CExpr::Var { ty, name },
-        Expr::Binop { .. } => todo!(),
+        Expr::Binop {
+            ty,
+            lhs,
+            rhs,
+            op,
+            op_ty,
+        } => CExpr::Binop {
+            ty,
+            lhs: box convert(*lhs),
+            rhs: box convert(*rhs),
+            op,
+            op_ty,
+        },
         Expr::If {
             ty,
             test,
@@ -145,6 +165,19 @@ fn substitute(expr: CExpr, subst: &HashMap<Symbol, CExpr>) -> CExpr {
     match expr {
         CExpr::Lit { .. } | CExpr::EnvRef { .. } => expr,
         CExpr::Var { name, .. } => subst.get(&name).unwrap_or(&expr).clone(),
+        CExpr::Binop {
+            ty,
+            lhs,
+            rhs,
+            op,
+            op_ty,
+        } => CExpr::Binop {
+            ty,
+            lhs: box substitute(*lhs, subst),
+            rhs: box substitute(*rhs, subst),
+            op,
+            op_ty,
+        },
         CExpr::If {
             ty,
             test,
@@ -198,7 +231,7 @@ pub fn free_vars(expr: &Expr) -> FreeVars {
     match expr {
         Expr::Lit { .. } => imap![],
         Expr::Var { name, ty } => imap![*name => ty.clone()],
-        Expr::Binop { .. } => todo!(),
+        Expr::Binop { lhs, rhs, .. } => imap_union(free_vars(lhs), free_vars(rhs)),
         Expr::If {
             test, then, els, ..
         } => imap_union(imap_union(free_vars(test), free_vars(then)), free_vars(els)),
