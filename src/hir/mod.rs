@@ -123,6 +123,7 @@ impl Expr {
                 name,
                 ty: gen.next(),
             },
+            ast::Expr::Binop { .. } => todo!(),
             ast::Expr::If { test, then, els } => Self::If {
                 ty: gen.next(),
                 test: box Self::from_ast_inner(*test, gen),

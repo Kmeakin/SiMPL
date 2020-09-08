@@ -10,6 +10,12 @@ pub enum Expr {
     Var {
         name: Symbol,
     },
+    Binop {
+        lhs: Box<Self>,
+        rhs: Box<Self>,
+        op: Op,
+        op_ty: OpType,
+    },
     If {
         test: Box<Self>,
         then: Box<Self>,
@@ -48,6 +54,30 @@ pub struct LetBinding {
     pub name: Symbol,
     pub ann: Option<Type>,
     pub val: Box<Expr>,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum Op {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Lt,
+    Leq,
+    Gt,
+    Geq,
+    Eq,
+    Neq,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum OpType {
+    IntOp,
+    FloatOp,
+    BoolOp,
+    IntCmp,
+    FloatCmp,
+    AnyCmp,
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,0 +1,36 @@
+---
+source: src/syntax/test.rs
+expression: parse(src).unwrap()
+---
+Binop {
+    lhs: Binop {
+        lhs: Lit {
+            val: Int(
+                1,
+            ),
+        },
+        rhs: Lit {
+            val: Int(
+                2,
+            ),
+        },
+        op: Mul,
+        op_ty: IntOp,
+    },
+    rhs: Binop {
+        lhs: Lit {
+            val: Int(
+                3,
+            ),
+        },
+        rhs: Lit {
+            val: Int(
+                4,
+            ),
+        },
+        op: Div,
+        op_ty: IntOp,
+    },
+    op: Add,
+    op_ty: IntOp,
+}

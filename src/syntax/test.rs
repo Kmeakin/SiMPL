@@ -61,3 +61,9 @@ fn function_application() {
     test_parse_ok(r"f g x");
     test_parse_ok(r"f (g x)");
 }
+
+#[test]
+fn binops() {
+    test_parse_ok("1 * 2 + 3 / 4"); // (1 * 2) + (3 / 4)
+    test_parse_ok("1 + 2 * 3 - 4"); // 1 + (2 * 3) - 4
+}
