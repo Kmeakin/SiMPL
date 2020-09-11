@@ -63,7 +63,7 @@ Args       := Expr+
     - eg allow `let id = \x -> x in (id 1 , id false)` to be typed. 
     Currently fails because typing `id 1 ` solves the constraint `id: t0 -> t0` into `id: Int -> Int`, which then fails when trying to type `id false`. `id` should really be `forall t0. t0 -> t0`
     - I think let-polymorphism is also called "rank-1 types"?
-  - [ ] Explicit type-annotations
+  - [x] Explicit type-annotations
     - eg `let x: Int = 5`
     - A strictly HM (ie no rank-2 or higher types) can infer types of all expressions without any annotations required (though inference with rank-2 or higher is undecidiable). 
     So annotations are purely to aid with readability
