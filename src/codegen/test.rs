@@ -116,6 +116,15 @@ in f 555
     ",
         10,
     );
+
+    test_compile_and_execute(
+        r"
+let const5 = \x: Int -> 5,
+    apply = \f, x -> f x,
+in apply const5 0
+",
+        5,
+    );
 }
 
 #[test]
