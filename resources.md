@@ -8,6 +8,7 @@
   - Missing letrec, let-polymorphism
 - https://blog.polybdenum.com/2020/07/11/subtype-inference-by-example-part-2-parsing-and-biunification.html
   - Could be useful if I decide to add more advanced type stuff?
+- http://jeremymikkola.com/posts/2019_01_01_type_inference_intro.html
   
 # Codegen
 - https://github.com/sinistersnare/SinScheme
@@ -15,6 +16,5 @@
 - http://matt.might.net/articles/compiling-scheme-to-c/
   - Closure conversion
 
-https://jozefg.bitbucket.io/posts/2015-03-24-pcf.html
-https://danilafe.com/blog/00_compiler_intro/
-https://dev.realworldocaml.org/runtime-memory-layout.html
+# Runtime
+- https://dev.realworldocaml.org/runtime-memory-layout.html
