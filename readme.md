@@ -28,6 +28,7 @@ Expr := LitExpr
       | LetrecExpr
       | LambdaExpr
       | AppExpr
+      | OpExpr
 
 LitExpr := Int | Float | Bool
 Int     := [0-9]+
@@ -50,6 +51,11 @@ Params     := Ident,+
 
 AppExpr    := Expr Args
 Args       := Expr+
+
+OpExpr     := Expr Op Expr
+Op         := "+"  | "-"  | "*"  | "/"  | "<"  | ">"  | "<="  | ">="
+            | ".+" | ".-" | ".*" | "./" | ".<" | ".>" | ".<=" | ".>="
+            | "==" | "!=" 
 ```
 
 ## Type system
@@ -73,3 +79,7 @@ Args       := Expr+
 - Implemented in `src/codegen`
 - [x] Closure conversion
 - [x] LLVM
+- [ ] Use boxed representation
+  - Currently there is no way to generate code for a value with type variables in its type
+    eg `let id: t1 -> t1 = \x -> x in id`
+  - Boxing all values would both allow avoiding monomorphisation, and allow generating code for values with type variables
